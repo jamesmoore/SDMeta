@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDMetaTool", "SDMetaTool\SDMetaTool.csproj", "{F1576EBD-E13F-47D1-93A0-A07EB5B4E75E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDMetaToolTest", "SDMetaToolTest\SDMetaToolTest.csproj", "{04A6E576-9D7D-41F3-A586-C26E924A0FBA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F1576EBD-E13F-47D1-93A0-A07EB5B4E75E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1576EBD-E13F-47D1-93A0-A07EB5B4E75E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1576EBD-E13F-47D1-93A0-A07EB5B4E75E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1576EBD-E13F-47D1-93A0-A07EB5B4E75E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04A6E576-9D7D-41F3-A586-C26E924A0FBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04A6E576-9D7D-41F3-A586-C26E924A0FBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04A6E576-9D7D-41F3-A586-C26E924A0FBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04A6E576-9D7D-41F3-A586-C26E924A0FBA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8C475C70-6954-452D-A5BA-8816FCC11AB3}
+	EndGlobalSection
+EndGlobal

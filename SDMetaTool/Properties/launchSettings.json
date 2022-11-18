@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SDMetaTool": {
+      "commandName": "Project",
+      "commandLineArgs": "list \\\\nas\\temp\\sd"
+    }
+  }
+}
