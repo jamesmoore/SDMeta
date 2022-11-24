@@ -1,6 +1,12 @@
-﻿using NLog;
+﻿using Coderanger.ImageInfo.Decoders.Metadata;
+using Coderanger.ImageInfo;
+using NLog;
 using System;
+using System.Diagnostics;
 using System.IO.Abstractions;
+using System.IO;
+using System.Linq;
+
 namespace SDMetaTool
 {
     public class PngFileLoader : IPngFileLoader
@@ -19,7 +25,7 @@ namespace SDMetaTool
 
             try
             {
-                return BuildPngFile(filename);
+                return ReadPngFile(fileSystem, filename);
             }
             catch (Exception ex)
             {
@@ -28,10 +34,36 @@ namespace SDMetaTool
             }
         }
 
-        private PngFile BuildPngFile(string filename)
+        public PngFile ReadPngFile(IFileSystem fileSystem, string filename)
         {
-            var track = new PngFile(fileSystem, filename);
-            return track;
+            var fileInfo = fileSystem.FileInfo.FromFileName(filename);
+
+            var pngfile = new PngFile()
+            {
+                LastUpdated = fileInfo.LastWriteTime,
+                Filename = fileInfo.FullName,
+            };
+
+            using (var stream = fileSystem.File.OpenRead(filename))
+            {
+                var imageInfo = ImageInfo.Get(stream);
+
+                if (imageInfo.Metadata?.TryGetValue(MetadataProfileType.PngText, out var tags) ?? false && tags is not null)
+                {
+                    foreach (var tag in tags.Where(t => t is not null && t.HasValue))
+                    {
+                        if (tag.TryGetValue(out var metadataValue) && metadataValue is not null)
+                        {
+                            if (metadataValue.TagName == "parameters")
+                            {
+                                pngfile.Parameters = metadataValue.Value.ToString();
+                            }
+                            Debug.WriteLine($"{metadataValue.TagName} = {metadataValue.Value}");
+                        }
+                    }
+                }
+            }
+            return pngfile;
         }
     }
 }

@@ -88,7 +88,7 @@ namespace SDMetaTool
 
         private PngFile PngFileDTOToPngFile(PngFileDTO trackDTO)
         {
-            return new PngFile(fileSystem)
+            return new PngFile()
             {
                 Filename = trackDTO.Filename,
                 LastUpdated = trackDTO.LastUpdated,
@@ -112,6 +112,5 @@ namespace SDMetaTool
         public string Filename { get; set; }
         public DateTime LastUpdated { get; set; }
         public string Parameters { get; set; }
-
     }
 }
