@@ -12,12 +12,19 @@ namespace SDMetaTool
 {
     public class PngFile
     {
+        private const string NegativePromptPrefix = "Negative prompt:";
+
         public string Filename { get; set; }
         public DateTime LastUpdated { get; set; }
         public string Parameters { get; set; }
 
         public GenerationParams GetParameters()
         {
+            if(string.IsNullOrWhiteSpace(Parameters))
+            {
+                return new GenerationParams();
+            }
+
             var re_param_code = new Regex(@"\s*([\w ]+):\s*(""(?:\\|\""|[^\""])+""|[^,]*)(?:,|$)");
             var re_params = new Regex("^(?:" + re_param_code.ToString() + "){3,}$");
             var re_imagesize = new Regex(@"^(\d+)x(\d+)$");
@@ -35,12 +42,13 @@ namespace SDMetaTool
 
             var positive = new List<string>();
             var negative = new List<string>();
-            var negativeStart = lines.FirstOrDefault(p => p.StartsWith("Negative prompt:"));
+            var negativeStart = lines.FirstOrDefault(p => p.StartsWith(NegativePromptPrefix));
             if(negativeStart != null)
             {
                 var negativePosition = lines.IndexOf(negativeStart);
                 positive = lines.Take(negativePosition).ToList();
                 negative = lines.Skip(negativePosition).ToList();
+                negative[0] = negative[0].Substring(NegativePromptPrefix.Length);
             }
             else
             {
@@ -50,7 +58,7 @@ namespace SDMetaTool
             return new GenerationParams()
             {
                 Prompt = string.Join('\n', positive).Trim(),
-                NegativePrompt = string.Join('\n', negative).Substring(16).Trim(),
+                NegativePrompt = string.Join('\n', negative).Trim(),
                 Params = parameters,
             };
         }

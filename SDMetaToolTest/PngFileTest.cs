@@ -12,6 +12,20 @@ namespace SDMetaToolTest
     public class PngFileTest
     {
         [TestMethod]
+        public void PngFile_GetParameters_Null_Test()
+        {
+            var sut = new PngFile()
+            {
+                Parameters = null
+            };
+
+            var parameters = sut.GetParameters();
+            Assert.IsNotNull(parameters);
+            Assert.AreEqual(null, parameters.Prompt);
+            Assert.AreEqual(null, parameters.NegativePrompt);
+        }
+
+        [TestMethod]
         public void PngFile_GetParameters_Test()
         {
             var sut = new PngFile()
@@ -26,11 +40,39 @@ Steps: 30, Sampler: DPM++ 2M Karras, CFG scale: 11, Seed: 358940890, Size: 704x7
 
             var parameters = sut.GetParameters();
             Assert.IsNotNull(parameters);
-            StringAssert.StartsWith(parameters.Prompt, "(cute" );
-            StringAssert.EndsWith(parameters.Prompt, "Hokusai," );
+            StringAssert.StartsWith(parameters.Prompt, "(cute");
+            StringAssert.EndsWith(parameters.Prompt, "Hokusai,");
 
             StringAssert.StartsWith(parameters.NegativePrompt, "lowres");
             StringAssert.EndsWith(parameters.NegativePrompt, "artist name");
+        }
+
+        [TestMethod]
+        public void PngFile_GetParameters_Positive_Only_Test()
+        {
+            var sut = new PngFile()
+            {
+                Parameters = @"cute cat",
+            };
+
+            var parameters = sut.GetParameters();
+            Assert.IsNotNull(parameters);
+            Assert.AreEqual("cute cat", parameters.Prompt);
+            Assert.AreEqual(string.Empty, parameters.NegativePrompt);
+        }
+
+        [TestMethod]
+        public void PngFile_GetParameters_Negative_Only_Test()
+        {
+            var sut = new PngFile()
+            {
+                Parameters = "Negative prompt: lowres",
+            };
+
+            var parameters = sut.GetParameters();
+            Assert.IsNotNull(parameters);
+            Assert.AreEqual(string.Empty, parameters.Prompt);
+            Assert.AreEqual("lowres", parameters.NegativePrompt);
         }
 
 
