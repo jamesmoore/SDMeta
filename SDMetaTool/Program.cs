@@ -26,9 +26,15 @@ namespace SDMetaTool
             listCommand.AddOption(outfileOption);
             listCommand.SetHandler((string path, string outfile) => processor.ProcessList(path, new CSVPngFileLister(outfile)), pathArgument, outfileOption);
 
+            var infoCommand = new Command("info", "Info on files.");
+            infoCommand.AddArgument(pathArgument);
+            infoCommand.AddOption(outfileOption);
+            infoCommand.SetHandler((string path, string outfile) => processor.ProcessList(path, new SummaryInfo()), pathArgument, outfileOption);
+
             var parent = new RootCommand()
             {
                listCommand,
+               infoCommand,
             };
 
             var result = await parent.InvokeAsync(args);
