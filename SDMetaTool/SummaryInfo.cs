@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Humanizer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,8 +17,8 @@ namespace SDMetaTool
             }).ToList();
             var distinctPrompts = allFiles.Select(p => p.Params.Prompt).Distinct().ToList();
 
-            Console.WriteLine($"{allFiles.Count} files");
-            Console.WriteLine($"{allFiles.Sum(p => p.PngFile.Length)} bytes");
+            Console.WriteLine($"{allFiles.Count} png files");
+            Console.WriteLine($"{allFiles.Sum(p => p.PngFile.Length).Bytes().Humanize()} stored");
             Console.WriteLine($"{distinctPrompts.Count} distinct prompts");
         }
     }
