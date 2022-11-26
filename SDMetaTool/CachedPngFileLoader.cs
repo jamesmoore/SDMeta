@@ -30,10 +30,7 @@ namespace SDMetaTool
                 logger.Debug($"Reading cache at {path}");
                 var cacheJson = fileSystem.File.ReadAllText(path);
                 var deserialised = JsonSerializer.Deserialize<List<PngFileDTO>>(cacheJson);
-
-                var grouped = deserialised.GroupBy(p => p.Filename).Where(p => p.Count() == 1);
-                var tracks = grouped.SelectMany(p => p);
-                cache = tracks.ToDictionary(p => p.Filename, p => PngFileDTOToPngFile(p));
+                cache = deserialised.ToDictionary(p => p.Filename, p => PngFileDTOToPngFile(p));
             }
             else
             {
@@ -59,7 +56,7 @@ namespace SDMetaTool
                 WriteIndented = true,
             });
 
-            string path1 = fileSystem.FileInfo.FromFileName(path).Directory.FullName;
+            string path1 = fileSystem.FileInfo.New(path).Directory.FullName;
             if (fileSystem.Directory.Exists(path1) == false)
             {
                 fileSystem.Directory.CreateDirectory(path1);
@@ -69,24 +66,25 @@ namespace SDMetaTool
 
         public PngFile GetPngFile(string filename)
         {
-            var fileInfo = fileSystem.FileInfo.FromFileName(filename);
+            var fileInfo = fileSystem.FileInfo.New(filename);
+            var realFileName = fileInfo.FullName;
 
-            if (cache.ContainsKey(filename) && cache[filename].LastUpdated == fileInfo.LastWriteTime)
+            if (cache.TryGetValue(realFileName, out PngFile value) && value.LastUpdated == fileInfo.LastWriteTime)
             {
-                return cache[filename];
+                return cache[realFileName];
             }
             else
             {
-                var info = inner.GetPngFile(filename);
+                var info = inner.GetPngFile(realFileName);
                 if (info != null)
                 {
-                    cache[filename] = info;
+                    cache[realFileName] = info;
                 }
                 return info;
             }
         }
 
-        private PngFile PngFileDTOToPngFile(PngFileDTO trackDTO)
+        private static PngFile PngFileDTOToPngFile(PngFileDTO trackDTO)
         {
             return new PngFile()
             {
@@ -97,7 +95,7 @@ namespace SDMetaTool
             };
         }
 
-        private PngFileDTO PngFileToPngFileDTO(PngFile track)
+        private static PngFileDTO PngFileToPngFileDTO(PngFile track)
         {
             return new PngFileDTO()
             {
@@ -113,7 +111,7 @@ namespace SDMetaTool
     {
         public string Filename { get; set; }
         public DateTime LastUpdated { get; set; }
-        public long Length { get; internal set; }
+        public long Length { get; set; }
         public string Parameters { get; set; }
     }
 }
