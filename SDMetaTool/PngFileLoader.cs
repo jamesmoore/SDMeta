@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO.Abstractions;
 using System.IO;
 using System.Linq;
+using Coderanger.ImageInfo.Decoders.Metadata.Png;
 
 namespace SDMetaTool
 {
@@ -36,12 +37,13 @@ namespace SDMetaTool
 
         public PngFile ReadPngFile(IFileSystem fileSystem, string filename)
         {
-            var fileInfo = fileSystem.FileInfo.FromFileName(filename);
+            var fileInfo = fileSystem.FileInfo.New(filename);
 
             var pngfile = new PngFile()
             {
                 LastUpdated = fileInfo.LastWriteTime,
                 Filename = fileInfo.FullName,
+                Length = fileInfo.Length,
             };
 
             using (var stream = fileSystem.File.OpenRead(filename))
@@ -54,11 +56,10 @@ namespace SDMetaTool
                     {
                         if (tag.TryGetValue(out var metadataValue) && metadataValue is not null)
                         {
-                            if (metadataValue.TagName == "parameters")
+                            if (metadataValue.TagName == "parameters" && metadataValue.Value is PngText)
                             {
-                                pngfile.Parameters = metadataValue.Value.ToString();
+                                pngfile.Parameters = (metadataValue.Value as PngText).TextValue;
                             }
-                            Debug.WriteLine($"{metadataValue.TagName} = {metadataValue.Value}");
                         }
                     }
                 }

@@ -16,6 +16,7 @@ namespace SDMetaTool
 
         public string Filename { get; set; }
         public DateTime LastUpdated { get; set; }
+        public long Length { get; set; }
         public string Parameters { get; set; }
 
         public GenerationParams GetParameters()

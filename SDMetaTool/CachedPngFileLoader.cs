@@ -93,6 +93,7 @@ namespace SDMetaTool
                 Filename = trackDTO.Filename,
                 LastUpdated = trackDTO.LastUpdated,
                 Parameters = trackDTO.Parameters,
+                Length = trackDTO.Length,
             };
         }
 
@@ -103,6 +104,7 @@ namespace SDMetaTool
                 Filename = track.Filename,
                 LastUpdated = track.LastUpdated,
                 Parameters = track.Parameters,
+                Length = track.Length,
             };
         }
     }
@@ -111,6 +113,7 @@ namespace SDMetaTool
     {
         public string Filename { get; set; }
         public DateTime LastUpdated { get; set; }
+        public long Length { get; internal set; }
         public string Parameters { get; set; }
     }
 }
