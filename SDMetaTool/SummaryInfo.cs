@@ -1,5 +1,4 @@
-﻿using Humanizer;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,10 +15,18 @@ namespace SDMetaTool
                 Params = p.GetParameters() 
             }).ToList();
             var distinctPrompts = allFiles.Select(p => p.Params.Prompt).Distinct().ToList();
+            var distinctFullPrompts = allFiles.Select(p => new
+            {
+                p.Params.Prompt,
+                p.Params.NegativePrompt
+            }).Distinct().ToList();
+
 
             Console.WriteLine($"{allFiles.Count} png files");
             Console.WriteLine($"{GetBytesReadable(allFiles.Sum(p => p.PngFile.Length))} stored");
-            Console.WriteLine($"{distinctPrompts.Count} distinct prompts");
+            Console.WriteLine($"{distinctPrompts.Count} distinct positive prompts");
+            Console.WriteLine($"{distinctFullPrompts.Count} distinct positive & negative prompts");
+
         }
 
         // Returns the human-readable file size for an arbitrary, 64-bit file size 
