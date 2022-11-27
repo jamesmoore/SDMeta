@@ -11,9 +11,9 @@ namespace SDMetaTool
     {
         private static readonly Regex sWhitespace = new Regex(@"\s+");
 
-        public string Prompt { get; set; }
-        public string NegativePrompt { get; set; }
-        public string Params { get; set; }
+        public string Prompt { get; set; } = string.Empty;
+        public string NegativePrompt { get; set; } = string.Empty;
+        public string Params { get; set; } = string.Empty;
 
         public string NormalisedPrompt => sWhitespace.Replace(Prompt, " ");
         public string NormalisedNegativePrompt => sWhitespace.Replace(Prompt, " ");
