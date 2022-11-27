@@ -21,8 +21,8 @@ namespace SDMetaToolTest
 
             var parameters = sut.GetParameters();
             Assert.IsNotNull(parameters);
-            Assert.AreEqual(null, parameters.Prompt);
-            Assert.AreEqual(null, parameters.NegativePrompt);
+            Assert.AreEqual(string.Empty, parameters.Prompt);
+            Assert.AreEqual(string.Empty, parameters.NegativePrompt);
         }
 
         [TestMethod]
