@@ -14,11 +14,11 @@ namespace SDMetaTool
                 PngFile = p, 
                 Params = p.GetParameters() 
             }).ToList();
-            var distinctPrompts = allFiles.Select(p => p.Params.Prompt).Distinct().ToList();
+            var distinctPrompts = allFiles.Select(p => p.Params.NormalisedPrompt).Distinct().ToList();
             var distinctFullPrompts = allFiles.Select(p => new
             {
-                p.Params.Prompt,
-                p.Params.NegativePrompt
+                p.Params.NormalisedPrompt,
+                p.Params.NormalisedNegativePrompt
             }).Distinct().ToList();
 
 
