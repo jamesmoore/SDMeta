@@ -1,18 +1,16 @@
-﻿using Coderanger.ImageInfo;
-using Coderanger.ImageInfo.Decoders.Metadata;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace SDMetaTool
 {
-    public class PngFile
+    public partial class PngFile
     {
         private const string NegativePromptPrefix = "Negative prompt:";
+        private const string ParameterRegexString = @"\s*([\w ]+):\s*(""(?:\\|\""|[^\""])+""|[^,]*)(?:,|$)";
+        private const string ParamsRegexString = "^(?:" + ParameterRegexString + "){3,}$";
+        private const string ImageSize = @"^(\d+)x(\d+)$";
 
         public string Filename { get; set; }
         public DateTime LastUpdated { get; set; }
@@ -21,14 +19,13 @@ namespace SDMetaTool
 
         public GenerationParams GetParameters()
         {
-            if(string.IsNullOrWhiteSpace(Parameters))
+            if (string.IsNullOrWhiteSpace(Parameters))
             {
                 return new GenerationParams();
             }
 
-            var re_param_code = new Regex(@"\s*([\w ]+):\s*(""(?:\\|\""|[^\""])+""|[^,]*)(?:,|$)");
-            var re_params = new Regex("^(?:" + re_param_code.ToString() + "){3,}$");
-            var re_imagesize = new Regex(@"^(\d+)x(\d+)$");
+            var re_params = ParametersRegex();
+            var re_imagesize = ImageSizeRegex();
 
             var lines = Parameters.Trim().Split('\n').Select(p => p.Trim()).ToList();
             var lastLine = lines.Last();
@@ -38,13 +35,25 @@ namespace SDMetaTool
             if (re_params.Match(lastLine).Success)
             {
                 parameters = lastLine;
-                lines = lines.Take(lines.Count -1).ToList();
+                lines = lines.Take(lines.Count - 1).ToList();
             }
 
+            (string positive, string negative) = SplitPrompts(lines);
+
+            return new GenerationParams()
+            {
+                Prompt = positive,
+                NegativePrompt = negative,
+                Params = parameters,
+            };
+        }
+
+        private static (string positive, string negative) SplitPrompts(List<string> lines)
+        {
             var positive = new List<string>();
             var negative = new List<string>();
             var negativeStart = lines.FirstOrDefault(p => p.StartsWith(NegativePromptPrefix));
-            if(negativeStart != null)
+            if (negativeStart != null)
             {
                 var negativePosition = lines.IndexOf(negativeStart);
                 positive = lines.Take(negativePosition).ToList();
@@ -56,12 +65,15 @@ namespace SDMetaTool
                 positive = lines;
             }
 
-            return new GenerationParams()
-            {
-                Prompt = string.Join('\n', positive).Trim(),
-                NegativePrompt = string.Join('\n', negative).Trim(),
-                Params = parameters,
-            };
+            var prompt = string.Join('\n', positive).Trim();
+            var negativeString = string.Join('\n', negative).Trim();
+
+            return (prompt, negativeString);
         }
+
+        [GeneratedRegex(ParamsRegexString)]
+        private static partial Regex ParametersRegex();
+        [GeneratedRegex(ImageSize)]
+        private static partial Regex ImageSizeRegex();
     }
 }

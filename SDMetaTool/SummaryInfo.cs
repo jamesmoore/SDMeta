@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SDMetaTool
 {
@@ -10,9 +8,10 @@ namespace SDMetaTool
     {
         public void ProcessPngFiles(IEnumerable<PngFile> tracks, string root)
         {
-            var allFiles = tracks.Select(p => new { 
-                PngFile = p, 
-                Params = p.GetParameters() 
+            var allFiles = tracks.Select(p => new
+            {
+                PngFile = p,
+                Params = p.GetParameters()
             }).ToList();
             var distinctPrompts = allFiles.Select(p => p.Params.NormalisedPrompt).Distinct().ToList();
             var distinctFullPrompts = allFiles.Select(p => new

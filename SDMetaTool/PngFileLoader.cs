@@ -1,12 +1,10 @@
-﻿using Coderanger.ImageInfo.Decoders.Metadata;
-using Coderanger.ImageInfo;
+﻿using Coderanger.ImageInfo;
+using Coderanger.ImageInfo.Decoders.Metadata;
+using Coderanger.ImageInfo.Decoders.Metadata.Png;
 using NLog;
 using System;
-using System.Diagnostics;
 using System.IO.Abstractions;
-using System.IO;
 using System.Linq;
-using Coderanger.ImageInfo.Decoders.Metadata.Png;
 
 namespace SDMetaTool
 {
