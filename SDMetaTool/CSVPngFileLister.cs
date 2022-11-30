@@ -40,7 +40,7 @@ namespace SDMetaTool
                 tracks = groupedBy.Select(p => p.OrderBy(p => p.PngFile.LastUpdated).First().PngFile);
             }
 
-            csv.WriteRecords(tracks.Select(ToCSV));
+            csv.WriteRecords(tracks.OrderBy(p => p.LastUpdated).Select(ToCSV));
         }
 
         private static CSVEntry ToCSV(PngFile p)
