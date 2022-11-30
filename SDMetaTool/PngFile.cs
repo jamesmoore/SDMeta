@@ -27,7 +27,22 @@ namespace SDMetaTool
             var re_params = ParametersRegex();
             var re_imagesize = ImageSizeRegex();
 
-            var lines = Parameters.Trim().Split('\n').Select(p => p.Trim()).ToList();
+
+            var fullList = Parameters.Trim().Split('\n').Select(p => p.Trim()).ToList();
+
+            var warningLine = fullList.FirstOrDefault(p => p.StartsWith("Warning:"));
+
+            var warningLineString = string.Empty;
+
+            if (warningLine != null)
+            {
+                var warningStart = fullList.IndexOf(warningLine);
+                var warningLines = fullList.Skip(warningStart).ToList();
+                fullList = fullList.Take(warningStart).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
+                warningLineString = string.Join('\n', warningLines);
+            }
+
+            var lines = fullList;
             var lastLine = lines.Last();
 
             var parameters = string.Empty;
@@ -45,6 +60,7 @@ namespace SDMetaTool
                 Prompt = positive,
                 NegativePrompt = negative,
                 Params = parameters,
+                Warnings = warningLineString,
             };
         }
 

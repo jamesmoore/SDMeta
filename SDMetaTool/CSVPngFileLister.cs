@@ -54,6 +54,7 @@ namespace SDMetaTool
                 Prompt = generationParams.Prompt,
                 NegativePrompt = generationParams.NegativePrompt,
                 Parameters = generationParams.Params,
+                Warnings = generationParams.Warnings,
             };
         }
 
@@ -65,6 +66,7 @@ namespace SDMetaTool
             public string Prompt { get; set; }
             public string NegativePrompt { get; set; }
             public string Parameters { get; set; }
+            public string Warnings { get; set; }
 
         }
     }
