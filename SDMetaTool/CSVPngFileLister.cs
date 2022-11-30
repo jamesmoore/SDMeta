@@ -10,16 +10,36 @@ namespace SDMetaTool
     class CSVPngFileLister : IPngFileListProcessor
     {
         private readonly string outfile;
+        private readonly bool distinct;
 
-        public CSVPngFileLister(string outfile)
+        public CSVPngFileLister(string outfile, bool distinct)
         {
             this.outfile = outfile;
+            this.distinct = distinct;
         }
 
         public void ProcessPngFiles(IEnumerable<PngFile> tracks, string root)
         {
             using var writer = new StreamWriter(outfile);
             using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+
+            if (distinct)
+            {
+                var allFiles = tracks.Select(p => new
+                {
+                    PngFile = p,
+                    Params = p.GetParameters()
+                }).ToList();
+
+                var groupedBy = allFiles.GroupBy(p => new
+                {
+                    p.Params.NormalisedPrompt,
+                    p.Params.NormalisedNegativePrompt
+                });
+
+                tracks = groupedBy.Select(p => p.OrderBy(p => p.PngFile.LastUpdated).First().PngFile);
+            }
+
             csv.WriteRecords(tracks.Select(ToCSV));
         }
 

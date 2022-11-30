@@ -23,8 +23,10 @@ namespace SDMetaTool
             var listCommand = new Command("list", "List sd metadata to csv.");
             listCommand.AddArgument(pathArgument);
             var outfileOption = new Option<string>(new string[] { "--outfile", "-o" }, () => "sdpnginfo.csv", "Output file name.");
+            var distinctOption = new Option<bool>(new string[] { "--distinct", "-d" }, () => false, "List distinct prompts with earliest file.");
             listCommand.AddOption(outfileOption);
-            listCommand.SetHandler((string path, string outfile) => processor.ProcessList(path, new CSVPngFileLister(outfile)), pathArgument, outfileOption);
+            listCommand.AddOption(distinctOption);
+            listCommand.SetHandler((string path, string outfile, bool distinct) => processor.ProcessList(path, new CSVPngFileLister(outfile, distinct)), pathArgument, outfileOption, distinctOption);
 
             var infoCommand = new Command("info", "Info on files.");
             infoCommand.AddArgument(pathArgument);
