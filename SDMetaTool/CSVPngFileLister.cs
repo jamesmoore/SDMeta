@@ -57,7 +57,8 @@ namespace SDMetaTool
                 Prompt = generationParams.Prompt,
                 NegativePrompt = generationParams.NegativePrompt,
                 Parameters = generationParams.Params,
-                Warnings = generationParams.Warnings,
+                Warnings = generationParams.Warnings, 
+                Count = count
             };
         }
 
