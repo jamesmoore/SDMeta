@@ -1,6 +1,7 @@
 ﻿using CsvHelper;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -23,27 +24,29 @@ namespace SDMetaTool
             using var writer = new StreamWriter(outfile);
             using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
 
-            if (distinct)
-            {
-                var allFiles = tracks.Select(p => new
-                {
-                    PngFile = p,
-                    Params = p.GetParameters()
-                }).ToList();
-
-                var groupedBy = allFiles.GroupBy(p => new
-                {
-                    p.Params.NormalisedPrompt,
-                    p.Params.NormalisedNegativePrompt
-                });
-
-                tracks = groupedBy.Select(p => p.OrderBy(p => p.PngFile.LastUpdated).First().PngFile);
-            }
-
-            csv.WriteRecords(tracks.OrderBy(p => p.LastUpdated).Select(ToCSV));
+            var csvs = distinct ? GetCSVDistinct(tracks) : tracks.OrderBy(p => p.LastUpdated).Select(p => ToCSV(p, 1));
+            csv.WriteRecords(csvs);
         }
 
-        private static CSVEntry ToCSV(PngFile p)
+        private IEnumerable<CSVEntry> GetCSVDistinct(IEnumerable<PngFile> tracks)
+        {
+            var allFiles = tracks.Select(p => new
+            {
+                PngFile = p,
+                Params = p.GetParameters()
+            }).ToList();
+
+            var groupedBy = allFiles.GroupBy(p => new
+            {
+                p.Params.NormalisedPrompt,
+                p.Params.NormalisedNegativePrompt
+            });
+
+            var tracks2 = groupedBy.Select(p => ToCSV(p.OrderBy(p => p.PngFile.LastUpdated).First().PngFile, p.Count()));
+            return tracks2;
+        }
+
+        private static CSVEntry ToCSV(PngFile p, int count)
         {
             var generationParams = p.GetParameters();
             return new CSVEntry()
@@ -67,6 +70,7 @@ namespace SDMetaTool
             public string NegativePrompt { get; set; }
             public string Parameters { get; set; }
             public string Warnings { get; set; }
+            public int Count { get; set; }
 
         }
     }
