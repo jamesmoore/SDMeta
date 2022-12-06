@@ -42,7 +42,7 @@ namespace SDMetaTool
                 p.Params.NormalisedNegativePrompt
             });
 
-            var tracks2 = groupedBy.Select(p => ToCSV(p.OrderBy(p => p.PngFile.LastUpdated).First().PngFile, p.Count()));
+            var tracks2 = groupedBy.Select(p => ToCSV(p.OrderBy(p => p.PngFile.LastUpdated).First().PngFile, p.Count())).OrderBy(p => p.LastUpdated);
             return tracks2;
         }
 
