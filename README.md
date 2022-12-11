@@ -2,6 +2,21 @@
 
 Bulk extract metadata from SD generated PNG files.
 
+## Command line dsage
+
+```
+Usage:
+  SDMetaTool [command] [options]
+
+Options:
+  --version       Show version information
+  -?, -h, --help  Show help and usage information
+
+Commands:
+  list <path>  List sd metadata to csv.
+  info <path>  Info on files.
+```
+
 ## Running on windows
 
 ```ps
