@@ -2,7 +2,7 @@
 
 Bulk extract metadata from SD generated PNG files.
 
-## Command line dsage
+## Command line usage
 
 ```
 Usage:
