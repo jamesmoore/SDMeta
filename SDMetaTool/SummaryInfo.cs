@@ -26,6 +26,13 @@ namespace SDMetaTool
             Console.WriteLine($"{distinctPrompts.Count} distinct positive prompts");
             Console.WriteLine($"{distinctFullPrompts.Count} distinct positive & negative prompts");
 
+            var modelGroups = allFiles.Select(p => p.Params.ModelHash).GroupBy(p => p).Select(p => new { ModelHash = p.Key, Count = p.Count()  }).ToList().OrderByDescending(p => p.Count);
+
+            Console.WriteLine($"Models:");
+            foreach(var modelGroup in modelGroups)
+            {
+                Console.WriteLine($"\t{modelGroup.ModelHash}\t{modelGroup.Count}");
+            }
         }
 
         // Returns the human-readable file size for an arbitrary, 64-bit file size 

@@ -40,6 +40,8 @@ Steps: 30, Sampler: DPM++ 2M Karras, CFG scale: 11, Seed: 358940890, Size: 704x7
 
             StringAssert.StartsWith(parameters.NegativePrompt, "lowres");
             StringAssert.EndsWith(parameters.NegativePrompt, "artist name");
+
+            Assert.AreEqual("2700c435", parameters.ModelHash);
         }
 
         [TestMethod]

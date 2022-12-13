@@ -8,8 +8,8 @@ namespace SDMetaTool
     public partial class PngFile
     {
         private const string NegativePromptPrefix = "Negative prompt:";
-        private const string ParameterRegexString = @"\s*([\w ]+):\s*(""(?:\\|\""|[^\""])+""|[^,]*)(?:,|$)";
-        private const string ParamsRegexString = "^(?:" + ParameterRegexString + "){3,}$";
+        private const string SingleParameterRegexString = @"\s*([\w ]+):\s*(""(?:\\|\""|[^\""])+""|[^,]*)(?:,|$)";
+        private const string MultipleParameterRegexString = "^(?:" + SingleParameterRegexString + "){3,}$";
         private const string ImageSize = @"^(\d+)x(\d+)$";
 
         public string Filename { get; set; }
@@ -24,7 +24,7 @@ namespace SDMetaTool
                 return new GenerationParams();
             }
 
-            var re_params = ParametersRegex();
+            var re_params = MultipleParameterRegex();
             var re_imagesize = ImageSizeRegex();
 
 
@@ -47,10 +47,18 @@ namespace SDMetaTool
 
             var parameters = string.Empty;
 
-            if (re_params.Match(lastLine).Success)
+            var paramsMatch = re_params.Match(lastLine);
+
+            var parametersLookup = Enumerable.Empty<string>().ToLookup(p => p, p => p);
+
+            if (paramsMatch.Success)
             {
                 parameters = lastLine;
                 lines = lines.Take(lines.Count - 1).ToList();
+
+                var parametersDecoded = SingleParameterRegex().Matches(lastLine);
+
+                parametersLookup = parametersDecoded.Select(p => new { Key = p.Groups[1].Value, Value = p.Groups[2].Value }).ToLookup(p => p.Key, p => p.Value);
             }
 
             (string positive, string negative) = SplitPrompts(lines);
@@ -61,6 +69,7 @@ namespace SDMetaTool
                 NegativePrompt = negative,
                 Params = parameters,
                 Warnings = warningLineString,
+                ModelHash = parametersLookup["Model hash"]?.FirstOrDefault(),
             };
         }
 
@@ -87,8 +96,11 @@ namespace SDMetaTool
             return (prompt, negativeString);
         }
 
-        [GeneratedRegex(ParamsRegexString)]
-        private static partial Regex ParametersRegex();
+
+        [GeneratedRegex(SingleParameterRegexString)]
+        private static partial Regex SingleParameterRegex();
+        [GeneratedRegex(MultipleParameterRegexString)]
+        private static partial Regex MultipleParameterRegex();
         [GeneratedRegex(ImageSize)]
         private static partial Regex ImageSizeRegex();
     }

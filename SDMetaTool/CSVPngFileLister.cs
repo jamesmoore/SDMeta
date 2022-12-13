@@ -24,8 +24,13 @@ namespace SDMetaTool
             using var writer = new StreamWriter(outfile);
             using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
 
-            var csvs = distinct ? GetCSVDistinct(tracks) : tracks.OrderBy(p => p.LastUpdated).Select(p => ToCSV(p, 1));
+            var csvs = distinct ? GetCSVDistinct(tracks) : GetCSVPerItem(tracks);
             csv.WriteRecords(csvs);
+        }
+
+        private static IEnumerable<CSVEntry> GetCSVPerItem(IEnumerable<PngFile> tracks)
+        {
+            return tracks.OrderBy(p => p.LastUpdated).Select(p => ToCSV(p, 1));
         }
 
         private IEnumerable<CSVEntry> GetCSVDistinct(IEnumerable<PngFile> tracks)
