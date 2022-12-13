@@ -1,7 +1,6 @@
 ﻿using CsvHelper;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -63,7 +62,8 @@ namespace SDMetaTool
                 NegativePrompt = generationParams.NegativePrompt,
                 Parameters = generationParams.Params,
                 Warnings = generationParams.Warnings, 
-                Count = count
+                Count = count,
+                ModelHash = generationParams.ModelHash,
             };
         }
 
@@ -77,7 +77,7 @@ namespace SDMetaTool
             public string Parameters { get; set; }
             public string Warnings { get; set; }
             public int Count { get; set; }
-
+            public string ModelHash { get; set; }
         }
     }
 }
