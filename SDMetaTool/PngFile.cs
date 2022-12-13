@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -11,6 +12,7 @@ namespace SDMetaTool
         private const string SingleParameterRegexString = @"\s*([\w ]+):\s*(""(?:\\|\""|[^\""])+""|[^,]*)(?:,|$)";
         private const string MultipleParameterRegexString = "^(?:" + SingleParameterRegexString + "){3,}$";
         private const string ImageSize = @"^(\d+)x(\d+)$";
+        private const string WildcardPrompt = @"Wildcard prompt: ""[\S\s]*"",\s";
 
         public string Filename { get; set; }
         public DateTime LastUpdated { get; set; }
@@ -24,11 +26,11 @@ namespace SDMetaTool
                 return new GenerationParams();
             }
 
-            var re_params = MultipleParameterRegex();
             var re_imagesize = ImageSizeRegex();
 
+            var withWildcardRemoved = WildcardPromptRegex().Replace(Parameters, "");
 
-            var fullList = Parameters.Trim().Split('\n').Select(p => p.Trim()).ToList();
+            var fullList = withWildcardRemoved.Trim().Split('\n').Select(p => p.Trim()).ToList();
 
             var warningLine = fullList.FirstOrDefault(p => p.StartsWith("Warning:"));
 
@@ -47,7 +49,7 @@ namespace SDMetaTool
 
             var parameters = string.Empty;
 
-            var paramsMatch = re_params.Match(lastLine);
+            var paramsMatch = MultipleParameterRegex().Match(lastLine);
 
             var parametersLookup = Enumerable.Empty<string>().ToLookup(p => p, p => p);
 
@@ -103,5 +105,7 @@ namespace SDMetaTool
         private static partial Regex MultipleParameterRegex();
         [GeneratedRegex(ImageSize)]
         private static partial Regex ImageSizeRegex();
+        [GeneratedRegex(WildcardPrompt)]
+        private static partial Regex WildcardPromptRegex();
     }
 }
