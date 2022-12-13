@@ -12,7 +12,7 @@ namespace SDMetaTool
         private const string SingleParameterRegexString = @"\s*([\w ]+):\s*(""(?:\\|\""|[^\""])+""|[^,]*)(?:,|$)";
         private const string MultipleParameterRegexString = "^(?:" + SingleParameterRegexString + "){3,}$";
         private const string ImageSize = @"^(\d+)x(\d+)$";
-        private const string WildcardPrompt = @"Wildcard prompt: ""[\S\s]*"",\s";
+        private const string WildcardPrompt = @",?\s?Wildcard prompt: ""[\S\s]*""";
 
         public string Filename { get; set; }
         public DateTime LastUpdated { get; set; }
