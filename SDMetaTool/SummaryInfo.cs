@@ -23,15 +23,15 @@ namespace SDMetaTool
 
             Console.WriteLine($"{allFiles.Count} png files");
             Console.WriteLine($"{GetBytesReadable(allFiles.Sum(p => p.PngFile.Length))} stored");
-            Console.WriteLine($"{distinctPrompts.Count} distinct positive prompts");
-            Console.WriteLine($"{distinctFullPrompts.Count} distinct positive & negative prompts");
+            Console.WriteLine($"{distinctPrompts.Count} positive prompts");
+            Console.WriteLine($"{distinctFullPrompts.Count} positive/negative prompts");
 
             var modelGroups = allFiles.Select(p => p.Params.ModelHash).GroupBy(p => p).Select(p => new { ModelHash = p.Key, Count = p.Count()  }).ToList().OrderByDescending(p => p.Count);
 
             Console.WriteLine($"Models:");
             foreach(var modelGroup in modelGroups)
             {
-                Console.WriteLine($"\t{modelGroup.ModelHash}\t{modelGroup.Count}");
+                Console.WriteLine($"\t{modelGroup.ModelHash ?? "none"}\t{modelGroup.Count}");
             }
         }
 
