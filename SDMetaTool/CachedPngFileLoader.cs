@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Text.Json;
 
 namespace SDMetaTool
 {
@@ -27,10 +26,7 @@ namespace SDMetaTool
             var path = GetPath();
             if (fileSystem.File.Exists(path))
             {
-                logger.Debug($"Reading cache at {path}");
-                var cacheJson = fileSystem.File.ReadAllText(path);
-                var deserialised = JsonSerializer.Deserialize<List<PngFileDTO>>(cacheJson);
-                cache = deserialised.ToDictionary(p => p.Filename, p => PngFileDTOToPngFile(p));
+                cache = new PngFileCache(fileSystem).ReadCache(path).ToDictionary(p => p.Filename, p => p);
             }
             else
             {
@@ -50,18 +46,7 @@ namespace SDMetaTool
         public void Flush()
         {
             var path = GetPath();
-            logger.Debug($"Flushing cache to {path}");
-            var serialized = JsonSerializer.Serialize(cache.Select(p => PngFileToPngFileDTO(p.Value)), new JsonSerializerOptions()
-            {
-                WriteIndented = true,
-            });
-
-            string path1 = fileSystem.FileInfo.New(path).Directory.FullName;
-            if (fileSystem.Directory.Exists(path1) == false)
-            {
-                fileSystem.Directory.CreateDirectory(path1);
-            }
-            fileSystem.File.WriteAllText(path, serialized);
+            new PngFileCache(fileSystem).WriteCache(path, cache.Values);
         }
 
         public PngFile GetPngFile(string filename)
@@ -83,35 +68,5 @@ namespace SDMetaTool
                 return info;
             }
         }
-
-        private static PngFile PngFileDTOToPngFile(PngFileDTO trackDTO)
-        {
-            return new PngFile()
-            {
-                Filename = trackDTO.Filename,
-                LastUpdated = trackDTO.LastUpdated,
-                Parameters = trackDTO.Parameters,
-                Length = trackDTO.Length,
-            };
-        }
-
-        private static PngFileDTO PngFileToPngFileDTO(PngFile track)
-        {
-            return new PngFileDTO()
-            {
-                Filename = track.Filename,
-                LastUpdated = track.LastUpdated,
-                Parameters = track.Parameters,
-                Length = track.Length,
-            };
-        }
-    }
-
-    internal class PngFileDTO
-    {
-        public string Filename { get; set; }
-        public DateTime LastUpdated { get; set; }
-        public long Length { get; set; }
-        public GenerationParams Parameters { get; set; }
     }
 }
