@@ -5,28 +5,26 @@ namespace SDMetaTool
 {
     public partial class GenerationParams
     {
-        private static readonly Regex sWhitespace = WhitespaceRegex();
-
-        public string Prompt { get; set; } = string.Empty;
-        public string NegativePrompt { get; set; } = string.Empty;
-        public string Params { get; set; } = string.Empty;
-        public string Warnings { get; set; } = string.Empty;
+        public string Prompt { get; set; }
+        public string NegativePrompt { get; set; }
+        public string Params { get; set; }
+        public string Warnings { get; set; }
 
 
-        public string Steps { get; set; } = string.Empty;
-        public string Sampler { get; set; } = string.Empty;
-        public string CFGScale { get; set; } = string.Empty;
-        public string Seed { get; set; } = string.Empty;
-        public string Size { get; set; } = string.Empty;
-        public string ModelHash { get; set; } = string.Empty;
-        public string Model { get; set; } = string.Empty;
-        public string ClipSkip { get; set; } = string.Empty;
+        public string Steps { get; set; }
+        public string Sampler { get; set; }
+        public string CFGScale { get; set; }
+        public string Seed { get; set; }
+        public string Size { get; set; }
+        public string ModelHash { get; set; }
+        public string Model { get; set; }
+        public string ClipSkip { get; set; }
+        public string DenoisingStrength { get; set; }
 
 
-        public string NormalisedPrompt => sWhitespace.Replace(Prompt, " ");
-        public string NormalisedNegativePrompt => sWhitespace.Replace(NegativePrompt, " ");
+        public string PromptHash { get; set; }
+        public string NegativePromptHash { get; set; }
 
-        [GeneratedRegex(@"\s+")]
-        private static partial Regex WhitespaceRegex();
+
     }
 }

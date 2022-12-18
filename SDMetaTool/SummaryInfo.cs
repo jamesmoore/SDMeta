@@ -8,20 +8,19 @@ namespace SDMetaTool
     {
         public void ProcessPngFiles(IEnumerable<PngFile> tracks, string root)
         {
-            var distinctPrompts = tracks.Select(p => p.Parameters.NormalisedPrompt).Distinct().ToList();
+            var distinctPrompts = tracks.Select(p => p.Parameters?.PromptHash).Distinct().ToList();
             var distinctFullPrompts = tracks.Select(p => new
             {
-                p.Parameters.NormalisedPrompt,
-                p.Parameters.NormalisedNegativePrompt
+                p.Parameters?.PromptHash,
+                p.Parameters?.NegativePromptHash
             }).Distinct().ToList();
-
 
             Console.WriteLine($"{tracks.Count()} png files");
             Console.WriteLine($"{GetBytesReadable(tracks.Sum(p => p.Length))} stored");
             Console.WriteLine($"{distinctPrompts.Count} positive prompts");
             Console.WriteLine($"{distinctFullPrompts.Count} positive/negative prompts");
 
-            var modelGroups = tracks.Select(p => p.Parameters.ModelHash).GroupBy(p => p).Select(p => new { ModelHash = p.Key, Count = p.Count()  }).ToList().OrderByDescending(p => p.Count);
+            var modelGroups = tracks.Select(p => p.Parameters?.ModelHash).GroupBy(p => p).Select(p => new { ModelHash = p.Key, Count = p.Count()  }).ToList().OrderByDescending(p => p.Count);
 
             Console.WriteLine($"Models:");
             foreach(var modelGroup in modelGroups)

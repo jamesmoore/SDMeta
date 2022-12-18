@@ -36,8 +36,8 @@ namespace SDMetaTool
         {
             var groupedBy = tracks.GroupBy(p => new
             {
-                p.Parameters.NormalisedPrompt,
-                p.Parameters.NormalisedNegativePrompt
+                p.Parameters?.PromptHash,
+                p.Parameters?.NegativePromptHash
             });
 
             var tracks2 = groupedBy.Select(p => ToCSV(p.OrderBy(p => p.LastUpdated).First(), p.Count())).OrderBy(p => p.LastUpdated);
@@ -46,7 +46,7 @@ namespace SDMetaTool
 
         private static CSVEntry ToCSV(PngFile p, int count)
         {
-            var generationParams = p.Parameters;
+            var generationParams = p.Parameters ?? new GenerationParams();
             return new CSVEntry()
             {
                 Filename = p.Filename,

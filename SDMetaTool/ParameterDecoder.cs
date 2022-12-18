@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace SDMetaTool
@@ -72,6 +74,9 @@ namespace SDMetaTool
                 ClipSkip = parametersLookup["Clip skip"]?.FirstOrDefault(),
                 Seed = parametersLookup["Seed"]?.FirstOrDefault(),
                 Model = parametersLookup["Model"]?.FirstOrDefault(),
+                DenoisingStrength = parametersLookup["Denoising strength"]?.FirstOrDefault(),
+                PromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(positive, " ")),
+                NegativePromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(negative, " ")),
             };
         }
 
@@ -107,6 +112,25 @@ namespace SDMetaTool
         private static partial Regex ImageSizeRegex();
         [GeneratedRegex(WildcardPrompt)]
         private static partial Regex WildcardPromptRegex();
+        [GeneratedRegex(@"\s+")]
+        private static partial Regex WhitespaceRegex();
 
+        static string ComputeSha256Hash(string rawData)
+        {
+            // Create a SHA256   
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                // ComputeHash - returns byte array  
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+
+                // Convert byte array to a string   
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
     }
 }
