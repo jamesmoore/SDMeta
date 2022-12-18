@@ -12,10 +12,12 @@ namespace SDMetaTool
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private readonly IFileSystem fileSystem;
+        private readonly ParameterDecoder decoder = new ParameterDecoder();
 
         public PngFileLoader(IFileSystem fileSystem)
         {
             this.fileSystem = fileSystem;
+            
         }
 
         public PngFile GetPngFile(string filename)
@@ -56,7 +58,8 @@ namespace SDMetaTool
                         {
                             if (metadataValue.TagName == "parameters" && metadataValue.Value is PngText)
                             {
-                                pngfile.Parameters = (metadataValue.Value as PngText).TextValue;
+                                var rawParameters = (metadataValue.Value as PngText).TextValue;
+                                pngfile.Parameters = decoder.GetParameters(rawParameters);
                             }
                         }
                     }

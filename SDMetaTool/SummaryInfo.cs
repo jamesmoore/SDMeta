@@ -8,25 +8,20 @@ namespace SDMetaTool
     {
         public void ProcessPngFiles(IEnumerable<PngFile> tracks, string root)
         {
-            var allFiles = tracks.Select(p => new
+            var distinctPrompts = tracks.Select(p => p.Parameters.NormalisedPrompt).Distinct().ToList();
+            var distinctFullPrompts = tracks.Select(p => new
             {
-                PngFile = p,
-                Params = p.GetParameters()
-            }).ToList();
-            var distinctPrompts = allFiles.Select(p => p.Params.NormalisedPrompt).Distinct().ToList();
-            var distinctFullPrompts = allFiles.Select(p => new
-            {
-                p.Params.NormalisedPrompt,
-                p.Params.NormalisedNegativePrompt
+                p.Parameters.NormalisedPrompt,
+                p.Parameters.NormalisedNegativePrompt
             }).Distinct().ToList();
 
 
-            Console.WriteLine($"{allFiles.Count} png files");
-            Console.WriteLine($"{GetBytesReadable(allFiles.Sum(p => p.PngFile.Length))} stored");
+            Console.WriteLine($"{tracks.Count()} png files");
+            Console.WriteLine($"{GetBytesReadable(tracks.Sum(p => p.Length))} stored");
             Console.WriteLine($"{distinctPrompts.Count} positive prompts");
             Console.WriteLine($"{distinctFullPrompts.Count} positive/negative prompts");
 
-            var modelGroups = allFiles.Select(p => p.Params.ModelHash).GroupBy(p => p).Select(p => new { ModelHash = p.Key, Count = p.Count()  }).ToList().OrderByDescending(p => p.Count);
+            var modelGroups = tracks.Select(p => p.Parameters.ModelHash).GroupBy(p => p).Select(p => new { ModelHash = p.Key, Count = p.Count()  }).ToList().OrderByDescending(p => p.Count);
 
             Console.WriteLine($"Models:");
             foreach(var modelGroup in modelGroups)

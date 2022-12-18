@@ -34,25 +34,19 @@ namespace SDMetaTool
 
         private IEnumerable<CSVEntry> GetCSVDistinct(IEnumerable<PngFile> tracks)
         {
-            var allFiles = tracks.Select(p => new
+            var groupedBy = tracks.GroupBy(p => new
             {
-                PngFile = p,
-                Params = p.GetParameters()
-            }).ToList();
-
-            var groupedBy = allFiles.GroupBy(p => new
-            {
-                p.Params.NormalisedPrompt,
-                p.Params.NormalisedNegativePrompt
+                p.Parameters.NormalisedPrompt,
+                p.Parameters.NormalisedNegativePrompt
             });
 
-            var tracks2 = groupedBy.Select(p => ToCSV(p.OrderBy(p => p.PngFile.LastUpdated).First().PngFile, p.Count())).OrderBy(p => p.LastUpdated);
+            var tracks2 = groupedBy.Select(p => ToCSV(p.OrderBy(p => p.LastUpdated).First(), p.Count())).OrderBy(p => p.LastUpdated);
             return tracks2;
         }
 
         private static CSVEntry ToCSV(PngFile p, int count)
         {
-            var generationParams = p.GetParameters();
+            var generationParams = p.Parameters;
             return new CSVEntry()
             {
                 Filename = p.Filename,
