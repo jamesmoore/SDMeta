@@ -75,8 +75,8 @@ namespace SDMetaTool
                 Seed = parametersLookup["Seed"]?.FirstOrDefault(),
                 Model = parametersLookup["Model"]?.FirstOrDefault(),
                 DenoisingStrength = parametersLookup["Denoising strength"]?.FirstOrDefault(),
-                PromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(positive, " ")),
-                NegativePromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(negative, " ")),
+                PromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(positive, " ").ToLower()),
+                NegativePromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(negative, " ").ToLower()),
             };
         }
 
