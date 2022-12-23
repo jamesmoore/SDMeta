@@ -15,7 +15,7 @@ namespace SDMetaTool
         private readonly IFileSystem fileSystem;
         private readonly Dictionary<string, PngFile> cache;
 
-        public string GetPath() => $"{fileSystem.Path.DirectorySeparatorChar}data{fileSystem.Path.DirectorySeparatorChar}cache.json";
+        public string GetPath() => $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}{fileSystem.Path.DirectorySeparatorChar}SDMetaTool{fileSystem.Path.DirectorySeparatorChar}cache.json";
 
         public CachedPngFileLoader(IFileSystem fileSystem, IPngFileLoader inner, bool whatif)
         {
@@ -56,7 +56,7 @@ namespace SDMetaTool
 
             if (cache.TryGetValue(realFileName, out PngFile value) && value.LastUpdated == fileInfo.LastWriteTime)
             {
-                return cache[realFileName];
+                return value;
             }
             else
             {

@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace SDMetaTool
 {
-    internal class PngFileCache
+    public class PngFileCache
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private readonly IFileSystem fileSystem;
