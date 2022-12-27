@@ -5,7 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 
-namespace SDMetaTool
+namespace SDMetaTool.Processors
 {
     class CSVPngFileLister : IPngFileListProcessor
     {
@@ -55,7 +55,7 @@ namespace SDMetaTool
                 Prompt = generationParams.Prompt,
                 NegativePrompt = generationParams.NegativePrompt,
                 Parameters = generationParams.Params,
-                Warnings = generationParams.Warnings, 
+                Warnings = generationParams.Warnings,
                 Count = count,
                 ModelHash = generationParams.ModelHash,
             };

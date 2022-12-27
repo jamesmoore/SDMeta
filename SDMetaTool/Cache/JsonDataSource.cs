@@ -5,30 +5,46 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
 
-namespace SDMetaTool
+namespace SDMetaTool.Cache
 {
-    public class PngFileCache
-    {
+    public class JsonDataSource : IPngFileDataSource, IDisposable
+	{
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private readonly IFileSystem fileSystem;
+		private readonly CachePath cachePath;
+		private readonly Dictionary<string, PngFile> cache;
+		private readonly bool whatif;
 
-        public PngFileCache(IFileSystem fileSystem)
+		public JsonDataSource(IFileSystem fileSystem, bool whatif)
         {
             this.fileSystem = fileSystem;
+			this.whatif = whatif;
+			this.cachePath = new CachePath(fileSystem);
+			cache = this.GetAll().ToDictionary(p => p.Filename, p => p);
+		}
+
+        public IEnumerable<PngFile> GetAll()
+        {
+            var path = cachePath.GetPath();
+            if (fileSystem.File.Exists(path))
+            {
+                logger.Debug($"Reading cache at {path}");
+                var cacheJson = fileSystem.File.ReadAllText(path);
+                var deserialised = JsonSerializer.Deserialize<List<PngFileDTO>>(cacheJson);
+                var dictionary = deserialised.Select(PngFileDTOToPngFile).ToList();
+                return dictionary;
+            }
+            else
+            {
+                return Enumerable.Empty<PngFile>();
+            }
         }
 
-        public IEnumerable<PngFile> ReadCache(string path)
+        private void WriteCache(IEnumerable<PngFile> cache)
         {
-            logger.Debug($"Reading cache at {path}");
-            var cacheJson = fileSystem.File.ReadAllText(path);
-            var deserialised = JsonSerializer.Deserialize<List<PngFileDTO>>(cacheJson);
-            var dictionary = deserialised.Select(PngFileDTOToPngFile).ToList();
-            return dictionary;
-        }
+			var path = cachePath.GetPath();
 
-        public void WriteCache(string path, IEnumerable<PngFile> cache)
-        {
-            logger.Debug($"Flushing cache to {path}");
+			logger.Debug($"Flushing cache to {path}");
             var serialized = JsonSerializer.Serialize(cache.Select(PngFileToPngFileDTO), new JsonSerializerOptions()
             {
                 WriteIndented = true,
@@ -43,7 +59,34 @@ namespace SDMetaTool
             fileSystem.File.WriteAllText(path, serialized);
         }
 
-        private static PngFile PngFileDTOToPngFile(PngFileDTO trackDTO)
+		public PngFile ReadPngFile(string realFileName)
+		{
+			cache.TryGetValue(realFileName, out PngFile value);
+			return value;
+		}
+
+		public void WritePngFile(PngFile info)
+		{
+			if (info != null)
+			{
+				cache[info.Filename] = info;
+			}
+		}
+
+		public void Dispose()
+		{
+			if (whatif == false)
+			{
+				Flush();
+			}
+		}
+
+		public void Flush()
+		{
+			this.WriteCache(cache.Values);
+		}
+
+		private static PngFile PngFileDTOToPngFile(PngFileDTO trackDTO)
         {
             return new PngFile()
             {

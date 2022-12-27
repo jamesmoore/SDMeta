@@ -1,7 +1,4 @@
-﻿using System.Reflection;
-using System.Text.RegularExpressions;
-
-namespace SDMetaTool
+﻿namespace SDMetaTool
 {
     public partial class GenerationParams
     {

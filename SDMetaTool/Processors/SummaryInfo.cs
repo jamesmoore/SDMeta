@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SDMetaTool
+namespace SDMetaTool.Processors
 {
     internal class SummaryInfo : IPngFileListProcessor
     {
@@ -20,10 +20,10 @@ namespace SDMetaTool
             Console.WriteLine($"{distinctPrompts.Count} positive prompts");
             Console.WriteLine($"{distinctFullPrompts.Count} positive/negative prompts");
 
-            var modelGroups = tracks.Select(p => p.Parameters?.ModelHash).GroupBy(p => p).Select(p => new { ModelHash = p.Key, Count = p.Count()  }).ToList().OrderByDescending(p => p.Count);
+            var modelGroups = tracks.Select(p => p.Parameters?.ModelHash).GroupBy(p => p).Select(p => new { ModelHash = p.Key, Count = p.Count() }).ToList().OrderByDescending(p => p.Count);
 
             Console.WriteLine($"Models:");
-            foreach(var modelGroup in modelGroups)
+            foreach (var modelGroup in modelGroups)
             {
                 Console.WriteLine($"\t{modelGroup.ModelHash ?? "none"}\t{modelGroup.Count}");
             }
@@ -34,34 +34,34 @@ namespace SDMetaTool
         public string GetBytesReadable(long i)
         {
             // Get absolute value
-            long absolute_i = (i < 0 ? -i : i);
+            long absolute_i = i < 0 ? -i : i;
             // Determine the suffix and readable value
             string suffix;
             double readable;
             if (absolute_i >= 0x1000000000000000) // Exabyte
             {
                 suffix = "EB";
-                readable = (i >> 50);
+                readable = i >> 50;
             }
             else if (absolute_i >= 0x4000000000000) // Petabyte
             {
                 suffix = "PB";
-                readable = (i >> 40);
+                readable = i >> 40;
             }
             else if (absolute_i >= 0x10000000000) // Terabyte
             {
                 suffix = "TB";
-                readable = (i >> 30);
+                readable = i >> 30;
             }
             else if (absolute_i >= 0x40000000) // Gigabyte
             {
                 suffix = "GB";
-                readable = (i >> 20);
+                readable = i >> 20;
             }
             else if (absolute_i >= 0x100000) // Megabyte
             {
                 suffix = "MB";
-                readable = (i >> 10);
+                readable = i >> 10;
             }
             else if (absolute_i >= 0x400) // Kilobyte
             {
@@ -73,7 +73,7 @@ namespace SDMetaTool
                 return i.ToString("0 B"); // Byte
             }
             // Divide by 1024 to get fractional value
-            readable = (readable / 1024);
+            readable = readable / 1024;
             // Return formatted number with suffix
             return readable.ToString("0.## ") + suffix;
         }
