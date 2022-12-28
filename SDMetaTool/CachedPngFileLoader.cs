@@ -22,16 +22,14 @@ namespace SDMetaTool
 		public PngFile GetPngFile(string filename)
 		{
 			var fileInfo = fileSystem.FileInfo.New(filename);
-			var realFileName = fileInfo.FullName;
-
-			var pngFile = pngFileCache.ReadPngFile(realFileName);
+			var pngFile = pngFileCache.ReadPngFile(filename);
 			if (pngFile != null && pngFile.LastUpdated == fileInfo.LastWriteTime)
 			{
 				return pngFile;
 			}
 			else
 			{
-				pngFile = inner.GetPngFile(realFileName);
+				pngFile = inner.GetPngFile(filename);
 				pngFileCache.WritePngFile(pngFile);
 				return pngFile;
 			}

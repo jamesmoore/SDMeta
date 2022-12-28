@@ -21,7 +21,5 @@
 
         public string PromptHash { get; set; }
         public string NegativePromptHash { get; set; }
-
-
     }
 }

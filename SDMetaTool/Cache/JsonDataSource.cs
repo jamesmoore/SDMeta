@@ -15,15 +15,20 @@ namespace SDMetaTool.Cache
 		private readonly Dictionary<string, PngFile> cache;
 		private readonly bool whatif;
 
-		public JsonDataSource(IFileSystem fileSystem, bool whatif)
+		public JsonDataSource(IFileSystem fileSystem, bool whatif = true)
         {
             this.fileSystem = fileSystem;
 			this.whatif = whatif;
 			this.cachePath = new CachePath(fileSystem);
-			cache = this.GetAll().ToDictionary(p => p.Filename, p => p);
+			cache = this.InitialGetAll().ToDictionary(p => p.Filename, p => p);
 		}
 
-        public IEnumerable<PngFile> GetAll()
+		public IEnumerable<PngFile> GetAll()
+        {
+            return cache.Values;
+        }
+
+		private IEnumerable<PngFile> InitialGetAll()
         {
             var path = cachePath.GetPath();
             if (fileSystem.File.Exists(path))
@@ -51,10 +56,10 @@ namespace SDMetaTool.Cache
                 DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
             });
 
-            string path1 = fileSystem.FileInfo.New(path).Directory.FullName;
-            if (fileSystem.Directory.Exists(path1) == false)
+            var dirPath = fileSystem.FileInfo.New(path).Directory.FullName;
+            if (fileSystem.Directory.Exists(dirPath) == false)
             {
-                fileSystem.Directory.CreateDirectory(path1);
+                fileSystem.Directory.CreateDirectory(dirPath);
             }
             fileSystem.File.WriteAllText(path, serialized);
         }
