@@ -9,7 +9,7 @@ namespace SDMetaTool
 {
 	public partial class ParameterDecoder
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
 		private const string NegativePromptPrefix = "Negative prompt:";
 		private const string SingleParameterRegexString = @"\s*([\w ]+):\s*(""(?:\\|\""|[^\""])+""|[^,]*)(?:,|$)";
@@ -31,7 +31,10 @@ namespace SDMetaTool
 		private const string ParamEta = "Eta";
 		private const string ParamFirstPassSize = "First pass size";
 		private const string ParamENSD = "ENSD";
-
+		private const string ParamHypernet = "Hypernet";
+		private const string ParamHypernetHash = "Hypernet Hash";
+		private const string ParamHypernetStrength = "Hypernet strength";
+		private const string ParamMaskBlur = "Mask blur";
 
 		private static readonly string[] KnownParams = new[]
 		{
@@ -50,6 +53,10 @@ namespace SDMetaTool
 			ParamEta,
 			ParamFirstPassSize,
 			ParamENSD,
+			ParamHypernet,
+			ParamHypernetHash,
+			ParamHypernetStrength,
+			ParamMaskBlur,
 		};
 
 		public GenerationParams GetParameters(string _parameters)
@@ -116,6 +123,10 @@ namespace SDMetaTool
 				Eta = parametersLookup[ParamEta]?.FirstOrDefault(),
 				FirstPassSize = parametersLookup[ParamFirstPassSize]?.FirstOrDefault(),
 				ENSD = parametersLookup[ParamENSD]?.FirstOrDefault(),
+				MaskBlur = parametersLookup[ParamMaskBlur]?.FirstOrDefault(),
+				Hypernet = parametersLookup[ParamHypernet]?.FirstOrDefault(),
+				HypernetHash = parametersLookup[ParamHypernetHash]?.FirstOrDefault(),
+				HypernetStrength = parametersLookup[ParamHypernetStrength]?.FirstOrDefault(),
 				PromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(positive, " ").ToLower()),
 				NegativePromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(negative, " ").ToLower()),
 			};

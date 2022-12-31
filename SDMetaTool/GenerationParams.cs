@@ -23,6 +23,10 @@
 		public string Eta { get; set; }
 		public string FirstPassSize { get; set; }
 		public string ENSD { get; set; }
+		public string Hypernet { get; set; }
+        public string HypernetHash { get; set; }
+        public string HypernetStrength { get; set; }
+		public string MaskBlur { get; set; }
 
 		public string PromptHash { get; set; }
         public string NegativePromptHash { get; set; }
