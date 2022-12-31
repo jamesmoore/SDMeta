@@ -34,7 +34,7 @@ namespace SDMetaTool
 
 
 		private static readonly string[] KnownParams = new[]
-		{ 
+		{
 			ParamModel,
 			ParamModelHash,
 			ParamSteps,
@@ -128,9 +128,9 @@ namespace SDMetaTool
 			var parametersLookup = parametersDecoded.Select(p => new { Key = p.Groups[1].Value, Value = p.Groups[2].Value }).ToLookup(p => p.Key, p => p.Value);
 
 			var extraKeys = parametersLookup.Select(p => p.Key).Except(KnownParams).ToList();
-			foreach (var extraKey in extraKeys)
+			if (extraKeys.Any())
 			{
-				logger.Warn("Unknown param " + extraKeys);
+				logger.Warn("Unknown param: " + string.Join(",", extraKeys));
 			}
 
 			return parametersLookup;
