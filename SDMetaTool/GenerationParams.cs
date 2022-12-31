@@ -17,9 +17,15 @@
         public string Model { get; set; }
         public string ClipSkip { get; set; }
         public string DenoisingStrength { get; set; }
+		public string BatchSize { get; set; }
+		public string BatchPos { get; set; }
+		public string FaceRestoration { get; set; }
+		public string Eta { get; set; }
+		public string FirstPassSize { get; set; }
+		public string ENSD { get; set; }
 
-
-        public string PromptHash { get; set; }
+		public string PromptHash { get; set; }
         public string NegativePromptHash { get; set; }
-    }
+
+	}
 }
