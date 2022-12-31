@@ -72,6 +72,12 @@ namespace SDMetaTool.Processors
 				Eta = generationParams.Eta,
 				FaceRestoration = generationParams.FaceRestoration,
 				FirstPassSize = generationParams.FirstPassSize,
+				HypernetStrength = generationParams.HypernetStrength,
+				HypernetHash = generationParams.HypernetHash,
+				Hypernet = generationParams.Hypernet,
+				MaskBlur = generationParams.MaskBlur,
+				VariationSeed = generationParams.VariationSeed,
+				VariationSeedStrength = generationParams.VariationSeedStrength,
 			};
 		}
 
@@ -99,6 +105,12 @@ namespace SDMetaTool.Processors
 			public string Eta { get; set; }
 			public string FirstPassSize { get; set; }
 			public string ENSD { get; set; }
+			public string Hypernet { get; set; }
+			public string HypernetHash { get; set; }
+			public string HypernetStrength { get; set; }
+			public string MaskBlur { get; set; }
+			public string VariationSeed { get; set; }
+			public string VariationSeedStrength { get; set; }
 			public int Count { get; set; }
 		}
 	}
