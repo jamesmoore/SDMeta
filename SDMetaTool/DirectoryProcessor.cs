@@ -8,7 +8,7 @@ namespace SDMetaTool
 {
 	public class DirectoryProcessor : IDirectoryProcessor
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IFileSystem fileSystem;
 
 		public DirectoryProcessor(IFileSystem fileSystem)

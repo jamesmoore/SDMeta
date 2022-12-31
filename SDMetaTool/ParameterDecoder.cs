@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using NLog;
+using System.Collections;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -6,131 +9,206 @@ using System.Text.RegularExpressions;
 
 namespace SDMetaTool
 {
-    public partial class ParameterDecoder
-    {
-        private const string NegativePromptPrefix = "Negative prompt:";
-        private const string SingleParameterRegexString = @"\s*([\w ]+):\s*(""(?:\\|\""|[^\""])+""|[^,]*)(?:,|$)";
-        private const string MultipleParameterRegexString = "^(?:" + SingleParameterRegexString + "){3,}$";
-        private const string ImageSize = @"^(\d+)x(\d+)$";
-        private const string WildcardPrompt = @",?\s?Wildcard prompt: ""[\S\s]*""";
+	public partial class ParameterDecoder
+	{
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-        public GenerationParams GetParameters(string _parameters)
-        {
-            if (string.IsNullOrWhiteSpace(_parameters))
-            {
-                return new GenerationParams();
-            }
+		private const string NegativePromptPrefix = "Negative prompt:";
+		private const string SingleParameterRegexString = @"\s*([\w ]+):\s*(""(?:\\|\""|[^\""])+""|[^,]*)(?:,|$)";
+		private const string MultipleParameterRegexString = "^(?:" + SingleParameterRegexString + "){3,}$";
+		private const string ImageSize = @"^(\d+)x(\d+)$";
+		private const string WildcardPrompt = @",?\s?Wildcard prompt: ""[\S\s]*""";
+		private const string ParamModelHash = "Model hash";
+		private const string ParamSteps = "Steps";
+		private const string ParamSampler = "Sampler";
+		private const string ParamCFGScale = "CFG scale";
+		private const string ParamSize = "Size";
+		private const string ParamClipSkip = "Clip skip";
+		private const string ParamSeed = "Seed";
+		private const string ParamModel = "Model";
+		private const string ParamDenoisingStrength = "Denoising strength";
+		private const string ParamBatchSize = "Batch size";
+		private const string ParamBatchPos = "Batch pos";
+		private const string ParamFaceRestoration = "Face restoration";
+		private const string ParamEta = "Eta";
+		private const string ParamFirstPassSize = "First pass size";
+		private const string ParamENSD = "ENSD";
+		private const string ParamHypernet = "Hypernet";
+		private const string ParamHypernetHash = "Hypernet hash";
+		private const string ParamHypernetStrength = "Hypernet strength";
+		private const string ParamMaskBlur = "Mask blur";
+		private const string ParamVariationSeed = "Variation seed";
+		private const string ParamVariationSeedStrength = "Variation seed strength";
+		private const string ParamSeedResizeFrom = "Seed resize from";
 
-            var re_imagesize = ImageSizeRegex();
+		private static readonly string[] KnownParams = new[]
+		{
+			ParamModel,
+			ParamModelHash,
+			ParamSteps,
+			ParamSampler,
+			ParamCFGScale,
+			ParamSize,
+			ParamClipSkip,
+			ParamSeed,
+			ParamDenoisingStrength,
+			ParamBatchSize,
+			ParamBatchPos,
+			ParamFaceRestoration,
+			ParamEta,
+			ParamFirstPassSize,
+			ParamENSD,
+			ParamHypernet,
+			ParamHypernetHash,
+			ParamHypernetStrength,
+			ParamMaskBlur,
+			ParamVariationSeed,
+			ParamVariationSeedStrength,
+			ParamSeedResizeFrom,
+		};
 
-            var withWildcardRemoved = WildcardPromptRegex().Replace(_parameters, "");
+		public GenerationParams GetParameters(string _parameters)
+		{
+			if (string.IsNullOrWhiteSpace(_parameters))
+			{
+				return new GenerationParams();
+			}
 
-            var fullList = withWildcardRemoved.Trim().Split('\n').Select(p => p.Trim()).ToList();
+			var re_imagesize = ImageSizeRegex();
 
-            var warningLine = fullList.FirstOrDefault(p => p.StartsWith("Warning:"));
+			var withWildcardRemoved = WildcardPromptRegex().Replace(_parameters, "");
 
-            var warningLineString = null as string;
+			var fullList = withWildcardRemoved.Trim().Split('\n').Select(p => p.Trim()).ToList();
 
-            if (warningLine != null)
-            {
-                var warningStart = fullList.IndexOf(warningLine);
-                var warningLines = fullList.Skip(warningStart).ToList();
-                fullList = fullList.Take(warningStart).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
-                warningLineString = string.Join('\n', warningLines);
-            }
+			var warningLine = fullList.FirstOrDefault(p => p.StartsWith("Warning:"));
 
-            var lines = fullList;
-            var lastLine = lines.Last();
+			var warningLineString = null as string;
 
-            var parameters = string.Empty;
+			if (warningLine != null)
+			{
+				var warningStart = fullList.IndexOf(warningLine);
+				var warningLines = fullList.Skip(warningStart).ToList();
+				fullList = fullList.Take(warningStart).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
+				warningLineString = string.Join('\n', warningLines);
+			}
 
-            var paramsMatch = MultipleParameterRegex().Match(lastLine);
+			var lines = fullList;
+			var lastLine = lines.Last();
 
-            var parametersLookup = Enumerable.Empty<string>().ToLookup(p => p, p => p);
+			var parameters = string.Empty;
 
-            if (paramsMatch.Success)
-            {
-                parameters = lastLine;
-                lines = lines.Take(lines.Count - 1).ToList();
+			var paramsMatch = MultipleParameterRegex().Match(lastLine);
 
-                var parametersDecoded = SingleParameterRegex().Matches(lastLine);
+			var parametersLookup = Enumerable.Empty<string>().ToLookup(p => p, p => p);
 
-                parametersLookup = parametersDecoded.Select(p => new { Key = p.Groups[1].Value, Value = p.Groups[2].Value }).ToLookup(p => p.Key, p => p.Value);
-            }
+			if (paramsMatch.Success)
+			{
+				parameters = lastLine;
+				lines = lines.Take(lines.Count - 1).ToList();
+				parametersLookup = DecodeParamsLine(lastLine);
+			}
 
-            (string positive, string negative) = SplitPrompts(lines);
+			(string positive, string negative) = SplitPrompts(lines);
 
-            return new GenerationParams()
-            {
-                Prompt = positive,
-                NegativePrompt = negative,
-                Params = parameters,
-                Warnings = warningLineString,
-                ModelHash = parametersLookup["Model hash"]?.FirstOrDefault(),
-                Steps = parametersLookup["Steps"]?.FirstOrDefault(),
-                Sampler = parametersLookup["Sampler"]?.FirstOrDefault(),
-                CFGScale = parametersLookup["CFG scale"]?.FirstOrDefault(),
-                Size = parametersLookup["Size"]?.FirstOrDefault(),
-                ClipSkip = parametersLookup["Clip skip"]?.FirstOrDefault(),
-                Seed = parametersLookup["Seed"]?.FirstOrDefault(),
-                Model = parametersLookup["Model"]?.FirstOrDefault(),
-                DenoisingStrength = parametersLookup["Denoising strength"]?.FirstOrDefault(),
-                PromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(positive, " ").ToLower()),
-                NegativePromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(negative, " ").ToLower()),
-            };
-        }
+			return new GenerationParams()
+			{
+				Prompt = positive,
+				NegativePrompt = negative,
+				Params = parameters,
+				Warnings = warningLineString,
+				ModelHash = parametersLookup[ParamModelHash]?.FirstOrDefault(),
+				Steps = parametersLookup[ParamSteps]?.FirstOrDefault(),
+				Sampler = parametersLookup[ParamSampler]?.FirstOrDefault(),
+				CFGScale = parametersLookup[ParamCFGScale]?.FirstOrDefault(),
+				Size = parametersLookup[ParamSize]?.FirstOrDefault(),
+				ClipSkip = parametersLookup[ParamClipSkip]?.FirstOrDefault(),
+				Seed = parametersLookup[ParamSeed]?.FirstOrDefault(),
+				Model = parametersLookup[ParamModel]?.FirstOrDefault(),
+				DenoisingStrength = parametersLookup[ParamDenoisingStrength]?.FirstOrDefault(),
+				BatchSize = parametersLookup[ParamBatchSize]?.FirstOrDefault(),
+				BatchPos = parametersLookup[ParamBatchPos]?.FirstOrDefault(),
+				FaceRestoration = parametersLookup[ParamFaceRestoration]?.FirstOrDefault(),
+				Eta = parametersLookup[ParamEta]?.FirstOrDefault(),
+				FirstPassSize = parametersLookup[ParamFirstPassSize]?.FirstOrDefault(),
+				ENSD = parametersLookup[ParamENSD]?.FirstOrDefault(),
+				MaskBlur = parametersLookup[ParamMaskBlur]?.FirstOrDefault(),
+				Hypernet = parametersLookup[ParamHypernet]?.FirstOrDefault(),
+				HypernetHash = parametersLookup[ParamHypernetHash]?.FirstOrDefault(),
+				HypernetStrength = parametersLookup[ParamHypernetStrength]?.FirstOrDefault(),
+				VariationSeed = parametersLookup[ParamVariationSeed]?.FirstOrDefault(),
+				VariationSeedStrength = parametersLookup[ParamVariationSeedStrength]?.FirstOrDefault(),
+				SeedResizeFrom = parametersLookup[ParamSeedResizeFrom]?.FirstOrDefault(),
+				PromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(positive, " ").ToLower()),
+				NegativePromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(negative, " ").ToLower()),
+			};
+		}
 
-        private static (string positive, string negative) SplitPrompts(List<string> lines)
-        {
-            var positive = new List<string>();
-            var negative = new List<string>();
-            var negativeStart = lines.FirstOrDefault(p => p.StartsWith(NegativePromptPrefix));
-            if (negativeStart != null)
-            {
-                var negativePosition = lines.IndexOf(negativeStart);
-                positive = lines.Take(negativePosition).ToList();
-                negative = lines.Skip(negativePosition).ToList();
-                negative[0] = negative[0].Substring(NegativePromptPrefix.Length);
-            }
-            else
-            {
-                positive = lines;
-            }
+		private static ILookup<string, string> DecodeParamsLine(string lastLine)
+		{
+			var parametersDecoded = SingleParameterRegex().Matches(lastLine);
 
-            var prompt = string.Join('\n', positive).Trim();
-            var negativeString = string.Join('\n', negative).Trim();
+			var parametersLookup = parametersDecoded.Select(p => new { Key = p.Groups[1].Value, Value = p.Groups[2].Value }).ToLookup(p => p.Key, p => p.Value);
 
-            return (prompt, negativeString);
-        }
+			var extraKeys = parametersLookup.Select(p => p.Key).Except(KnownParams).ToList();
+			if (extraKeys.Any())
+			{
+				logger.Warn("Unknown param: " + string.Join(",", extraKeys));
+			}
+
+			return parametersLookup;
+		}
+
+		private static (string positive, string negative) SplitPrompts(List<string> lines)
+		{
+			var positive = new List<string>();
+			var negative = new List<string>();
+			var negativeStart = lines.FirstOrDefault(p => p.StartsWith(NegativePromptPrefix));
+			if (negativeStart != null)
+			{
+				var negativePosition = lines.IndexOf(negativeStart);
+				positive = lines.Take(negativePosition).ToList();
+				negative = lines.Skip(negativePosition).ToList();
+				negative[0] = negative[0].Substring(NegativePromptPrefix.Length);
+			}
+			else
+			{
+				positive = lines;
+			}
+
+			var prompt = string.Join('\n', positive).Trim();
+			var negativeString = string.Join('\n', negative).Trim();
+
+			return (prompt, negativeString);
+		}
 
 
-        [GeneratedRegex(SingleParameterRegexString)]
-        private static partial Regex SingleParameterRegex();
-        [GeneratedRegex(MultipleParameterRegexString)]
-        private static partial Regex MultipleParameterRegex();
-        [GeneratedRegex(ImageSize)]
-        private static partial Regex ImageSizeRegex();
-        [GeneratedRegex(WildcardPrompt)]
-        private static partial Regex WildcardPromptRegex();
-        [GeneratedRegex(@"\s+")]
-        private static partial Regex WhitespaceRegex();
+		[GeneratedRegex(SingleParameterRegexString)]
+		private static partial Regex SingleParameterRegex();
+		[GeneratedRegex(MultipleParameterRegexString)]
+		private static partial Regex MultipleParameterRegex();
+		[GeneratedRegex(ImageSize)]
+		private static partial Regex ImageSizeRegex();
+		[GeneratedRegex(WildcardPrompt)]
+		private static partial Regex WildcardPromptRegex();
+		[GeneratedRegex(@"\s+")]
+		private static partial Regex WhitespaceRegex();
 
-        static string ComputeSha256Hash(string rawData)
-        {
-            // Create a SHA256   
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                // ComputeHash - returns byte array  
-                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+		static string ComputeSha256Hash(string rawData)
+		{
+			// Create a SHA256   
+			using (SHA256 sha256Hash = SHA256.Create())
+			{
+				// ComputeHash - returns byte array  
+				byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
 
-                // Convert byte array to a string   
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    builder.Append(bytes[i].ToString("x2"));
-                }
-                return builder.ToString();
-            }
-        }
-    }
+				// Convert byte array to a string   
+				StringBuilder builder = new StringBuilder();
+				for (int i = 0; i < bytes.Length; i++)
+				{
+					builder.Append(bytes[i].ToString("x2"));
+				}
+				return builder.ToString();
+			}
+		}
+	}
 }

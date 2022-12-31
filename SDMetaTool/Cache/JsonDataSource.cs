@@ -9,7 +9,7 @@ namespace SDMetaTool.Cache
 {
     public class JsonDataSource : IPngFileDataSource, IDisposable
 	{
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private readonly IFileSystem fileSystem;
 		private readonly CachePath cachePath;
 		private readonly Dictionary<string, PngFile> cache;

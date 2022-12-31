@@ -17,9 +17,21 @@
         public string Model { get; set; }
         public string ClipSkip { get; set; }
         public string DenoisingStrength { get; set; }
+		public string BatchSize { get; set; }
+		public string BatchPos { get; set; }
+		public string FaceRestoration { get; set; }
+		public string Eta { get; set; }
+		public string FirstPassSize { get; set; }
+		public string ENSD { get; set; }
+		public string Hypernet { get; set; }
+        public string HypernetHash { get; set; }
+        public string HypernetStrength { get; set; }
+		public string MaskBlur { get; set; }
+		public string VariationSeed { get; set; }
+		public string VariationSeedStrength { get; set; }
+		public string SeedResizeFrom { get; set; }
 
-
-        public string PromptHash { get; set; }
+		public string PromptHash { get; set; }
         public string NegativePromptHash { get; set; }
-    }
+	}
 }
