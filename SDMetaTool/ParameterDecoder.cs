@@ -32,7 +32,7 @@ namespace SDMetaTool
 		private const string ParamFirstPassSize = "First pass size";
 		private const string ParamENSD = "ENSD";
 		private const string ParamHypernet = "Hypernet";
-		private const string ParamHypernetHash = "Hypernet Hash";
+		private const string ParamHypernetHash = "Hypernet hash";
 		private const string ParamHypernetStrength = "Hypernet strength";
 		private const string ParamMaskBlur = "Mask blur";
 
