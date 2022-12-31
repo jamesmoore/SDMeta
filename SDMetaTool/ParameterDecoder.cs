@@ -1,6 +1,7 @@
 ﻿using NLog;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -38,6 +39,7 @@ namespace SDMetaTool
 		private const string ParamMaskBlur = "Mask blur";
 		private const string ParamVariationSeed = "Variation seed";
 		private const string ParamVariationSeedStrength = "Variation seed strength";
+		private const string ParamSeedResizeFrom = "Seed resize from";
 
 		private static readonly string[] KnownParams = new[]
 		{
@@ -62,6 +64,7 @@ namespace SDMetaTool
 			ParamMaskBlur,
 			ParamVariationSeed,
 			ParamVariationSeedStrength,
+			ParamSeedResizeFrom,
 		};
 
 		public GenerationParams GetParameters(string _parameters)
@@ -134,6 +137,7 @@ namespace SDMetaTool
 				HypernetStrength = parametersLookup[ParamHypernetStrength]?.FirstOrDefault(),
 				VariationSeed = parametersLookup[ParamVariationSeed]?.FirstOrDefault(),
 				VariationSeedStrength = parametersLookup[ParamVariationSeedStrength]?.FirstOrDefault(),
+				SeedResizeFrom = parametersLookup[ParamSeedResizeFrom]?.FirstOrDefault(),
 				PromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(positive, " ").ToLower()),
 				NegativePromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(negative, " ").ToLower()),
 			};

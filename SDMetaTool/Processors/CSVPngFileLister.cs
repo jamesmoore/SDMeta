@@ -78,6 +78,7 @@ namespace SDMetaTool.Processors
 				MaskBlur = generationParams.MaskBlur,
 				VariationSeed = generationParams.VariationSeed,
 				VariationSeedStrength = generationParams.VariationSeedStrength,
+				SeedResizeFrom = generationParams.SeedResizeFrom,
 			};
 		}
 
@@ -111,6 +112,7 @@ namespace SDMetaTool.Processors
 			public string MaskBlur { get; set; }
 			public string VariationSeed { get; set; }
 			public string VariationSeedStrength { get; set; }
+			public string SeedResizeFrom { get; internal set; }
 			public int Count { get; set; }
 		}
 	}

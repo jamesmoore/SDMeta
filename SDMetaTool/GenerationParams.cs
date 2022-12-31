@@ -29,6 +29,7 @@
 		public string MaskBlur { get; set; }
 		public string VariationSeed { get; set; }
 		public string VariationSeedStrength { get; set; }
+		public string SeedResizeFrom { get; set; }
 
 		public string PromptHash { get; set; }
         public string NegativePromptHash { get; set; }
