@@ -72,7 +72,7 @@ namespace BlazorApp1.Controllers
 
 					if (fileSystem.File.Exists(thumbPath) == false)
 					{
-						MagicImageProcessor.ProcessImage(physicalPath, thumbPath, new ProcessImageSettings { Height = 100 });
+						MagicImageProcessor.ProcessImage(physicalPath, thumbPath, new ProcessImageSettings { Height = 175, Width = 175 });
 					}
 
 					return base.PhysicalFile(thumbPath, "image/png");

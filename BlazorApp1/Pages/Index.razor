@@ -1,9 +1,100 @@
 ﻿@page "/"
+@using SDMetaTool;
+@using System.IO.Abstractions;
+@using System.Web;
+@using SDMetaTool.Cache;
 
-<PageTitle>Index</PageTitle>
+@inject IPngFileDataSource x
 
-<h1>Hello, world!</h1>
+<PageTitle>Gallery</PageTitle>
 
-Welcome to your new app.
+@if (files == null)
+{
+	<p><em>Loading...</em></p>
+}
+else
+{
+	<input @oninput="FilterList"></input>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+	<div>
+		<Virtualize Items="@files" Context="forecast" OverscanCount="10" ItemSize="185">
+			<img src="/images/thumb/@(Base64Encode(forecast.Filename))" class="img-fluid img-thumbnail rounded m-2" />
+		</Virtualize>
+	</div>
+
+	@*
+	<div class="container">
+		<div class="row">
+			@foreach (var forecast in files)
+			{
+				<div class="col-lg-3 col-md-4 col-6">
+					<a href="#">
+						<img loading="lazy" src="/images/thumb/@(Base64Encode(forecast.Filename))" class="img-fluid img-thumbnail rounded" />
+					</a>
+				</div>
+			}
+		</div>
+	</div>
+
+	<hr />
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Image</th>
+				<th>File</th>
+				<th>Prompt</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var forecast in files)
+			{
+				<tr>
+					<td>
+						<img loading="lazy"
+					 src="/images/thumb/@(Base64Encode(forecast.Filename))"
+					 class="img-thumbnail" />
+					</td>
+					<td>@forecast.Filename</td>
+					<td>@forecast.Parameters?.Prompt</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+
+	*@
+}
+@code {
+	private IList<PngFile> files = null;
+
+	protected override async Task OnInitializedAsync()
+	{
+		var info = x.GetAll();
+		files = info.ToList();
+	}
+
+	public void FilterList(ChangeEventArgs changeEventArgs)
+	{
+		var filter = changeEventArgs.Value.ToString();
+		files = x.GetAll().Where(p => p.Parameters?.Prompt.Contains(filter) ?? false).ToList();
+	}
+
+	public static string Base64Encode(string plainText)
+	{
+		var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+		return System.Convert.ToBase64String(plainTextBytes);
+	}
+
+	//private async Task<Stream> GetImageStreamAsync()
+	//{
+	//    return await Http.GetStreamAsync(
+	//        "https://avatars.githubusercontent.com/u/9141961");
+	//}
+
+	//private async Task SetImageAsync()
+	//{
+	//    var imageStream = await GetImageStreamAsync();
+	//    var dotnetImageStream = new DotNetStreamReference(imageStream);
+	//    await JS.InvokeVoidAsync("setImage", "image", dotnetImageStream);
+	//}
+}
