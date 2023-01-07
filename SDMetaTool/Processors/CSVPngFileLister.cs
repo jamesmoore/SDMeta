@@ -79,6 +79,8 @@ namespace SDMetaTool.Processors
 				VariationSeed = generationParams.VariationSeed,
 				VariationSeedStrength = generationParams.VariationSeedStrength,
 				SeedResizeFrom = generationParams.SeedResizeFrom,
+				HiresResize = generationParams.HiresResize,
+				HiresUpscaler = generationParams.HiresUpscaler,
 			};
 		}
 
@@ -113,6 +115,8 @@ namespace SDMetaTool.Processors
 			public string VariationSeed { get; set; }
 			public string VariationSeedStrength { get; set; }
 			public string SeedResizeFrom { get; internal set; }
+			public string HiresResize { get; set; }
+			public string HiresUpscaler { get; set; }
 			public int Count { get; set; }
 		}
 	}
