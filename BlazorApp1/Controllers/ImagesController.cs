@@ -57,7 +57,7 @@ namespace BlazorApp1.Controllers
 				if (fileSystem.File.Exists(physicalPath))
 				{
 					var fileInfo = fileSystem.FileInfo.New(physicalPath);
-					var name = fileInfo.Name;
+					var name = fileSystem.Path.GetFileNameWithoutExtension(fileInfo.FullName) + ".jpg";
 
 					var thumbDir = Path.Combine(
 						Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -75,7 +75,7 @@ namespace BlazorApp1.Controllers
 						MagicImageProcessor.ProcessImage(physicalPath, thumbPath, new ProcessImageSettings { Height = 175, Width = 175 });
 					}
 
-					return base.PhysicalFile(thumbPath, "image/png");
+					return base.PhysicalFile(thumbPath, "image/jpg");
 				}
 				else
 				{

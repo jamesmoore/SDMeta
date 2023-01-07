@@ -16,11 +16,18 @@ else
 {
 	<input @oninput="FilterList"></input>
 
-	<div>
-		<Virtualize Items="@files" Context="forecast" OverscanCount="10" ItemSize="185">
-			<img src="/images/thumb/@(Base64Encode(forecast.Filename))" class="img-fluid img-thumbnail rounded m-2" />
-		</Virtualize>
+	<Virtualize Items="@files" Context="forecast" OverscanCount="50" ItemSize="185">
+		<img src="/images/thumb/@(Base64Encode(forecast.Filename))" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" />
+	</Virtualize>
+
+	@*
+	<div class="image-grid">
+		@foreach (var forecast in files)
+		{
+			<img src="/images/thumb/@(Base64Encode(forecast.Filename))" loading="lazy" class="image-item"  />
+		}
 	</div>
+	*@
 
 	@*
 	<div class="container">
