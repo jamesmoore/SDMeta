@@ -40,6 +40,8 @@ namespace SDMetaTool
 		private const string ParamVariationSeed = "Variation seed";
 		private const string ParamVariationSeedStrength = "Variation seed strength";
 		private const string ParamSeedResizeFrom = "Seed resize from";
+		private const string ParamHiresResize = "Hires resize";
+		private const string ParamHiresUpscaler = "Hires upscaler";
 
 		private static readonly string[] KnownParams = new[]
 		{
@@ -65,6 +67,8 @@ namespace SDMetaTool
 			ParamVariationSeed,
 			ParamVariationSeedStrength,
 			ParamSeedResizeFrom,
+			ParamHiresResize,
+			ParamHiresUpscaler,
 		};
 
 		public GenerationParams GetParameters(string _parameters)
@@ -138,6 +142,8 @@ namespace SDMetaTool
 				VariationSeed = parametersLookup[ParamVariationSeed]?.FirstOrDefault(),
 				VariationSeedStrength = parametersLookup[ParamVariationSeedStrength]?.FirstOrDefault(),
 				SeedResizeFrom = parametersLookup[ParamSeedResizeFrom]?.FirstOrDefault(),
+				HiresResize = parametersLookup[ParamHiresResize]?.FirstOrDefault(),
+				HiresUpscaler = parametersLookup[ParamHiresUpscaler]?.FirstOrDefault(),
 				PromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(positive, " ").ToLower()),
 				NegativePromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(negative, " ").ToLower()),
 			};
