@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using BlazorApp1.Models;
 @using SDMetaTool;
 @using System.IO.Abstractions;
 @using System.Web;
@@ -14,10 +15,46 @@
 }
 else
 {
-	<input @oninput="FilterList"></input>
+	<form class="row gy-2 gx-3 align-items-center">
+		<div class="col-auto">
+			<label class="visually-hidden" for="autoSizingInput">Filter</label>
+			<input type="text" @oninput="OnSetFilter" class="form-control" id="autoSizingInput" placeholder="filter">
+		</div>
+		<div class="col-auto">
+			<label class="visually-hidden" for="autoSizingSelect">Preference</label>
+			<select class="form-select" id="autoSizingSelect" @onchange="OnSelectGroupMode">
+				@foreach (var template in GroupModes)
+				{
+					<option value=@template>@template</option>
+				}
+			</select>
+		</div>
+		@*
+	<div class="col-auto">
+	<div class="form-check">
+	<input class="form-check-input" type="checkbox" id="autoSizingCheck">
+	<label class="form-check-label" for="autoSizingCheck">
+	Remember me
+	</label>
+	</div>
+	</div>
+	<div class="col-auto">
+	<button type="submit" class="btn btn-primary">Submit</button>
+	</div>
+	*@
+	</form>
 
-	<Virtualize Items="@files" Context="forecast" OverscanCount="50" ItemSize="185">
-		<img src="/images/thumb/@(Base64Encode(forecast.Filename))" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" />
+	<Virtualize Items="@files" Context="file" OverscanCount="50" ItemSize="185">
+		<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" title="@file.Filename" @onclick="() => imageClick(file)" />
+		@if(file.Expanded)
+		{
+			<hr/>
+			foreach (var file in expandedfiles)
+			{
+				<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" title="@file.Filename" />
+			}
+			<hr />
+		}
 	</Virtualize>
 
 	@*
@@ -72,18 +109,36 @@ else
 	*@
 }
 @code {
-	private IList<PngFile> files = null;
+	static List<string> GroupModes = new List<string>() {
+		"Each gen",
+		"Grouped by prompt"
+	};
+	string GroupMode = GroupModes.First();
+	private IList<PngFileViewModel> allFiles = null;
+	private IList<PngFileViewModel> files = null;
+	private IList<PngFileViewModel> expandedfiles = null;
+
+	private string filter = "";
 
 	protected override async Task OnInitializedAsync()
 	{
-		var info = x.GetAll();
-		files = info.ToList();
+		allFiles = x.GetAll().OrderByDescending(p => p.LastUpdated).Select(p => new PngFileViewModel()
+			{
+				Filename = p.Filename,
+				ImageUrl = $"/images/thumb/{Base64Encode(p.Filename)}",
+				LastUpdated = p.LastUpdated,
+				Length = p.Length,
+				Prompt = p.Parameters?.Prompt ?? "",
+				FullPromptHash = p.Parameters?.Prompt + p.Parameters?.NegativePrompt ?? "",
+			}).ToList();
+		SetFiles();
 	}
 
-	public void FilterList(ChangeEventArgs changeEventArgs)
+	public void OnSetFilter(ChangeEventArgs changeEventArgs)
 	{
 		var filter = changeEventArgs.Value.ToString();
-		files = x.GetAll().Where(p => p.Parameters?.Prompt.Contains(filter) ?? false).ToList();
+		this.filter = filter;
+		SetFiles();
 	}
 
 	public static string Base64Encode(string plainText)
@@ -92,16 +147,44 @@ else
 		return System.Convert.ToBase64String(plainTextBytes);
 	}
 
-	//private async Task<Stream> GetImageStreamAsync()
-	//{
-	//    return await Http.GetStreamAsync(
-	//        "https://avatars.githubusercontent.com/u/9141961");
-	//}
+	void OnSelectGroupMode(ChangeEventArgs e)
+	{
+		GroupMode = e.Value.ToString();
+		SetFiles();
+	}
 
-	//private async Task SetImageAsync()
-	//{
-	//    var imageStream = await GetImageStreamAsync();
-	//    var dotnetImageStream = new DotNetStreamReference(imageStream);
-	//    await JS.InvokeVoidAsync("setImage", "image", dotnetImageStream);
-	//}
+	private void SetFiles()
+	{
+		files = allFiles.ToList();
+		if (string.IsNullOrWhiteSpace(filter) == false)
+		{
+			files = allFiles.Where(p => p.Prompt.Contains(filter, StringComparison.InvariantCultureIgnoreCase)).ToList();
+		}
+
+		if (GroupMode == GroupModes[1])
+		{
+			files = files.GroupBy(p => p.FullPromptHash).Select(p => p.LastOrDefault()).ToList();
+		}
+	}
+
+	private void imageClick(PngFileViewModel model)
+	{
+		model.Expanded = !model.Expanded;
+		foreach(var file in files)
+		{
+			if(file.Expanded && file != model)
+			{
+				file.Expanded = false;				
+			}
+		}
+
+		if(model.Expanded)
+		{
+			expandedfiles = allFiles.Where(p => p.FullPromptHash == model.FullPromptHash).ToList();
+		}
+		else
+		{
+			expandedfiles = Enumerable.Empty<PngFileViewModel>().ToList();
+		}
+	}
 }

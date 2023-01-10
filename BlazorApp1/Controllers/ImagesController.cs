@@ -18,13 +18,6 @@ namespace BlazorApp1.Controllers
 			this.fileSystem = fileSystem;
 		}
 
-		[HttpGet]
-		[Route("")]
-		public IActionResult hello()
-		{
-			return Content("HELLO");
-		}
-
 		[Route("{path}")]
 		public IActionResult Index(string path)
 		{
