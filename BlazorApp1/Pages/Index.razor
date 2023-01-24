@@ -4,6 +4,7 @@
 @using System.IO.Abstractions;
 @using System.Web;
 @using SDMetaTool.Cache;
+@using BootstrapBlazor.Components;
 
 @inject IPngFileDataSource x
 
@@ -46,67 +47,81 @@ else
 
 	<Virtualize Items="@files" Context="file" OverscanCount="50" ItemSize="185">
 		<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" title="@file.Filename" @onclick="() => imageClick(file)" />
-		@if(file.Expanded)
+		@if (file.Expanded)
 		{
-			<hr/>
+			<hr />
 			foreach (var file in expandedfiles)
 			{
-				<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" title="@file.Filename" />
+				<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" title="@file.Filename" @onclick="() => OpenDrawer(file)" />
 			}
 			<hr />
 		}
 	</Virtualize>
 
-	@*
-	<div class="image-grid">
-		@foreach (var forecast in files)
+	<Drawer Placement="Placement.Right" @bind-IsOpen="@IsBackdropOpen" IsBackdrop="true">
+		@if (selectedFile != null)
 		{
-			<img src="/images/thumb/@(Base64Encode(forecast.Filename))" loading="lazy" class="image-item"  />
+			<table class="table">
+				<thead>
+					<tr>
+						<th scope="col">Prompt</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td scope="row"><small>@selectedFile.Parameters.Prompt</small></td>
+					</tr>
+				</tbody>
+			</table>
+			<table class="table">
+				<thead>
+					<tr>
+						<th scope="col">Negatives</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td scope="row"><small>@selectedFile.Parameters.NegativePrompt</small></td>
+					</tr>
+				</tbody>
+			</table>
+			<table class="table">
+				<thead>
+					<tr>
+						<th scope="col">Param</th>
+						<th scope="col">Value</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th scope="row">LastUpdated</th>
+						<td>@selectedFile?.LastUpdated</td>
+					</tr>
+					<tr>
+						<th scope="row">Model</th>
+						<td>@selectedFile?.Parameters.Model</td>
+					</tr>
+					<tr>
+						<th scope="row">Model hash</th>
+						<td>@selectedFile?.Parameters.ModelHash</td>
+					</tr>
+					<tr>
+						<th scope="row">Sampler</th>
+						<td>@selectedFile?.Parameters.Sampler</td>
+					</tr>
+					<tr>
+						<th scope="row">Cfg scale</th>
+						<td>@selectedFile?.Parameters.CFGScale</td>
+					</tr>
+					<tr>
+						<th scope="row">Steps</th>
+						<td>@selectedFile?.Parameters.Steps</td>
+					</tr>
+				</tbody>
+			</table>
 		}
-	</div>
-	*@
+	</Drawer>
 
-	@*
-	<div class="container">
-		<div class="row">
-			@foreach (var forecast in files)
-			{
-				<div class="col-lg-3 col-md-4 col-6">
-					<a href="#">
-						<img loading="lazy" src="/images/thumb/@(Base64Encode(forecast.Filename))" class="img-fluid img-thumbnail rounded" />
-					</a>
-				</div>
-			}
-		</div>
-	</div>
-
-	<hr />
-
-	<table class="table">
-		<thead>
-			<tr>
-				<th>Image</th>
-				<th>File</th>
-				<th>Prompt</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var forecast in files)
-			{
-				<tr>
-					<td>
-						<img loading="lazy"
-					 src="/images/thumb/@(Base64Encode(forecast.Filename))"
-					 class="img-thumbnail" />
-					</td>
-					<td>@forecast.Filename</td>
-					<td>@forecast.Parameters?.Prompt</td>
-				</tr>
-			}
-		</tbody>
-	</table>
-
-	*@
 }
 @code {
 	static List<string> GroupModes = new List<string>() {
@@ -117,8 +132,11 @@ else
 	private IList<PngFileViewModel> allFiles = null;
 	private IList<PngFileViewModel> files = null;
 	private IList<PngFileViewModel> expandedfiles = null;
+	private PngFile selectedFile = null;
 
 	private string filter = "";
+
+	private bool IsBackdropOpen { get; set; }
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -158,33 +176,53 @@ else
 		files = allFiles.ToList();
 		if (string.IsNullOrWhiteSpace(filter) == false)
 		{
-			files = allFiles.Where(p => p.Prompt.Contains(filter, StringComparison.InvariantCultureIgnoreCase)).ToList();
+			files = allFiles.Where(p => p.Prompt.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
+				p.Filename.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
+			).ToList();
 		}
 
-		if (GroupMode == GroupModes[1])
+		if (this.IsGrouped())
 		{
 			files = files.GroupBy(p => p.FullPromptHash).Select(p => p.LastOrDefault()).ToList();
 		}
 	}
 
+	private bool IsGrouped()
+	{
+		return GroupMode == GroupModes[1];
+	}
+
 	private void imageClick(PngFileViewModel model)
 	{
-		model.Expanded = !model.Expanded;
-		foreach(var file in files)
+		if (IsGrouped())
 		{
-			if(file.Expanded && file != model)
+			model.Expanded = !model.Expanded;
+			foreach (var file in files)
 			{
-				file.Expanded = false;				
+				if (file.Expanded && file != model)
+				{
+					file.Expanded = false;
+				}
 			}
-		}
 
-		if(model.Expanded)
-		{
-			expandedfiles = allFiles.Where(p => p.FullPromptHash == model.FullPromptHash).ToList();
+			if (model.Expanded)
+			{
+				expandedfiles = allFiles.Where(p => p.FullPromptHash == model.FullPromptHash).ToList();
+			}
+			else
+			{
+				expandedfiles = Enumerable.Empty<PngFileViewModel>().ToList();
+			}
 		}
 		else
 		{
-			expandedfiles = Enumerable.Empty<PngFileViewModel>().ToList();
+			OpenDrawer(model);
 		}
+	}
+
+	public void OpenDrawer(PngFileViewModel model)
+	{
+		this.selectedFile = x.ReadPngFile(model.Filename);
+		IsBackdropOpen = true;
 	}
 }

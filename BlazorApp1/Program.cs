@@ -9,6 +9,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<IFileSystem, FileSystem>();
 builder.Services.AddSingleton<IPngFileDataSource, JsonDataSource>();
 builder.Services.AddControllers();
+builder.Services.AddBootstrapBlazor();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
