@@ -1,4 +1,4 @@
-﻿namespace BlazorApp1.Models
+﻿namespace SDMetaUI.Models
 {
 	public class PngFileViewModel
 	{

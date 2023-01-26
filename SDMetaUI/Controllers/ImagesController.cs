@@ -5,7 +5,7 @@ using System.Drawing;
 using System.IO.Abstractions;
 using System.Net;
 
-namespace BlazorApp1.Controllers
+namespace SDMetaUI.Controllers
 {
 	[ApiController]
 	[Route("images")]
