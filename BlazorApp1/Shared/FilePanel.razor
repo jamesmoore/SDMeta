@@ -1,0 +1,64 @@
+﻿@using SDMetaTool;
+	<table class="table">
+		<thead>
+			<tr>
+				<th scope="col">Prompt</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td scope="row"><small>@selectedFile.Parameters.Prompt</small></td>
+			</tr>
+		</tbody>
+	</table>
+	<table class="table">
+		<thead>
+			<tr>
+				<th scope="col">Negatives</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td scope="row"><small>@selectedFile.Parameters.NegativePrompt</small></td>
+			</tr>
+		</tbody>
+	</table>
+	<table class="table">
+		<thead>
+			<tr>
+				<th scope="col">Param</th>
+				<th scope="col">Value</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<th scope="row">LastUpdated</th>
+				<td>@selectedFile?.LastUpdated</td>
+			</tr>
+			<tr>
+				<th scope="row">Model</th>
+				<td>@selectedFile?.Parameters.Model</td>
+			</tr>
+			<tr>
+				<th scope="row">Model hash</th>
+				<td>@selectedFile?.Parameters.ModelHash</td>
+			</tr>
+			<tr>
+				<th scope="row">Sampler</th>
+				<td>@selectedFile?.Parameters.Sampler</td>
+			</tr>
+			<tr>
+				<th scope="row">Cfg scale</th>
+				<td>@selectedFile?.Parameters.CFGScale</td>
+			</tr>
+			<tr>
+				<th scope="row">Steps</th>
+				<td>@selectedFile?.Parameters.Steps</td>
+			</tr>
+		</tbody>
+	</table>
+
+@code {
+    [Parameter]
+    public PngFile selectedFile { get; set; }
+}
