@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="BootstrapBlazor" Version="7.2.4" />
     <PackageReference Include="PhotoSauce.MagicScaler" Version="0.13.2" />
-    <PackageReference Include="TestableIO.System.IO.Abstractions" Version="19.1.5" />
+    <PackageReference Include="TestableIO.System.IO.Abstractions" Version="19.1.13" />
   </ItemGroup>
 
   <ItemGroup>
