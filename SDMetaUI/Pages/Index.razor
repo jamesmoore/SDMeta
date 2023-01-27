@@ -52,12 +52,12 @@ else
 		</Tooltip>
 		@if (file.Expanded)
 		{
-			<hr />
+			<Divider Text="@(expandedfiles.Count.ToString() + " gens of this prompt")" />
 			foreach (var file in expandedfiles)
 			{
 				<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" @onclick="() => OpenDrawer(file)" />
 			}
-			<hr />
+			 <Divider />
 		}
 	</Virtualize>
 
