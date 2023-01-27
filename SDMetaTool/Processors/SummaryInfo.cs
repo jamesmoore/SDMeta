@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BetterConsoleTables;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,11 +25,26 @@ namespace SDMetaTool.Processors
 				GroupBy(p => p.Parameters?.ModelHash).
 				Select(p => new { ModelHash = p.Key, Count = p.Count(), Models = p.Select(q => q.Parameters?.Model ?? "<empty>").Distinct() }).ToList().OrderByDescending(p => p.Count);
 
-			Console.WriteLine($"Models:\tHash\tCount\tModel name(s)");
+
+			var headers = new[]
+			{
+				new ColumnHeader("Hash"),
+				new ColumnHeader("Count", Alignment.Right),
+				new ColumnHeader("Model name(s)"),
+			};
+
+			var table = new Table(new TableConfiguration() { 
+				wrapText = true,
+				hasInnerRows= false,
+				hasInnerColumns= false,
+				textWrapLimit=50
+			}, headers);
+
 			foreach (var modelGroup in modelGroups)
 			{
-				Console.WriteLine($"\t{modelGroup.ModelHash ?? "<empty>"}\t{modelGroup.Count}\t{string.Join(", ", modelGroup.Models.ToArray())}");
+				table.AddRow(modelGroup.ModelHash ?? "<empty>", modelGroup.Count, string.Join(", ", modelGroup.Models.ToArray()));
 			}
+			Console.Write(table.ToString());
 		}
 
 		// Returns the human-readable file size for an arbitrary, 64-bit file size 
