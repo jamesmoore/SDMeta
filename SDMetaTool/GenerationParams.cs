@@ -1,4 +1,7 @@
-﻿namespace SDMetaTool
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace SDMetaTool
 {
     public partial class GenerationParams
     {
@@ -35,5 +38,18 @@
 
 		public string PromptHash { get; set; }
         public string NegativePromptHash { get; set; }
+
+        public string GetFullPrompt()
+        {
+            var prompts = new List<string>()
+            {
+                this.Prompt,
+                string.IsNullOrWhiteSpace(this.NegativePrompt) ? string.Empty : "Negative prompt: " + this.NegativePrompt,
+                this.Params
+            };
+
+            var combined = string.Join("\r\n", prompts.Where(p => string.IsNullOrWhiteSpace(p) == false).ToArray());
+            return combined;
+        }
 	}
 }

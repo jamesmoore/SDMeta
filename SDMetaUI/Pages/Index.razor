@@ -47,13 +47,15 @@ else
 	</form>
 
 	<Virtualize Items="@files" Context="file" OverscanCount="64" ItemSize="185">
-		<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" title="@file.Filename" @onclick="() => imageClick(file)" />
+		<Tooltip Placement="Placement.Bottom" Title="@(file.Tooltip)">
+			<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" @onclick="() => imageClick(file)" />
+		</Tooltip>
 		@if (file.Expanded)
 		{
 			<hr />
 			foreach (var file in expandedfiles)
 			{
-				<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" title="@file.Filename" @onclick="() => OpenDrawer(file)" />
+				<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" @onclick="() => OpenDrawer(file)" />
 			}
 			<hr />
 		}
@@ -92,6 +94,7 @@ else
 				Length = p.Length,
 				Prompt = p.Parameters?.Prompt ?? "",
 				FullPromptHash = p.Parameters?.Prompt + p.Parameters?.NegativePrompt ?? "",
+				Tooltip = $"Model: {p.Parameters?.Model ?? ""}\r\nDate: {p.LastUpdated}",
 			}).ToList();
 		SetFiles();
 	}

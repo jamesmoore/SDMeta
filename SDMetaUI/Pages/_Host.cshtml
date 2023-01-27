@@ -29,5 +29,14 @@
 
     <script src="_framework/blazor.server.js"></script>
     <script src="_content/BootstrapBlazor/js/bootstrap.blazor.bundle.min.js"></script>
+
+    <script>
+        function copyClipboard(elementId) {
+            var copyText = document.getElementById(elementId);
+            copyText.select();
+            document.execCommand("copy");
+        }
+    </script>
+
 </body>
 </html>
