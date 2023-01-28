@@ -47,9 +47,9 @@ else
 	</form>
 
 	<Virtualize Items="@files" Context="file" OverscanCount="64" ItemSize="185">
-		<Tooltip Placement="Placement.Bottom" Title="@(file.Tooltip)">
+		<Popover Placement="Placement.Auto" Title="Params" Content="@file.Tooltip" IsHtml="true">
 			<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" @onclick="() => imageClick(file)" />
-		</Tooltip>
+		</Popover>
 		@if (file.Expanded)
 		{
 			<Divider Text="@(expandedfiles.Count.ToString() + " gens of this prompt")" />
@@ -61,7 +61,7 @@ else
 		}
 	</Virtualize>
 
-	<Drawer Placement="Placement.Right" @bind-IsOpen="@IsBackdropOpen" IsBackdrop="true">
+	<Drawer Placement="Placement.Right" @bind-IsOpen="@IsBackdropOpen" IsBackdrop="false" ShowBackdrop="false" data-bs-scroll="true">
 		@if (selectedFile != null && IsBackdropOpen)
 		{
 			<FilePanel selectedFile="@selectedFile" />
@@ -94,7 +94,13 @@ else
 				Length = p.Length,
 				Prompt = p.Parameters?.Prompt ?? "",
 				FullPromptHash = p.Parameters?.Prompt + p.Parameters?.NegativePrompt ?? "",
-				Tooltip = $"Model: {p.Parameters?.Model ?? ""}\r\nDate: {p.LastUpdated}",
+				Tooltip = $@"
+					<small>
+					<strong>Model:</strong> {p.Parameters?.Model ?? ""}<br/>
+					<strong>Hash:</strong> {p.Parameters?.ModelHash ?? ""}<br/>
+					<strong>Sampler:</strong> {p.Parameters?.Sampler ?? ""}<br/>
+					<strong>Date:</strong> {p.LastUpdated}
+					</small>",
 			}).ToList();
 		SetFiles();
 	}
