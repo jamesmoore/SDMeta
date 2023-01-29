@@ -34,9 +34,8 @@ else
 		</div>
 	</div>
 	<Virtualize Items="@files" Context="file" OverscanCount="64" ItemSize="185">
-		<HxPopover Placement="PopoverPlacement.Auto" Title="Params" Content="@file.Tooltip" Html="true" Trigger="PopoverTrigger.Hover">
 			<Thumbnail file="@file" selected=@(selectedFile?.Filename == file.Filename) onclick="() => imageClick(file)" />
-		</HxPopover>
+
 		@if (file.Expanded)
 		{
 			<div class="divider"><div class="divider-text is-center"><span>@(expandedfiles.Count.ToString() + " gens of this prompt")</span></div></div>
