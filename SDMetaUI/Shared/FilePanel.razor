@@ -1,4 +1,5 @@
 ﻿@using SDMetaTool;
+@using SDMetaUI.Models;
 @inject IJSRuntime JSRuntime
 
 <table class="table">
@@ -79,6 +80,7 @@
 		</tr>
 	</tbody>
 </table>
+<Thumbnail file="@(PngFileViewModel.FromModel(selectedFile))"/>
 
 @code {
 	[Parameter]

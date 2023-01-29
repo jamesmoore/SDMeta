@@ -90,22 +90,7 @@ else
 
 	protected override async Task OnInitializedAsync()
 	{
-		allFiles = x.GetAll().OrderByDescending(p => p.LastUpdated).Select(p => new PngFileViewModel()
-			{
-				Filename = p.Filename,
-				ImageUrl = $"/images/thumb/{Base64Encode(p.Filename)}",
-				LastUpdated = p.LastUpdated,
-				Length = p.Length,
-				Prompt = p.Parameters?.Prompt ?? "",
-				FullPromptHash = p.Parameters?.Prompt + p.Parameters?.NegativePrompt ?? "",
-				Tooltip = $@"
-					<small>
-					<strong>Model:</strong> {p.Parameters?.Model ?? ""}<br/>
-					<strong>Hash:</strong> {p.Parameters?.ModelHash ?? ""}<br/>
-					<strong>Sampler:</strong> {p.Parameters?.Sampler ?? ""}<br/>
-					<strong>Date:</strong> {p.LastUpdated}
-					</small>",
-			}).ToList();
+		allFiles = x.GetAll().OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
 		SetFiles();
 	}
 
@@ -114,12 +99,6 @@ else
 		var filter = changeEventArgs.Value.ToString();
 		this.filter = filter;
 		SetFiles();
-	}
-
-	public static string Base64Encode(string plainText)
-	{
-		var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
-		return System.Convert.ToBase64String(plainTextBytes);
 	}
 
 	void OnSelectGroupMode(ChangeEventArgs e)

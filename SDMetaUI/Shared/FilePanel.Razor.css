@@ -33,3 +33,7 @@
             overflow-y: auto;
         }
 }
+
+td, th {
+    font-size: 12px;
+}
