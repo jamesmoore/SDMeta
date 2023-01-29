@@ -7,7 +7,7 @@ namespace SDMetaUI.Models
 		public string Filename { get; set; }
 		public DateTime LastUpdated { get; set; }
 		public long Length { get; set; }
-		public string ImageUrl { get; set; }
+		public string ThumbnailUrl { get; set; }
 		public string Prompt { get; set; }
 		public string FullPromptHash { get; set; }
 		public bool Expanded { get; set; }
@@ -18,7 +18,7 @@ namespace SDMetaUI.Models
 			return new PngFileViewModel()
 			{
 				Filename = p.Filename,
-				ImageUrl = $"/images/thumb/{Base64Encode(p.Filename)}",
+				ThumbnailUrl = $"/images/thumb/{Base64Encode(p.Filename)}",
 				LastUpdated = p.LastUpdated,
 				Length = p.Length,
 				Prompt = p.Parameters?.Prompt ?? "",
@@ -31,6 +31,11 @@ namespace SDMetaUI.Models
 					<strong>Date:</strong> {p.LastUpdated}
 					</small>",
 			};
+		}
+
+		public string GetImageUrl()
+		{
+			return $"/images/full/{Base64Encode(this.Filename)}";
 		}
 
 		private static string Base64Encode(string plainText)

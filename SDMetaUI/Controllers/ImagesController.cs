@@ -82,6 +82,28 @@ namespace SDMetaUI.Controllers
 			}
 		}
 
+		[Route("full/{path}")]
+		public IActionResult Full(string path)
+		{
+			try
+			{
+				string physicalPath = Base64Decode(path);
+				if (fileSystem.File.Exists(physicalPath))
+				{ 
+					return base.PhysicalFile(physicalPath, "image/jpg");
+				}
+				else
+				{
+					return NotFound();
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.Message);
+				return NotFound();
+			}
+		}
+
 		public static string Base64Decode(string base64EncodedData)
 		{
 			var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);

@@ -37,3 +37,11 @@
 td, th {
     font-size: 12px;
 }
+
+.img-fit {
+    object-fit: contain;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+}
