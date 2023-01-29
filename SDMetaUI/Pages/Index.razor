@@ -32,19 +32,6 @@ else
 				}
 			</select>
 		</div>
-		@*
-	<div class="col-auto">
-	<div class="form-check">
-	<input class="form-check-input" type="checkbox" id="autoSizingCheck">
-	<label class="form-check-label" for="autoSizingCheck">
-	Remember me
-	</label>
-	</div>
-	</div>
-	<div class="col-auto">
-	<button type="submit" class="btn btn-primary">Submit</button>
-	</div>
-	*@
 	</div>
 	<Virtualize Items="@files" Context="file" OverscanCount="64" ItemSize="185">
 		<HxPopover Placement="PopoverPlacement.Auto" Title="Params" Content="@file.Tooltip" Html="true" Trigger="PopoverTrigger.Hover">
@@ -64,17 +51,14 @@ else
 
 	<HxOffcanvas @ref="offcanvasEnd" Placement="OffcanvasPlacement.End" ScrollingEnabled="true" Backdrop="OffcanvasBackdrop.False">
 		<BodyTemplate>
-			@if (selectedFile != null)
-			{
-				<FilePanel selectedFile="@selectedFile" />
-			}
+			<FilePanel selectedFile="@selectedFile" />
 		</BodyTemplate>
 	</HxOffcanvas>
 
 }
 @code {
 
-	private HxOffcanvas offcanvasEnd;
+	private HxOffcanvas? offcanvasEnd;
 
 	static List<string> GroupModes = new List<string>() {
 		"Each gen",
