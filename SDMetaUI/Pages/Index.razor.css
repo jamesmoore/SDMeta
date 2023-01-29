@@ -17,3 +17,26 @@ img {
 }
 
     */
+
+.divider {
+    background-color: #303133;
+    position: relative;
+    margin: 1rem 0;
+    display: block;
+    height: 1px;
+    width: 100%;
+}
+
+    .divider .divider-text.is-center {
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+    }
+
+    .divider .divider-text {
+        position: absolute;
+        background-color: #fff;
+        padding: 0 20px;
+        font-weight: 500;
+        color: #303133;
+        font-size: 14px;
+    }

@@ -1,3 +1,4 @@
+using Havit.Blazor.Components.Web;
 using SDMetaTool.Cache;
 using System.IO.Abstractions;
 
@@ -9,7 +10,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<IFileSystem, FileSystem>();
 builder.Services.AddSingleton<IPngFileDataSource, JsonDataSource>();
 builder.Services.AddControllers();
-builder.Services.AddBootstrapBlazor();
+builder.Services.AddHxServices();        // <------ ADD THIS LINE
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

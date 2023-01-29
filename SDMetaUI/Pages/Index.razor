@@ -4,7 +4,6 @@
 @using System.IO.Abstractions;
 @using System.Web;
 @using SDMetaTool.Cache;
-@using BootstrapBlazor.Components;
 @using SDMetaUI.Shared
 
 @inject IPngFileDataSource x
@@ -17,7 +16,9 @@
 }
 else
 {
-	<form class="row gy-2 gx-3 align-items-center">
+
+
+	<div class="row gy-2 gx-3">
 		<div class="col-auto">
 			<label class="visually-hidden" for="autoSizingInput">Filter</label>
 			<input type="text" @oninput="OnSetFilter" class="form-control" id="autoSizingInput" placeholder="filter">
@@ -44,32 +45,37 @@ else
 	<button type="submit" class="btn btn-primary">Submit</button>
 	</div>
 	*@
-	</form>
-
+	</div>
 	<Virtualize Items="@files" Context="file" OverscanCount="64" ItemSize="185">
-		<Popover Placement="Placement.Auto" Title="Params" Content="@file.Tooltip" IsHtml="true">
+		<HxPopover Placement="PopoverPlacement.Auto" Title="Params" Content="@file.Tooltip" Html="true"  Trigger="PopoverTrigger.Hover">
 			<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" @onclick="() => imageClick(file)" />
-		</Popover>
+		</HxPopover>
 		@if (file.Expanded)
 		{
-			<Divider Text="@(expandedfiles.Count.ToString() + " gens of this prompt")" />
+			<div class="divider"><div class="divider-text is-center"><span>@(expandedfiles.Count.ToString() + " gens of this prompt")</span></div></div>
+
 			foreach (var file in expandedfiles)
 			{
 				<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2" width="175" height="175" @onclick="() => OpenDrawer(file)" />
 			}
-			 <Divider />
+			<div class="divider"></div>
 		}
 	</Virtualize>
 
-	<Drawer Placement="Placement.Right" @bind-IsOpen="@IsBackdropOpen" IsBackdrop="false" ShowBackdrop="false" data-bs-scroll="true">
-		@if (selectedFile != null && IsBackdropOpen)
-		{
-			<FilePanel selectedFile="@selectedFile" />
-		}
-	</Drawer>
+	<HxOffcanvas @ref="offcanvasEnd" Placement="OffcanvasPlacement.End" ScrollingEnabled="true" Backdrop="OffcanvasBackdrop.False">
+		<BodyTemplate>
+			@if (selectedFile != null)
+			{
+				<FilePanel selectedFile="@selectedFile" />
+			}
+		</BodyTemplate>
+	</HxOffcanvas>
 
 }
 @code {
+
+	private HxOffcanvas offcanvasEnd;
+
 	static List<string> GroupModes = new List<string>() {
 		"Each gen",
 		"Grouped by prompt"
@@ -81,8 +87,6 @@ else
 	private PngFile selectedFile = null;
 
 	private string filter = "";
-
-	private bool IsBackdropOpen { get; set; }
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -176,6 +180,6 @@ else
 	public void OpenDrawer(PngFileViewModel model)
 	{
 		this.selectedFile = x.ReadPngFile(model.Filename);
-		IsBackdropOpen = true;
+		offcanvasEnd.ShowAsync();
 	}
 }
