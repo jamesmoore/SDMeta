@@ -18,22 +18,25 @@
 		</tr>
 	</tbody>
 </table>
-<table class="table">
-	<thead>
-		<tr>
-			<th scope="col">Negatives</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<td scope="row">
-				<div class="scroll" style="max-height: 150px;">
-					<small>@selectedFile.Parameters.NegativePrompt</small>
-				</div>
-			</td>
-		</tr>
-	</tbody>
-</table>
+@if (string.IsNullOrWhiteSpace(@selectedFile.Parameters.NegativePrompt) == false)
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th scope="col">Negatives</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td scope="row">
+					<div class="scroll" style="max-height: 150px;">
+						<small>@selectedFile.Parameters.NegativePrompt</small>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+}
 <table class="table">
 	<thead>
 		<tr>
