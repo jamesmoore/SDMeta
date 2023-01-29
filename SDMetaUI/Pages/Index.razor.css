@@ -40,3 +40,8 @@ img {
         color: #303133;
         font-size: 14px;
     }
+
+img.selected {
+    border-color: dimgray;
+    background-color: lightgray;
+}
