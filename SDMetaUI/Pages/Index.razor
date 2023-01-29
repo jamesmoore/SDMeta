@@ -47,8 +47,8 @@ else
 	*@
 	</div>
 	<Virtualize Items="@files" Context="file" OverscanCount="64" ItemSize="185">
-		<HxPopover Placement="PopoverPlacement.Auto" Title="Params" Content="@file.Tooltip" Html="true"  Trigger="PopoverTrigger.Hover">
-			<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2 @(selectedFile?.Filename == file.Filename ? "selected" : "")" width="175" height="175" @onclick="() => imageClick(file)" />
+		<HxPopover Placement="PopoverPlacement.Auto" Title="Params" Content="@file.Tooltip" Html="true" Trigger="PopoverTrigger.Hover">
+			<Thumbnail file="@file" selected=@(selectedFile?.Filename == file.Filename) onclick="() => imageClick(file)" />
 		</HxPopover>
 		@if (file.Expanded)
 		{
@@ -56,7 +56,7 @@ else
 
 			foreach (var file in expandedfiles)
 			{
-				<img src="@file.ImageUrl" class="img-fluid img-thumbnail rounded m-2 @(selectedFile?.Filename == file.Filename ? "selected" : "")" width="175" height="175" @onclick="() => OpenDrawer(file)" />
+				<Thumbnail file="@file" selected=@(selectedFile?.Filename == file.Filename) onclick="() => OpenDrawer(file)" />
 			}
 			<div class="divider"></div>
 		}
