@@ -46,13 +46,15 @@
 	</thead>
 	<tbody>
 		<tr>
-			<th scope="row">LastUpdated</th>
+			<th scope="row">Date</th>
 			<td>@selectedFile?.LastUpdated</td>
 		</tr>
-		<tr>
-			<th scope="row">Model</th>
-			<td>@selectedFile?.Parameters.Model</td>
-		</tr>
+		@if (string.IsNullOrWhiteSpace(selectedFile?.Parameters.Model) == false) {
+			<tr>
+				<th scope="row">Model</th>
+				<td>@selectedFile?.Parameters.Model</td>
+			</tr>
+		}
 		<tr>
 			<th scope="row">Model hash</th>
 			<td>@selectedFile?.Parameters.ModelHash</td>
