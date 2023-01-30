@@ -82,19 +82,19 @@
 		</tr>
 	</tbody>
 </table>
-<Thumbnail file="@(PngFileViewModel.FromModel(selectedFile))" @onclick="() => xl2Modal.ShowAsync()" />
+<Thumbnail file="@(selectedFile)" @onclick="() => xl2Modal.ShowAsync()" />
 
 <HxModal @ref="xl2Modal" Fullscreen="ModalFullscreen.Always" Backdrop="ModalBackdrop.False">
 	<BodyTemplate>
 		<div @onclick="() => xl2Modal.HideAsync()" style="width: 100%; height: 100%; background-color:gba(0, 0, 0, 0.1);" class="text-center">
-			<img src="@PngFileViewModel.FromModel(selectedFile).GetImageUrl()" class="img-fit" />
+			<img src="@selectedFile.GetImageUrl()" class="img-fit" />
 		</div>
 	</BodyTemplate>
 </HxModal>
 
 @code {
 	[Parameter]
-	public PngFile selectedFile { get; set; }
+	public PngFileViewModel selectedFile { get; set; }
 
 	private HxModal? xl2Modal;
 

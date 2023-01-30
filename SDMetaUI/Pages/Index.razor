@@ -6,7 +6,7 @@
 @using SDMetaTool.Cache;
 @using SDMetaUI.Shared
 
-@inject IPngFileDataSource x
+@inject IPngFileDataSource pngfileDataSource
 
 <PageTitle>Gallery</PageTitle>
 
@@ -65,13 +65,13 @@ else
 	private IList<PngFileViewModel> allFiles = null;
 	private IList<PngFileViewModel> files = null;
 	private IList<PngFileViewModel> expandedfiles = null;
-	private PngFile selectedFile = null;
+	private PngFileViewModel selectedFile = null;
 
 	private string filter = "";
 
 	protected override async Task OnInitializedAsync()
 	{
-		allFiles = x.GetAll().OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
+		allFiles = pngfileDataSource.GetAll().OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
 		SetFiles();
 	}
 
@@ -93,7 +93,8 @@ else
 		files = allFiles.ToList();
 		if (string.IsNullOrWhiteSpace(filter) == false)
 		{
-			files = allFiles.Where(p => p.Prompt.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
+			files = allFiles.Where(p => 
+				p.Prompt.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
 				p.Filename.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
 			).ToList();
 		}
@@ -139,7 +140,7 @@ else
 
 	public void OpenDrawer(PngFileViewModel model)
 	{
-		this.selectedFile = x.ReadPngFile(model.Filename);
+		this.selectedFile = model;
 		offcanvasEnd.ShowAsync();
 	}
 }
