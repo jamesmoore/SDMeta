@@ -2,7 +2,7 @@
 
 namespace SDMetaTool
 {
-    public interface IDirectoryProcessor
+    public interface IFileLister
     {
         IEnumerable<string> GetList(string path);
     }

@@ -6,22 +6,22 @@ namespace SDMetaTool.Processors
 	public class Rescan : IPngFileListProcessor
 	{
 		private readonly IPngFileDataSource pngFileDataSource;
-		private readonly IDirectoryProcessor directoryProcessor;
+		private readonly IFileLister fileLister;
 		private readonly IPngFileLoader pngFileLoader;
 
 		public Rescan(
-			IDirectoryProcessor directoryProcessor,
+			IFileLister fileLister,
 			IPngFileDataSource pngFileDataSource,
 			IPngFileLoader pngFileLoader)
 		{
 			this.pngFileDataSource = pngFileDataSource;
-			this.directoryProcessor = directoryProcessor;
+			this.fileLister = fileLister;
 			this.pngFileLoader = pngFileLoader;
 		}
 
 		public void ProcessPngFiles(string root)
 		{
-			var fileNames = directoryProcessor.GetList(root);
+			var fileNames = fileLister.GetList(root);
 
 			pngFileDataSource.ClearAll();
 

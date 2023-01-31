@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace SDMetaTool
 {
-	public class DirectoryProcessor : IDirectoryProcessor
+	public class FileLister : IFileLister
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IFileSystem fileSystem;
 
-		public DirectoryProcessor(IFileSystem fileSystem)
+		public FileLister(IFileSystem fileSystem)
 		{
 			this.fileSystem = fileSystem;
 		}

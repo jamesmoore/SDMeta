@@ -6,18 +6,18 @@ namespace SDMetaTool.Processors
 {
 	internal class SummaryInfo : IPngFileListProcessor
 	{
-		private readonly IDirectoryProcessor directoryProcessor;
+		private readonly IFileLister fileLister;
 		private readonly IPngFileLoader pngFileLoader;
 
-		public SummaryInfo(IDirectoryProcessor directoryProcessor, IPngFileLoader pngFileLoader)
+		public SummaryInfo(IFileLister fileLister, IPngFileLoader pngFileLoader)
 		{
-			this.directoryProcessor = directoryProcessor;
+			this.fileLister = fileLister;
 			this.pngFileLoader = pngFileLoader;
 		}
 
 		public void ProcessPngFiles(string root)
 		{
-			var fileNames = directoryProcessor.GetList(root);
+			var fileNames = fileLister.GetList(root);
 			var pngFiles = fileNames.Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).OrderBy(p => p.Filename).ToList();
 
 			var distinctPrompts = pngFiles.Select(p => p.Parameters?.PromptHash).Distinct().ToList();
