@@ -1,5 +1,4 @@
 ﻿using NLog;
-using SDMetaTool.Cache;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
@@ -16,7 +15,7 @@ namespace SDMetaTool
 			this.fileSystem = fileSystem;
 		}
 
-		public int ProcessList(string path, IPngFileListProcessor processor, bool whatif = false)
+		public IEnumerable<string> GetList(string path)
 		{
 			while (path.EndsWith(fileSystem.Path.DirectorySeparatorChar))
 			{
@@ -26,7 +25,7 @@ namespace SDMetaTool
 			if (fileSystem.Directory.Exists(path) == false)
 			{
 				logger.Error($"{path} does not exist");
-				return 1;
+				return Enumerable.Empty<string>();
 			}
 
 			var filetypes = new List<string>()
@@ -36,13 +35,8 @@ namespace SDMetaTool
 
 			var files = filetypes.Select(p => fileSystem.Directory.GetFiles(path, p, System.IO.SearchOption.AllDirectories)).SelectMany(p => p).OrderBy(p => p).ToList();
 
-			using (var cache = new JsonDataSource(fileSystem, whatif))
-			{
-				var loader = new CachedPngFileLoader(fileSystem, new PngFileLoader(fileSystem), cache);
-				var tracks = files.Select(p => loader.GetPngFile(p)).Where(p => p != null).OrderBy(p => p.Filename).ToList();
-				processor.ProcessPngFiles(tracks, path);
-			}
-			return 1;
+			return files;
+
 		}
 	}
 }

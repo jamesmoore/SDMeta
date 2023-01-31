@@ -1,4 +1,5 @@
-﻿using SDMetaTool.Processors;
+﻿using SDMetaTool.Cache;
+using SDMetaTool.Processors;
 using System;
 using System.CommandLine;
 using System.IO.Abstractions;
@@ -11,11 +12,18 @@ namespace SDMetaTool
         static async Task<int> Main(string[] args)
         {
             var fileSystem = new FileSystem();
-            var processor = new DirectoryProcessor(fileSystem);
-            return await Main(args, processor);
-        }
+			using var pngfileDataSource = new JsonDataSource(fileSystem);
+			var loader = new CachedPngFileLoader(fileSystem, new PngFileLoader(fileSystem), pngfileDataSource);
+			var processor = new DirectoryProcessor(fileSystem);
+			return await Main(args, processor, pngfileDataSource, loader);
+		}
 
-        public static async Task<int> Main(string[] args, IDirectoryProcessor processor)
+        public static async Task<int> Main(
+            string[] args, 
+            IDirectoryProcessor processor, 
+            IPngFileDataSource pngFileDataSource,
+			IPngFileLoader loader
+			)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
@@ -27,18 +35,23 @@ namespace SDMetaTool
             var distinctOption = new Option<bool>(new string[] { "--distinct", "-d" }, () => false, "List distinct prompts with earliest file.");
             listCommand.AddOption(outfileOption);
             listCommand.AddOption(distinctOption);
-            listCommand.SetHandler((string path, string outfile, bool distinct) => processor.ProcessList(path, new CSVPngFileLister(outfile, distinct)), pathArgument, outfileOption, distinctOption);
+            listCommand.SetHandler((string path, string outfile, bool distinct) => new CSVPngFileLister(processor, loader, outfile, distinct).ProcessPngFiles(path), pathArgument, outfileOption, distinctOption);
 
             var infoCommand = new Command("info", "Info on files.");
             infoCommand.AddArgument(pathArgument);
             infoCommand.AddOption(outfileOption);
-            infoCommand.SetHandler((string path, string outfile) => processor.ProcessList(path, new SummaryInfo()), pathArgument, outfileOption);
+            infoCommand.SetHandler((string path, string outfile) => new SummaryInfo(processor, loader).ProcessPngFiles(path), pathArgument, outfileOption);
 
-            var parent = new RootCommand()
+			var rescanCommand = new Command("rescan", "Rescan dir. No output.");
+			rescanCommand.AddArgument(pathArgument);
+			rescanCommand.SetHandler((string path) => new Rescan(processor, pngFileDataSource, loader).ProcessPngFiles(path), pathArgument);
+
+			var parent = new RootCommand()
             {
                listCommand,
                infoCommand,
-            };
+			   rescanCommand,
+			};
 
             var result = await parent.InvokeAsync(args);
             return result;

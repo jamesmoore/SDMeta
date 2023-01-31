@@ -6,23 +6,23 @@ namespace SDMetaTool
 	public class CachedPngFileLoader : IPngFileLoader
 	{
 		private readonly IPngFileLoader inner;
-		private readonly IPngFileDataSource pngFileCache;
+		private readonly IPngFileDataSource pngFileDataSource;
 		private readonly IFileSystem fileSystem;
 
 		public CachedPngFileLoader(
 			IFileSystem fileSystem,
 			IPngFileLoader inner,
-			IPngFileDataSource pngFileCache)
+			IPngFileDataSource pngFileDataSource)
 		{
 			this.inner = inner;
-			this.pngFileCache = pngFileCache;
+			this.pngFileDataSource = pngFileDataSource;
 			this.fileSystem = fileSystem;
 		}
 
 		public PngFile GetPngFile(string filename)
 		{
 			var fileInfo = fileSystem.FileInfo.New(filename);
-			var pngFile = pngFileCache.ReadPngFile(filename);
+			var pngFile = pngFileDataSource.ReadPngFile(filename);
 			if (pngFile != null && pngFile.LastUpdated == fileInfo.LastWriteTime)
 			{
 				return pngFile;
@@ -30,7 +30,8 @@ namespace SDMetaTool
 			else
 			{
 				pngFile = inner.GetPngFile(filename);
-				pngFileCache.WritePngFile(pngFile);
+				pngFile.Exists = true;
+				pngFileDataSource.WritePngFile(pngFile);
 				return pngFile;
 			}
 		}
