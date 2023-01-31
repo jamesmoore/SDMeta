@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using SDMetaTool.Processors;
 @using SDMetaUI.Models;
 @using SDMetaTool;
 @using System.IO.Abstractions;
@@ -7,6 +8,7 @@
 @using SDMetaUI.Shared
 
 @inject IPngFileDataSource pngfileDataSource
+@inject Rescan rescan
 
 <PageTitle>Gallery</PageTitle>
 
@@ -30,9 +32,12 @@ else
 				}
 			</select>
 		</div>
+		<div class="col-auto">
+			<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" Enabled=@RescanEnabled />
+		</div>
 	</div>
 	<Virtualize Items="@files" Context="file" OverscanCount="64" ItemSize="185">
-			<Thumbnail file="@file" selected=@(selectedFile?.Filename == file.Filename) onclick="() => imageClick(file)" />
+		<Thumbnail file="@file" selected=@(selectedFile?.Filename == file.Filename) onclick="() => imageClick(file)" />
 
 		@if (file.Expanded)
 		{
@@ -66,12 +71,13 @@ else
 	private IList<PngFileViewModel> files = null;
 	private IList<PngFileViewModel> expandedfiles = null;
 	private PngFileViewModel selectedFile = null;
+	private bool RescanEnabled = true;
 
 	private string filter = "";
 
 	protected override async Task OnInitializedAsync()
 	{
-		allFiles = pngfileDataSource.GetAll().OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
+		allFiles = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
 		SetFiles();
 	}
 
@@ -93,7 +99,7 @@ else
 		files = allFiles.ToList();
 		if (string.IsNullOrWhiteSpace(filter) == false)
 		{
-			files = allFiles.Where(p => 
+			files = allFiles.Where(p =>
 				p.Prompt.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
 				p.Filename.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
 			).ToList();
@@ -142,5 +148,15 @@ else
 	{
 		this.selectedFile = model;
 		offcanvasEnd.ShowAsync();
+	}
+
+	private async Task Rescan()
+	{
+		await Task.Run(() =>
+		{
+			this.rescan.ProcessPngFiles("D:\\test");
+			Console.WriteLine("Rescan done");
+		});
+		await OnInitializedAsync();
 	}
 }
