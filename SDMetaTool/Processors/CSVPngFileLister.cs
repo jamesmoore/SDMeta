@@ -9,21 +9,28 @@ namespace SDMetaTool.Processors
 {
 	class CSVPngFileLister : IPngFileListProcessor
 	{
+		private readonly IFileLister fileLister;
+		private readonly IPngFileLoader pngFileLoader;
 		private readonly string outfile;
 		private readonly bool distinct;
 
-		public CSVPngFileLister(string outfile, bool distinct)
+		public CSVPngFileLister(IFileLister fileLister, IPngFileLoader pngFileLoader, string outfile, bool distinct)
 		{
+			this.fileLister = fileLister;
+			this.pngFileLoader = pngFileLoader;
 			this.outfile = outfile;
 			this.distinct = distinct;
 		}
 
-		public void ProcessPngFiles(IEnumerable<PngFile> tracks, string root)
+		public void ProcessPngFiles(string root)
 		{
 			using var writer = new StreamWriter(outfile);
 			using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
 
-			var csvs = distinct ? GetCSVDistinct(tracks) : GetCSVPerItem(tracks);
+			var fileNames = fileLister.GetList(root);
+			var pngFiles = fileNames.Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).OrderBy(p => p.Filename).ToList();
+
+			var csvs = distinct ? GetCSVDistinct(pngFiles) : GetCSVPerItem(pngFiles);
 			csv.WriteRecords(csvs);
 		}
 
