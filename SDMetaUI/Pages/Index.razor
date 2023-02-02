@@ -9,6 +9,7 @@
 
 @inject IPngFileDataSource pngfileDataSource
 @inject Rescan rescan
+@inject IConfiguration configuration;
 
 <PageTitle>Gallery</PageTitle>
 
@@ -154,7 +155,8 @@ else
 	{
 		await Task.Run(() =>
 		{
-			this.rescan.ProcessPngFiles("D:\\test");
+			var directory = configuration["ImageDir"];
+			this.rescan.ProcessPngFiles(directory);
 			Console.WriteLine("Rescan done");
 		});
 		await OnInitializedAsync();
