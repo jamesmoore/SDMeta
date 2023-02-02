@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Havit.Blazor.Components.Web.Bootstrap" Version="3.2.6" />
     <PackageReference Include="PhotoSauce.MagicScaler" Version="0.13.2" />
-    <PackageReference Include="TestableIO.System.IO.Abstractions" Version="19.1.13" />
+    <PackageReference Include="TestableIO.System.IO.Abstractions" Version="19.1.14" />
   </ItemGroup>
 
   <ItemGroup>
