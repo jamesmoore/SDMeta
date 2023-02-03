@@ -5,7 +5,9 @@
 @using System.IO.Abstractions;
 @using System.Web;
 @using SDMetaTool.Cache;
-@using SDMetaUI.Shared
+@using SDMetaUI.Shared;
+
+@implements IDisposable;
 
 @inject IPngFileDataSource pngfileDataSource
 @inject Rescan rescan
@@ -160,5 +162,10 @@ else
 			Console.WriteLine("Rescan done");
 		});
 		await OnInitializedAsync();
+	}
+
+	public void Dispose()
+	{
+		pngfileDataSource.Dispose();
 	}
 }

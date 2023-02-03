@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SDMetaTool.Cache
 {
-    public interface IPngFileDataSource
+    public interface IPngFileDataSource : IDisposable
     {
         IEnumerable<PngFile> GetAll();
         PngFile ReadPngFile(string realFileName);
