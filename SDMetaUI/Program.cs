@@ -37,12 +37,12 @@ app.Run();
 static void AddCustomServices(WebApplicationBuilder builder)
 {
 	builder.Services.AddSingleton<IFileSystem, FileSystem>();
-	builder.Services.AddSingleton<IPngFileDataSource, JsonDataSource>();
+	builder.Services.AddTransient<IPngFileDataSource, SqliteDataSource>();
 	builder.Services.AddSingleton<IFileLister, FileLister>();
-	builder.Services.AddSingleton<IPngFileLoader>(x => 
+	builder.Services.AddTransient<IPngFileLoader>(x => 
 		new CachedPngFileLoader(x.GetRequiredService<IFileSystem>(),
 		new PngFileLoader(x.GetRequiredService<IFileSystem>()),
 		x.GetRequiredService<IPngFileDataSource>()
 		));
-	builder.Services.AddSingleton<Rescan>();
+	builder.Services.AddTransient<Rescan>();
 }
