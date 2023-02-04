@@ -8,6 +8,7 @@ namespace SDMetaTool.Cache
         IEnumerable<PngFile> GetAll();
         PngFile ReadPngFile(string realFileName);
         void WritePngFile(PngFile info);
-        void ClearAll();
+		void BeginTransaction();
+		void CommitTransaction();
 	}
 }
