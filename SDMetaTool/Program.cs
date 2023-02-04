@@ -11,11 +11,13 @@ namespace SDMetaTool
     {
         static async Task<int> Main(string[] args)
         {
-            var fileSystem = new FileSystem();
-			using var pngfileDataSource = new JsonDataSource(fileSystem);
-			var loader = new CachedPngFileLoader(fileSystem, new PngFileLoader(fileSystem), pngfileDataSource);
+			var fileSystem = new FileSystem();
+			using var sqliteDataSource = new SqliteDataSource(fileSystem);
+            sqliteDataSource.BeginTransaction();
+            var datasource = sqliteDataSource;
+			var loader = new CachedPngFileLoader(fileSystem, new PngFileLoader(fileSystem), datasource);
 			var fileLister = new FileLister(fileSystem);
-			return await Main(args, fileLister, pngfileDataSource, loader);
+			return await Main(args, fileLister, datasource, loader);
 		}
 
         public static async Task<int> Main(

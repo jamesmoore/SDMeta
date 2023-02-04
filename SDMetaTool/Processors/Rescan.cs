@@ -1,4 +1,5 @@
-﻿using SDMetaTool.Cache;
+﻿using NLog;
+using SDMetaTool.Cache;
 using System.Linq;
 
 namespace SDMetaTool.Processors
@@ -23,13 +24,22 @@ namespace SDMetaTool.Processors
 		{
 			var fileNames = fileLister.GetList(root);
 
-			pngFileDataSource.ClearAll();
+			var knownFiles = pngFileDataSource.GetAll();
 
-			var pngFiles = fileNames.Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).ToList();
+			var deleted = knownFiles.Select(p => p.Filename).Except(fileNames);
 
-			foreach (var file in pngFiles)
+			var knownFilesLookup = knownFiles.ToLookup(p => p.Filename);
+			foreach (var file in deleted)
 			{
-				file.Exists = true;
+				var fileToDelete = knownFilesLookup[file].Single();
+				fileToDelete.Exists = false;
+				pngFileDataSource.WritePngFile(fileToDelete);
+			}
+
+			var newFiles = fileNames.Except(knownFiles.Select(p => p.Filename)).Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).ToList(); ;
+			foreach(var file in newFiles)
+			{
+				pngFileDataSource.WritePngFile(file);
 			}
 		}
 	}

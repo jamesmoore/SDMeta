@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace SDMetaTool.Cache
 {
-	public class JsonDataSource : IPngFileDataSource, IDisposable
+	public class JsonDataSource : IPngFileDataSource
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IFileSystem fileSystem;
@@ -76,14 +76,6 @@ namespace SDMetaTool.Cache
 			}
 		}
 
-		public void ClearAll()
-		{
-			foreach (var item in cache)
-			{
-				item.Value.Exists = false;
-			}
-		}
-
 		public void Dispose()
 		{
 			Flush();
@@ -118,6 +110,13 @@ namespace SDMetaTool.Cache
 			};
 		}
 
+		public void BeginTransaction()
+		{
+		}
+
+		public void CommitTransaction()
+		{
+		}
 
 		internal class PngFileDTO
 		{
