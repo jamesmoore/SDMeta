@@ -9,6 +9,7 @@ namespace SDMetaTool.Processors
 		private readonly IPngFileDataSource pngFileDataSource;
 		private readonly IFileLister fileLister;
 		private readonly IPngFileLoader pngFileLoader;
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
 		public Rescan(
 			IFileLister fileLister,
@@ -26,7 +27,7 @@ namespace SDMetaTool.Processors
 
 			var knownFiles = pngFileDataSource.GetAll();
 
-			var deleted = knownFiles.Select(p => p.Filename).Except(fileNames);
+			var deleted = knownFiles.Where(p => p.Exists).Select(p => p.Filename).Except(fileNames);
 
 			var knownFilesLookup = knownFiles.ToLookup(p => p.Filename);
 			foreach (var file in deleted)
@@ -34,12 +35,15 @@ namespace SDMetaTool.Processors
 				var fileToDelete = knownFilesLookup[file].Single();
 				fileToDelete.Exists = false;
 				pngFileDataSource.WritePngFile(fileToDelete);
+				logger.Info("Removing " + file);
 			}
 
-			var newFiles = fileNames.Except(knownFiles.Select(p => p.Filename)).Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).ToList(); ;
-			foreach(var file in newFiles)
+			var newFiles = fileNames.Except(knownFiles.Where(p => p.Exists).Select(p => p.Filename)).Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).ToList(); ;
+			foreach (var file in newFiles)
 			{
+				file.Exists = true;
 				pngFileDataSource.WritePngFile(file);
+				logger.Info("Adding " + file.Filename);
 			}
 		}
 	}
