@@ -40,7 +40,7 @@ else
 		</div>
 	</div>
 	<Virtualize Items="@files" Context="file" OverscanCount="64" ItemSize="185">
-		<Thumbnail file="@file" selected=@(selectedFile?.Filename == file.Filename) onclick="() => imageClick(file)" />
+		<Thumbnail file="@file" selected=@(selectedFile?.Filename == file.Filename) onclick="() => imageClick(file, true)" />
 
 		@if (file.Expanded)
 		{
@@ -48,7 +48,7 @@ else
 
 			foreach (var file in expandedfiles)
 			{
-				<Thumbnail file="@file" selected=@(selectedFile?.Filename == file.Filename) onclick="() => OpenDrawer(file)" />
+				<Thumbnail file="@file" selected=@(selectedFile?.Filename == file.Filename) onclick="() => imageClick(file, false)" />
 			}
 			<div class="divider"></div>
 		}
@@ -60,10 +60,12 @@ else
 		</BodyTemplate>
 	</HxOffcanvas>
 
+	<FullScreenView @ref=@fullScreenView selectedFile=@selectedFile />
 }
 @code {
 
 	private HxOffcanvas? offcanvasEnd;
+	private FullScreenView? fullScreenView;
 
 	static List<string> GroupModes = new List<string>() {
 		"Each gen",
@@ -112,6 +114,10 @@ else
 		{
 			files = files.GroupBy(p => p.FullPromptHash).Select(p => p.LastOrDefault()).ToList();
 		}
+		else
+		{
+			expandedfiles = Enumerable.Empty<PngFileViewModel>().ToList();
+		}
 	}
 
 	private bool IsGrouped()
@@ -119,9 +125,9 @@ else
 		return GroupMode == GroupModes[1];
 	}
 
-	private void imageClick(PngFileViewModel model)
+	private async void imageClick(PngFileViewModel model, bool isParent)
 	{
-		if (IsGrouped())
+		if (isParent && IsGrouped())
 		{
 			model.Expanded = !model.Expanded;
 			foreach (var file in files)
@@ -140,17 +146,19 @@ else
 			{
 				expandedfiles = Enumerable.Empty<PngFileViewModel>().ToList();
 			}
+
+			this.selectedFile = model;
 		}
 		else
 		{
-			OpenDrawer(model);
-		}
-	}
+			if (model == selectedFile)
+			{
+				await fullScreenView.ShowAsync();
+			}
 
-	public void OpenDrawer(PngFileViewModel model)
-	{
-		this.selectedFile = model;
-		offcanvasEnd.ShowAsync();
+			this.selectedFile = model;
+			await offcanvasEnd.ShowAsync();
+		}
 	}
 
 	private async Task Rescan()
