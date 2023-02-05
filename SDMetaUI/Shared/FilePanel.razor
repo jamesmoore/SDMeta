@@ -1,0 +1,107 @@
+﻿@using SDMetaTool;
+@using SDMetaUI.Models;
+@inject IJSRuntime JSRuntime
+
+<table class="table">
+	<thead>
+		<tr>
+			<th scope="col">Prompt</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td scope="row">
+				<div class="scroll" style="max-height: 150px;">
+					<small>@selectedFile.Parameters.Prompt</small>
+				</div>
+			</td>
+		</tr>
+	</tbody>
+</table>
+@if (string.IsNullOrWhiteSpace(@selectedFile.Parameters.NegativePrompt) == false)
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th scope="col">Negatives</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td scope="row">
+					<div class="scroll" style="max-height: 150px;">
+						<small>@selectedFile.Parameters.NegativePrompt</small>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+}
+<table class="table">
+	<thead>
+		<tr>
+			<th scope="col">Param</th>
+			<th scope="col">Value</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<th scope="row">Date</th>
+			<td>@selectedFile?.LastUpdated</td>
+		</tr>
+		@if (string.IsNullOrWhiteSpace(selectedFile?.Parameters.Model) == false) {
+			<tr>
+				<th scope="row">Model</th>
+				<td>@selectedFile?.Parameters.Model</td>
+			</tr>
+		}
+		<tr>
+			<th scope="row">Model hash</th>
+			<td>@selectedFile?.Parameters.ModelHash</td>
+		</tr>
+		<tr>
+			<th scope="row">Sampler</th>
+			<td>@selectedFile?.Parameters.Sampler</td>
+		</tr>
+		<tr>
+			<th scope="row">Cfg scale</th>
+			<td>@selectedFile?.Parameters.CFGScale</td>
+		</tr>
+		<tr>
+			<th scope="row">Steps</th>
+			<td>@selectedFile?.Parameters.Steps</td>
+		</tr>
+	</tbody>
+</table>
+<table class="table">
+	<tbody>
+		<tr>
+			<td scope="row">
+				<HxButton Outline="false" Icon="BootstrapIcon.Clipboard" Text="Copy" Color="ThemeColor.Primary" @onclick="CopyTextToClipboard" />
+				<textarea id="params-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@selectedFile?.Parameters.GetFullPrompt()</textarea>
+				<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Text="View" Color="ThemeColor.Primary" @onclick="() => xl2Modal.ShowAsync()" />
+			</td>
+		</tr>
+	</tbody>
+</table>
+<Thumbnail file="@(selectedFile)" @onclick="() => xl2Modal.ShowAsync()" />
+
+<HxModal @ref="xl2Modal" Fullscreen="ModalFullscreen.Always" Backdrop="ModalBackdrop.False">
+	<BodyTemplate>
+		<div @onclick="() => xl2Modal.HideAsync()" style="width: 100%; height: 100%; background-color:gba(0, 0, 0, 0.1);" class="text-center">
+			<img src="@selectedFile.GetImageUrl()" class="img-fit" />
+		</div>
+	</BodyTemplate>
+</HxModal>
+
+@code {
+	[Parameter]
+	public PngFileViewModel selectedFile { get; set; }
+
+	private HxModal? xl2Modal;
+
+	private async Task CopyTextToClipboard()
+	{
+		await JSRuntime.InvokeVoidAsync("copyClipboard", "params-textarea");
+	}
+}

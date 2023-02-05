@@ -1,0 +1,171 @@
+﻿@page "/"
+@using SDMetaTool.Processors;
+@using SDMetaUI.Models;
+@using SDMetaTool;
+@using System.IO.Abstractions;
+@using System.Web;
+@using SDMetaTool.Cache;
+@using SDMetaUI.Shared;
+
+@implements IDisposable;
+
+@inject IPngFileDataSource pngfileDataSource
+@inject Rescan rescan
+@inject IConfiguration configuration;
+
+<PageTitle>Gallery</PageTitle>
+
+@if (files == null)
+{
+	<p><em>Loading...</em></p>
+}
+else
+{
+	<div class="row p-2" style="position: sticky; top: 0; z-index: 1; background: rgba(128, 128, 128, 0.5); border-bottom-color: rgba(128, 128, 128, 0.75); border-bottom-width: 1px; border-bottom-style: solid;">
+		<div class="col-auto">
+			<label class="visually-hidden" for="autoSizingInput">Filter</label>
+			<input type="text" @oninput="OnSetFilter" class="form-control" id="autoSizingInput" placeholder="filter">
+		</div>
+		<div class="col-auto">
+			<label class="visually-hidden" for="autoSizingSelect">Preference</label>
+			<select class="form-select" id="autoSizingSelect" @onchange="OnSelectGroupMode">
+				@foreach (var template in GroupModes)
+				{
+					<option value=@template>@template</option>
+				}
+			</select>
+		</div>
+		<div class="col-auto">
+			<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" Enabled=@RescanEnabled />
+		</div>
+	</div>
+	<Virtualize Items="@files" Context="file" OverscanCount="64" ItemSize="185">
+		<Thumbnail file="@file" selected=@(selectedFile?.Filename == file.Filename) onclick="() => imageClick(file)" />
+
+		@if (file.Expanded)
+		{
+			<div class="divider"><div class="divider-text is-center"><span>@(expandedfiles.Count.ToString() + " gens of this prompt")</span></div></div>
+
+			foreach (var file in expandedfiles)
+			{
+				<Thumbnail file="@file" selected=@(selectedFile?.Filename == file.Filename) onclick="() => OpenDrawer(file)" />
+			}
+			<div class="divider"></div>
+		}
+	</Virtualize>
+
+	<HxOffcanvas @ref="offcanvasEnd" Placement="OffcanvasPlacement.End" ScrollingEnabled="true" Backdrop="OffcanvasBackdrop.False">
+		<BodyTemplate>
+			<FilePanel selectedFile="@selectedFile" />
+		</BodyTemplate>
+	</HxOffcanvas>
+
+}
+@code {
+
+	private HxOffcanvas? offcanvasEnd;
+
+	static List<string> GroupModes = new List<string>() {
+		"Each gen",
+		"Grouped by prompt"
+	};
+	string GroupMode = GroupModes.First();
+	private IList<PngFileViewModel> allFiles = null;
+	private IList<PngFileViewModel> files = null;
+	private IList<PngFileViewModel> expandedfiles = null;
+	private PngFileViewModel selectedFile = null;
+	private bool RescanEnabled = true;
+
+	private string filter = "";
+
+	protected override async Task OnInitializedAsync()
+	{
+		allFiles = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
+		SetFiles();
+	}
+
+	public void OnSetFilter(ChangeEventArgs changeEventArgs)
+	{
+		var filter = changeEventArgs.Value.ToString();
+		this.filter = filter;
+		SetFiles();
+	}
+
+	void OnSelectGroupMode(ChangeEventArgs e)
+	{
+		GroupMode = e.Value.ToString();
+		SetFiles();
+	}
+
+	private void SetFiles()
+	{
+		files = allFiles.ToList();
+		if (string.IsNullOrWhiteSpace(filter) == false)
+		{
+			files = allFiles.Where(p =>
+				p.Prompt.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
+				p.Filename.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
+			).ToList();
+		}
+
+		if (this.IsGrouped())
+		{
+			files = files.GroupBy(p => p.FullPromptHash).Select(p => p.LastOrDefault()).ToList();
+		}
+	}
+
+	private bool IsGrouped()
+	{
+		return GroupMode == GroupModes[1];
+	}
+
+	private void imageClick(PngFileViewModel model)
+	{
+		if (IsGrouped())
+		{
+			model.Expanded = !model.Expanded;
+			foreach (var file in files)
+			{
+				if (file.Expanded && file != model)
+				{
+					file.Expanded = false;
+				}
+			}
+
+			if (model.Expanded)
+			{
+				expandedfiles = allFiles.Where(p => p.FullPromptHash == model.FullPromptHash).ToList();
+			}
+			else
+			{
+				expandedfiles = Enumerable.Empty<PngFileViewModel>().ToList();
+			}
+		}
+		else
+		{
+			OpenDrawer(model);
+		}
+	}
+
+	public void OpenDrawer(PngFileViewModel model)
+	{
+		this.selectedFile = model;
+		offcanvasEnd.ShowAsync();
+	}
+
+	private async Task Rescan()
+	{
+		await Task.Run(() =>
+		{
+			var directory = configuration["ImageDir"];
+			this.rescan.ProcessPngFiles(directory);
+			Console.WriteLine("Rescan done");
+		});
+		await OnInitializedAsync();
+	}
+
+	public void Dispose()
+	{
+		pngfileDataSource.Dispose();
+	}
+}

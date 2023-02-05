@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace SDMetaTool.Cache
 {
-	internal class SqliteDataSource : IPngFileDataSource
+	public class SqliteDataSource : IPngFileDataSource
 	{
 		const string TableName = "PngFiles";
 		private readonly SqliteConnection connection;

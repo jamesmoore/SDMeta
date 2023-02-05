@@ -1,0 +1,15 @@
+﻿@using SDMetaUI.Models;
+<HxPopover Placement="PopoverPlacement.Auto" Title="Params" Content="@file.Tooltip" Html="true" Trigger="PopoverTrigger.Hover">
+	<img src="@file.ThumbnailUrl" class="img-fluid img-thumbnail rounded m-2 @(selected ? "selected" : "")" width="175" height="175" @onclick="(e) => onclick.InvokeAsync(e)" />
+</HxPopover>
+
+@code {
+	[Parameter]
+	public PngFileViewModel file { get; set; }
+
+	[Parameter]
+	public bool selected { get; set; }
+
+	[Parameter]
+	public EventCallback<MouseEventArgs> onclick { get; set; }
+}
