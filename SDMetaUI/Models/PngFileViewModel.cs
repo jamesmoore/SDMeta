@@ -1,4 +1,5 @@
-﻿using SDMetaTool;
+﻿using Microsoft.AspNetCore.Authorization;
+using SDMetaTool;
 
 namespace SDMetaUI.Models
 {
@@ -24,15 +25,21 @@ namespace SDMetaUI.Models
 				Length = p.Length,
 				Prompt = p.Parameters?.Prompt ?? "",
 				FullPromptHash = p.Parameters?.Prompt + p.Parameters?.NegativePrompt ?? "",
-				Tooltip = $@"
+				Tooltip = GetTooltip(p),
+				Parameters = p.Parameters,
+			};
+		}
+
+		private static string GetTooltip(PngFile p)
+		{
+			if (p == null) return "";
+			return $@"
 					<small>
 					<strong>Model:</strong> {p.Parameters?.Model ?? ""}<br/>
 					<strong>Hash:</strong> {p.Parameters?.ModelHash ?? ""}<br/>
 					<strong>Sampler:</strong> {p.Parameters?.Sampler ?? ""}<br/>
 					<strong>Date:</strong> {p.LastUpdated}
-					</small>",
-				Parameters = p.Parameters,
-			};
+					</small>";
 		}
 
 		public string GetImageUrl()
