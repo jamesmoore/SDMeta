@@ -42,6 +42,8 @@ namespace SDMetaTool
 		private const string ParamSeedResizeFrom = "Seed resize from";
 		private const string ParamHiresResize = "Hires resize";
 		private const string ParamHiresUpscaler = "Hires upscaler";
+		private const string ParamHiresUpscale = "Hires upscale";
+		private const string ParamHiresSteps = "Hires steps";
 
 		private static readonly string[] KnownParams = new[]
 		{
@@ -69,6 +71,8 @@ namespace SDMetaTool
 			ParamSeedResizeFrom,
 			ParamHiresResize,
 			ParamHiresUpscaler,
+			ParamHiresUpscale,
+			ParamHiresSteps,
 		};
 
 		public GenerationParams GetParameters(string _parameters)
@@ -144,6 +148,8 @@ namespace SDMetaTool
 				SeedResizeFrom = parametersLookup[ParamSeedResizeFrom]?.FirstOrDefault(),
 				HiresResize = parametersLookup[ParamHiresResize]?.FirstOrDefault(),
 				HiresUpscaler = parametersLookup[ParamHiresUpscaler]?.FirstOrDefault(),
+				HiresUpscale = parametersLookup[ParamHiresUpscale]?.FirstOrDefault(),
+				HiresSteps = parametersLookup[ParamHiresSteps]?.FirstOrDefault(),
 				PromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(positive, " ").ToLower()),
 				NegativePromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(negative, " ").ToLower()),
 			};
