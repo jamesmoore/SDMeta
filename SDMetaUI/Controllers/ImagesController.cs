@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PhotoSauce.MagicScaler;
+using SDMetaTool.Cache;
 using System.Drawing;
 using System.IO.Abstractions;
 using System.Net;
@@ -53,8 +54,7 @@ namespace SDMetaUI.Controllers
 					var name = fileSystem.Path.GetFileNameWithoutExtension(fileInfo.FullName) + ".jpg";
 
 					var thumbDir = Path.Combine(
-						Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-						"SDMetaTool",
+						new DataPath(fileSystem).GetPath(),
 						"cache",
 						"thumbs");
 					fileSystem.Directory.CreateDirectory(thumbDir);

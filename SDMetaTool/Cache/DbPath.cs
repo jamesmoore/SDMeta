@@ -13,6 +13,6 @@ namespace SDMetaTool.Cache
 			this.fileSystem = fileSystem;
 		}
 
-		public string GetPath() => fileSystem.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SDMetaTool", "cache.db");
+		public string GetPath() => fileSystem.Path.Combine(new DataPath(fileSystem).GetPath(), "cache.db");
 	}
 }
