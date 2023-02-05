@@ -90,7 +90,7 @@ namespace SDMetaUI.Controllers
 				string physicalPath = Base64Decode(path);
 				if (fileSystem.File.Exists(physicalPath))
 				{ 
-					return base.PhysicalFile(physicalPath, "image/jpg");
+					return base.PhysicalFile(physicalPath, "image/png");
 				}
 				else
 				{
