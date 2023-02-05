@@ -49,7 +49,8 @@
 			<th scope="row">Date</th>
 			<td>@selectedFile?.LastUpdated</td>
 		</tr>
-		@if (string.IsNullOrWhiteSpace(selectedFile?.Parameters.Model) == false) {
+		@if (string.IsNullOrWhiteSpace(selectedFile?.Parameters.Model) == false)
+		{
 			<tr>
 				<th scope="row">Model</th>
 				<td>@selectedFile?.Parameters.Model</td>
@@ -79,26 +80,20 @@
 			<td scope="row">
 				<HxButton Outline="false" Icon="BootstrapIcon.Clipboard" Text="Copy" Color="ThemeColor.Primary" @onclick="CopyTextToClipboard" />
 				<textarea id="params-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@selectedFile?.Parameters.GetFullPrompt()</textarea>
-				<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Text="View" Color="ThemeColor.Primary" @onclick="() => xl2Modal.ShowAsync()" />
+				<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Text="View" Color="ThemeColor.Primary" @onclick="() => fullScreenView.ShowAsync()" />
 			</td>
 		</tr>
 	</tbody>
 </table>
-<Thumbnail file="@(selectedFile)" @onclick="() => xl2Modal.ShowAsync()" />
+<Thumbnail file="@(selectedFile)" @onclick="() => fullScreenView.ShowAsync()" />
 
-<HxModal @ref="xl2Modal" Fullscreen="ModalFullscreen.Always" Backdrop="ModalBackdrop.False">
-	<BodyTemplate>
-		<div @onclick="() => xl2Modal.HideAsync()" style="width: 100%; height: 100%; background-color:gba(0, 0, 0, 0.1);" class="text-center">
-			<img src="@selectedFile.GetImageUrl()" class="img-fit" />
-		</div>
-	</BodyTemplate>
-</HxModal>
+<FullScreenView @ref=@fullScreenView selectedFile=@selectedFile />
 
 @code {
 	[Parameter]
 	public PngFileViewModel selectedFile { get; set; }
 
-	private HxModal? xl2Modal;
+	private FullScreenView? fullScreenView;
 
 	private async Task CopyTextToClipboard()
 	{
