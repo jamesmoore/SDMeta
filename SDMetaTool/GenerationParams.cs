@@ -38,8 +38,10 @@ namespace SDMetaTool
 
 		public string PromptHash { get; set; }
         public string NegativePromptHash { get; set; }
+		public string HiresUpscale { get; set; }
+		public string HiresSteps { get; set; }
 
-        public string GetFullPrompt()
+		public string GetFullPrompt()
         {
             var prompts = new List<string>()
             {
