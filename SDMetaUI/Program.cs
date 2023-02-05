@@ -3,6 +3,14 @@ using SDMetaTool;
 using SDMetaTool.Cache;
 using SDMetaTool.Processors;
 using System.IO.Abstractions;
+using PhotoSauce.NativeCodecs.Libpng;
+using PhotoSauce.NativeCodecs.Libjpeg;
+using PhotoSauce.MagicScaler;
+
+CodecManager.Configure(codecs => {
+	codecs.UseLibpng();
+	codecs.UseLibjpeg();
+});
 
 var builder = WebApplication.CreateBuilder(args);
 
