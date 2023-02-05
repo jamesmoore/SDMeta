@@ -7,7 +7,7 @@ COPY . ./
 RUN dotnet restore
 
 # Build and publish a release
-RUN dotnet publish ./SDMetaTool -c Release -o out
+RUN dotnet publish ./SDMetaUI -c Release -o out
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/runtime:7.0-alpine
