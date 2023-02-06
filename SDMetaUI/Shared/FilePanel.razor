@@ -81,6 +81,7 @@
 				<HxButton Outline="false" Icon="BootstrapIcon.Clipboard" Text="Copy" Color="ThemeColor.Primary" @onclick="CopyTextToClipboard" />
 				<textarea id="params-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@selectedFile?.Parameters.GetFullPrompt()</textarea>
 				<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Text="View" Color="ThemeColor.Primary" @onclick="() => fullScreenView.ShowAsync()" />
+				<HxButton Outline="false" Icon="BootstrapIcon.Trash" Text="Delete" Color="ThemeColor.Danger" @onclick="(e) => onDelete.InvokeAsync(e)" />
 			</td>
 		</tr>
 	</tbody>
@@ -94,6 +95,10 @@
 	public PngFileViewModel selectedFile { get; set; }
 
 	private FullScreenView? fullScreenView;
+
+	[Parameter]
+	public EventCallback<MouseEventArgs> onDelete { get; set; }
+
 
 	private async Task CopyTextToClipboard()
 	{

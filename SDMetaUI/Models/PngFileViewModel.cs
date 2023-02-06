@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using SDMetaTool;
+﻿using SDMetaTool;
 
 namespace SDMetaUI.Models
 {

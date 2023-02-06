@@ -56,7 +56,10 @@ else
 
 	<HxOffcanvas @ref="offcanvasEnd" Placement="OffcanvasPlacement.End" ScrollingEnabled="true" Backdrop="OffcanvasBackdrop.False">
 		<BodyTemplate>
-			<FilePanel selectedFile="@selectedFile" />
+			@if (selectedFile != null)
+			{
+				<FilePanel selectedFile="@selectedFile" onDelete="() => imageDelete()" />
+			}
 		</BodyTemplate>
 	</HxOffcanvas>
 
@@ -175,5 +178,22 @@ else
 	public void Dispose()
 	{
 		pngfileDataSource.Dispose();
+	}
+
+	private async void imageDelete()
+	{
+		if (this.selectedFile != null)
+		{
+			File.Delete(this.selectedFile.Filename);
+			await offcanvasEnd.HideAsync();
+			var original = pngfileDataSource.ReadPngFile(this.selectedFile.Filename);
+			original.Exists = false;
+			pngfileDataSource.WritePngFile(original);
+			this.allFiles.Remove(selectedFile);
+			this.files.Remove(selectedFile);
+			this.expandedfiles.Remove(selectedFile);
+			this.selectedFile = null;
+			this.StateHasChanged();
+		}
 	}
 }
