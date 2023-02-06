@@ -39,8 +39,8 @@ else
 			<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" Enabled=@RescanEnabled />
 		</div>
 	</div>
-	<Virtualize Items="@files" Context="file" OverscanCount="64" ItemSize="185">
-		<Thumbnail file="@file" selected=@(selectedFile?.Filename == file.Filename) onclick="() => imageClick(file, true)" />
+	<Virtualize Items=@files Context="file" OverscanCount="60" ItemSize="185">
+		<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, true)" @key=@file/>
 
 		@if (file.Expanded)
 		{
@@ -48,7 +48,7 @@ else
 
 			foreach (var file in expandedfiles)
 			{
-				<Thumbnail file="@file" selected=@(selectedFile?.Filename == file.Filename) onclick="() => imageClick(file, false)" />
+				<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, false)" />
 			}
 			<div class="divider"></div>
 		}

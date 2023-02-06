@@ -19,28 +19,6 @@ namespace SDMetaUI.Controllers
 			this.fileSystem = fileSystem;
 		}
 
-		[Route("{path}")]
-		public IActionResult Index(string path)
-		{
-			try
-			{
-				string physicalPath = Base64Decode(path);
-				if (fileSystem.File.Exists(physicalPath))
-				{
-					return base.PhysicalFile(physicalPath, "image/png");
-				}
-				else
-				{
-					return NotFound();
-				}
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex.Message);
-				return NotFound();
-			}
-		}
-
 
 		[Route("thumb/{path}")]
 		public IActionResult Thumb(string path)
@@ -62,11 +40,12 @@ namespace SDMetaUI.Controllers
 					var thumbPath = Path.Combine(
 						thumbDir,
 						name);
-
+					
 					if (fileSystem.File.Exists(thumbPath) == false)
 					{
 						MagicImageProcessor.ProcessImage(physicalPath, thumbPath, new ProcessImageSettings { Height = 175, Width = 175 });
 					}
+					Response.Headers.LastModified = fileInfo.LastWriteTime.ToUniversalTime().ToString("R");
 
 					return base.PhysicalFile(thumbPath, "image/jpg");
 				}
@@ -89,7 +68,8 @@ namespace SDMetaUI.Controllers
 			{
 				string physicalPath = Base64Decode(path);
 				if (fileSystem.File.Exists(physicalPath))
-				{ 
+				{
+					Response.Headers.LastModified = fileSystem.FileInfo.New(physicalPath).LastWriteTime.ToUniversalTime().ToString("R");
 					return base.PhysicalFile(physicalPath, "image/png");
 				}
 				else
