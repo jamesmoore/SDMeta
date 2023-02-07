@@ -2,22 +2,25 @@
 @using SDMetaUI.Models;
 @inject IJSRuntime JSRuntime
 
-<table class="table">
-	<thead>
-		<tr>
-			<th scope="col">Prompt</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<td scope="row">
-				<div class="scroll" style="max-height: 150px;">
-					<small>@selectedFileParams?.Prompt</small>
-				</div>
-			</td>
-		</tr>
-	</tbody>
-</table>
+@if (string.IsNullOrWhiteSpace(@selectedFileParams?.Prompt) == false)
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th scope="col">Prompt</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td scope="row">
+					<div class="scroll" style="max-height: 150px;">
+						<small>@selectedFileParams?.Prompt</small>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+}
 @if (string.IsNullOrWhiteSpace(@selectedFileParams?.NegativePrompt) == false)
 {
 	<table class="table">
@@ -45,33 +48,13 @@
 		</tr>
 	</thead>
 	<tbody>
-		<tr>
-			<th scope="row">Date</th>
-			<td>@selectedFile?.LastUpdated</td>
-		</tr>
-		@if (string.IsNullOrWhiteSpace(selectedFileParams?.Model) == false)
+		@foreach (var paramitem in parameters)
 		{
 			<tr>
-				<th scope="row">Model</th>
-				<td>@selectedFileParams?.Model</td>
+				<th scope="row">@paramitem.key</th>
+				<td>@paramitem.value</td>
 			</tr>
 		}
-		<tr>
-			<th scope="row">Model hash</th>
-			<td>@selectedFileParams?.ModelHash</td>
-		</tr>
-		<tr>
-			<th scope="row">Sampler</th>
-			<td>@selectedFileParams?.Sampler</td>
-		</tr>
-		<tr>
-			<th scope="row">Cfg scale</th>
-			<td>@selectedFileParams?.CFGScale</td>
-		</tr>
-		<tr>
-			<th scope="row">Steps</th>
-			<td>@selectedFileParams?.Steps</td>
-		</tr>
 	</tbody>
 </table>
 <table class="table">
@@ -99,12 +82,25 @@
 
 	private FullScreenView? fullScreenView;
 
-	private GenerationParams selectedFileParams;
+	private GenerationParams? selectedFileParams;
 
-	protected override Task OnInitializedAsync()
+	private IEnumerable<(string key, string value)> parameters;
+
+	protected override Task OnParametersSetAsync()
 	{
 		selectedFileParams = selectedFile?.Parameters;
-		return base.OnInitializedAsync();
+
+		parameters = new List<(string key, string value)>
+		{
+			new ("Date", selectedFile?.LastUpdated.ToString()),
+			new ("Model", selectedFileParams?.Model),
+			new ("Model hash", selectedFileParams?.ModelHash),
+			new ("Sampler", selectedFileParams?.Sampler),
+			new ("Cfg scale", selectedFileParams?.CFGScale),
+			new ("Steps", selectedFileParams?.Steps),
+		}.Where(p => string.IsNullOrWhiteSpace(p.value) == false);
+
+		return base.OnParametersSetAsync();
 	}
 
 	private async Task CopyTextToClipboard()
