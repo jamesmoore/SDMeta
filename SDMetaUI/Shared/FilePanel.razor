@@ -63,15 +63,13 @@
 			<td scope="row">
 				<HxButton Outline="false" Icon="BootstrapIcon.Clipboard" Text="Copy" Color="ThemeColor.Primary" @onclick="CopyTextToClipboard" />
 				<textarea id="selectedFileParams-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@selectedFileParams?.GetFullPrompt()</textarea>
-				<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Text="View" Color="ThemeColor.Primary" @onclick="() => fullScreenView.ShowAsync()" />
+				<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Text="View" Color="ThemeColor.Primary" @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
 				<HxButton Outline="false" Icon="BootstrapIcon.Trash" Text="Delete" Color="ThemeColor.Danger" @onclick="(e) => onDelete.InvokeAsync(e)" />
 			</td>
 		</tr>
 	</tbody>
 </table>
-<Thumbnail file="@(selectedFile)" @onclick="() => fullScreenView.ShowAsync()" />
-
-<FullScreenView @ref=@fullScreenView selectedFile=@selectedFile />
+<Thumbnail file="@(selectedFile)" @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
 
 @code {
 	[Parameter]
@@ -80,7 +78,8 @@
 	[Parameter]
 	public EventCallback<MouseEventArgs> onDelete { get; set; }
 
-	private FullScreenView? fullScreenView;
+	[Parameter]
+	public EventCallback<MouseEventArgs> onFullScreenView { get; set; }
 
 	private GenerationParams? selectedFileParams;
 

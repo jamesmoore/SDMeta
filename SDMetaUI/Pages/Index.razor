@@ -40,7 +40,7 @@ else
 		</div>
 	</div>
 	<Virtualize Items=@files Context="file" OverscanCount="60" ItemSize="185">
-		<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, true)" @key=@file/>
+		<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, true)" @key=@file />
 
 		@if (file.Expanded)
 		{
@@ -58,12 +58,12 @@ else
 		<BodyTemplate>
 			@if (selectedFile != null)
 			{
-				<FilePanel selectedFile="@selectedFile" onDelete="() => imageDelete()" />
+				<FilePanel selectedFile="@selectedFile" onDelete="() => imageDelete()" onFullScreenView="(e) => fullScreenView.ShowAsync()" />
 			}
 		</BodyTemplate>
 	</HxOffcanvas>
 
-	<FullScreenView @ref=@fullScreenView selectedFile=@selectedFile />
+	<FullScreenView @ref=@fullScreenView selectedFile=@selectedFile onLeft=@leftKey onRight=@rightKey />
 }
 @code {
 
@@ -194,6 +194,24 @@ else
 			this.expandedfiles.Remove(selectedFile);
 			this.selectedFile = null;
 			this.StateHasChanged();
+		}
+	}
+
+	private async void leftKey()
+	{
+		var index = files.IndexOf(selectedFile);
+		if (index > 0)
+		{
+			selectedFile = files[index - 1];
+		}
+	}
+
+	private async void rightKey()
+	{
+		var index = files.IndexOf(selectedFile);
+		if (index < files.Count - 1)
+		{
+			selectedFile = files[index + 1];
 		}
 	}
 }
