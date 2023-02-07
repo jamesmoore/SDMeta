@@ -3,7 +3,7 @@
 <div @ref="containerRef" @onkeydown="KeyboardEventHandler">
 	<HxModal @ref="hxModal" Fullscreen="ModalFullscreen.Always" Backdrop="ModalBackdrop.False">
 		<BodyTemplate>
-			<div @onclick="() => hxModal.HideAsync()" style="width: 100%; height: 100%; background-color:gba(0, 0, 0, 0.1);" class="text-center" tabindex="0">
+			<div @onclick="() => hxModal.HideAsync()" class="text-center img-container">
 				<img src="@selectedFile.GetImageUrl()" class="img-fit" />
 			</div>
 		</BodyTemplate>
