@@ -12,13 +12,13 @@
 		<tr>
 			<td scope="row">
 				<div class="scroll" style="max-height: 150px;">
-					<small>@selectedFile.Parameters.Prompt</small>
+					<small>@selectedFileParams?.Prompt</small>
 				</div>
 			</td>
 		</tr>
 	</tbody>
 </table>
-@if (string.IsNullOrWhiteSpace(@selectedFile.Parameters.NegativePrompt) == false)
+@if (string.IsNullOrWhiteSpace(@selectedFileParams?.NegativePrompt) == false)
 {
 	<table class="table">
 		<thead>
@@ -30,7 +30,7 @@
 			<tr>
 				<td scope="row">
 					<div class="scroll" style="max-height: 150px;">
-						<small>@selectedFile.Parameters.NegativePrompt</small>
+						<small>@selectedFileParams?.NegativePrompt</small>
 					</div>
 				</td>
 			</tr>
@@ -49,28 +49,28 @@
 			<th scope="row">Date</th>
 			<td>@selectedFile?.LastUpdated</td>
 		</tr>
-		@if (string.IsNullOrWhiteSpace(selectedFile?.Parameters.Model) == false)
+		@if (string.IsNullOrWhiteSpace(selectedFileParams?.Model) == false)
 		{
 			<tr>
 				<th scope="row">Model</th>
-				<td>@selectedFile?.Parameters.Model</td>
+				<td>@selectedFileParams?.Model</td>
 			</tr>
 		}
 		<tr>
 			<th scope="row">Model hash</th>
-			<td>@selectedFile?.Parameters.ModelHash</td>
+			<td>@selectedFileParams?.ModelHash</td>
 		</tr>
 		<tr>
 			<th scope="row">Sampler</th>
-			<td>@selectedFile?.Parameters.Sampler</td>
+			<td>@selectedFileParams?.Sampler</td>
 		</tr>
 		<tr>
 			<th scope="row">Cfg scale</th>
-			<td>@selectedFile?.Parameters.CFGScale</td>
+			<td>@selectedFileParams?.CFGScale</td>
 		</tr>
 		<tr>
 			<th scope="row">Steps</th>
-			<td>@selectedFile?.Parameters.Steps</td>
+			<td>@selectedFileParams?.Steps</td>
 		</tr>
 	</tbody>
 </table>
@@ -79,7 +79,7 @@
 		<tr>
 			<td scope="row">
 				<HxButton Outline="false" Icon="BootstrapIcon.Clipboard" Text="Copy" Color="ThemeColor.Primary" @onclick="CopyTextToClipboard" />
-				<textarea id="params-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@selectedFile?.Parameters.GetFullPrompt()</textarea>
+				<textarea id="selectedFileParams-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@selectedFileParams?.GetFullPrompt()</textarea>
 				<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Text="View" Color="ThemeColor.Primary" @onclick="() => fullScreenView.ShowAsync()" />
 				<HxButton Outline="false" Icon="BootstrapIcon.Trash" Text="Delete" Color="ThemeColor.Danger" @onclick="(e) => onDelete.InvokeAsync(e)" />
 			</td>
@@ -94,14 +94,21 @@
 	[Parameter]
 	public PngFileViewModel selectedFile { get; set; }
 
-	private FullScreenView? fullScreenView;
-
 	[Parameter]
 	public EventCallback<MouseEventArgs> onDelete { get; set; }
 
+	private FullScreenView? fullScreenView;
+
+	private GenerationParams selectedFileParams;
+
+	protected override Task OnInitializedAsync()
+	{
+		selectedFileParams = selectedFile?.Parameters;
+		return base.OnInitializedAsync();
+	}
 
 	private async Task CopyTextToClipboard()
 	{
-		await JSRuntime.InvokeVoidAsync("copyClipboard", "params-textarea");
+		await JSRuntime.InvokeVoidAsync("copyClipboard", "selectedFileParams-textarea");
 	}
 }
