@@ -14,6 +14,7 @@
 @inject Rescan rescan
 @inject IConfiguration configuration;
 @inject IThumbnailService thumbnailService;
+@inject ILogger<Index> logger;
 
 <PageTitle>Gallery</PageTitle>
 
@@ -172,7 +173,7 @@ else
 		{
 			var directory = configuration["ImageDir"];
 			this.rescan.ProcessPngFiles(directory);
-			Console.WriteLine("Rescan done");
+			logger.LogInformation("Rescan done");
 		});
 		await OnInitializedAsync();
 	}

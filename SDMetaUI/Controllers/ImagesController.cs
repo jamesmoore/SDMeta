@@ -10,11 +10,17 @@ namespace SDMetaUI.Controllers
 	{
 		private readonly IFileSystem fileSystem;
 		private readonly IThumbnailService thumbnailService;
+		private readonly ILogger<ImagesController> _logger;
 
-		public ImagesController(IFileSystem fileSystem, IThumbnailService thumbnailService)
+		public ImagesController(
+			IFileSystem fileSystem, 
+			IThumbnailService thumbnailService,
+			ILogger<ImagesController> _logger
+		)
 		{
 			this.fileSystem = fileSystem;
 			this.thumbnailService = thumbnailService;
+			this._logger = _logger;
 		}
 
 		[Route("thumb/{path}")]
@@ -38,7 +44,7 @@ namespace SDMetaUI.Controllers
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex.Message);
+				_logger.LogError("ImagesController error: ", ex);
 				return NotFound();
 			}
 		}
@@ -61,7 +67,7 @@ namespace SDMetaUI.Controllers
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex.Message);
+				_logger.LogError("ImagesController error: ", ex);
 				return NotFound();
 			}
 		}

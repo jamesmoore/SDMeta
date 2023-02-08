@@ -7,6 +7,7 @@ using PhotoSauce.NativeCodecs.Libpng;
 using PhotoSauce.NativeCodecs.Libjpeg;
 using PhotoSauce.MagicScaler;
 using SDMetaUI.Services;
+using NLog.Web;
 
 CodecManager.Configure(codecs => {
 	codecs.UseLibpng();
@@ -14,6 +15,11 @@ CodecManager.Configure(codecs => {
 });
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+// NLog: Setup NLog for Dependency injection
+builder.Logging.ClearProviders();
+builder.Host.UseNLog();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
