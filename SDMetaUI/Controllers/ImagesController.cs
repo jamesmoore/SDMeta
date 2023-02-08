@@ -1,10 +1,6 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using PhotoSauce.MagicScaler;
-using SDMetaTool.Cache;
-using System.Drawing;
+﻿using Microsoft.AspNetCore.Mvc;
+using SDMetaUI.Services;
 using System.IO.Abstractions;
-using System.Net;
 
 namespace SDMetaUI.Controllers
 {
@@ -13,12 +9,13 @@ namespace SDMetaUI.Controllers
 	public class ImagesController : Controller
 	{
 		private readonly IFileSystem fileSystem;
+		private readonly IThumbnailService thumbnailService;
 
-		public ImagesController(IFileSystem fileSystem)
+		public ImagesController(IFileSystem fileSystem, IThumbnailService thumbnailService)
 		{
 			this.fileSystem = fileSystem;
+			this.thumbnailService = thumbnailService;
 		}
-
 
 		[Route("thumb/{path}")]
 		public IActionResult Thumb(string path)
@@ -29,22 +26,7 @@ namespace SDMetaUI.Controllers
 				if (fileSystem.File.Exists(physicalPath))
 				{
 					var fileInfo = fileSystem.FileInfo.New(physicalPath);
-					var name = fileSystem.Path.GetFileNameWithoutExtension(fileInfo.FullName) + ".jpg";
-
-					var thumbDir = Path.Combine(
-						new DataPath(fileSystem).GetPath(),
-						"cache",
-						"thumbs");
-					fileSystem.Directory.CreateDirectory(thumbDir);
-
-					var thumbPath = Path.Combine(
-						thumbDir,
-						name);
-					
-					if (fileSystem.File.Exists(thumbPath) == false)
-					{
-						MagicImageProcessor.ProcessImage(physicalPath, thumbPath, new ProcessImageSettings { Height = 175, Width = 175 });
-					}
+					var thumbPath = thumbnailService.GetOrGenerateThumbnail(fileInfo.FullName);
 					Response.Headers.LastModified = fileInfo.LastWriteTime.ToUniversalTime().ToString("R");
 
 					return base.PhysicalFile(thumbPath, "image/jpg");

@@ -5,6 +5,7 @@
 @using System.IO.Abstractions;
 @using System.Web;
 @using SDMetaTool.Cache;
+@using SDMetaUI.Services;
 @using SDMetaUI.Shared;
 
 @implements IDisposable;
@@ -12,6 +13,7 @@
 @inject IPngFileDataSource pngfileDataSource
 @inject Rescan rescan
 @inject IConfiguration configuration;
+@inject IThumbnailService thumbnailService;
 
 <PageTitle>Gallery</PageTitle>
 
@@ -189,6 +191,7 @@ else
 			var original = pngfileDataSource.ReadPngFile(this.selectedFile.Filename);
 			original.Exists = false;
 			pngfileDataSource.WritePngFile(original);
+			this.thumbnailService.Delete(this.selectedFile.Filename);
 			this.allFiles.Remove(selectedFile);
 			this.files.Remove(selectedFile);
 			this.expandedfiles.Remove(selectedFile);

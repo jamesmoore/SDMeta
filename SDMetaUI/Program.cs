@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 using PhotoSauce.NativeCodecs.Libpng;
 using PhotoSauce.NativeCodecs.Libjpeg;
 using PhotoSauce.MagicScaler;
+using SDMetaUI.Services;
 
 CodecManager.Configure(codecs => {
 	codecs.UseLibpng();
@@ -52,4 +53,5 @@ static void AddCustomServices(WebApplicationBuilder builder)
 		x.GetRequiredService<IPngFileDataSource>()
 		));
 	builder.Services.AddScoped<Rescan>();
+	builder.Services.AddSingleton<IThumbnailService, ThumbnailService>();
 }
