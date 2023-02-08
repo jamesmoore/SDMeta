@@ -27,7 +27,7 @@ else
 	<div class="row p-2" style="position: sticky; top: 0; z-index: 1; background: rgba(128, 128, 128, 0.5); border-bottom-color: rgba(128, 128, 128, 0.75); border-bottom-width: 1px; border-bottom-style: solid;">
 		<div class="col-auto">
 			<label class="visually-hidden" for="autoSizingInput">Filter</label>
-			<input type="text" @oninput="OnSetFilter" class="form-control" id="autoSizingInput" placeholder="filter">
+			<input type="text" @oninput="onInputDebounced" class="form-control" id="autoSizingInput" placeholder="filter">
 		</div>
 		<div class="col-auto">
 			<label class="visually-hidden" for="autoSizingSelect">Preference</label>
@@ -86,17 +86,21 @@ else
 
 	private string filter = "";
 
+	Action<ChangeEventArgs> onInputDebounced;
+
 	protected override async Task OnInitializedAsync()
 	{
 		allFiles = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
 		SetFiles();
-	}
-
-	public void OnSetFilter(ChangeEventArgs changeEventArgs)
-	{
-		var filter = changeEventArgs.Value.ToString();
-		this.filter = filter;
-		SetFiles();
+		onInputDebounced = Debounce<ChangeEventArgs>(e =>
+		{
+			this.InvokeAsync(() =>
+			{
+				this.filter = (string)e.Value;
+				SetFiles();
+				this.StateHasChanged();
+			});
+		}, TimeSpan.FromMilliseconds(300));
 	}
 
 	void OnSelectGroupMode(ChangeEventArgs e)
@@ -217,5 +221,24 @@ else
 		{
 			selectedFile = files[index + 1];
 		}
+	}
+
+	// https://www.meziantou.net/debouncing-throttling-javascript-events-in-a-blazor-application.htm
+	Action<T> Debounce<T>(Action<T> action, TimeSpan interval)
+	{
+		if (action == null) throw new ArgumentNullException(nameof(action));
+
+		var last = 0;
+		return arg =>
+		{
+			var current = System.Threading.Interlocked.Increment(ref last);
+			Task.Delay(interval).ContinueWith(task =>
+			{
+				if (current == last)
+				{
+					action(arg);
+				}
+			});
+		};
 	}
 }
