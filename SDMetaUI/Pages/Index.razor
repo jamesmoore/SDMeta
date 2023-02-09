@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using BlazorPro.BlazorSize;
 @using SDMetaTool.Processors;
 @using SDMetaUI.Models;
 @using SDMetaTool;
@@ -15,6 +16,7 @@
 @inject IConfiguration configuration;
 @inject IThumbnailService thumbnailService;
 @inject ILogger<Index> logger;
+@inject IResizeListener resizeListener;
 
 <PageTitle>Gallery</PageTitle>
 
@@ -42,21 +44,28 @@ else
 			<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" Enabled=@RescanEnabled />
 		</div>
 	</div>
-	<Virtualize Items=@files Context="file" OverscanCount="60" ItemSize="185">
-		<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, true)" @key=@file />
-
-		@if (file.Expanded)
-		{
-			<div class="divider"><div class="divider-text is-center"><span>@(expandedfiles.Count.ToString() + " gens of this prompt")</span></div></div>
-
-			foreach (var file in expandedfiles)
+	@if (chunkedFiles != null)
+	{
+		<Virtualize Items=@chunkedFiles Context="files" OverscanCount="5" ItemSize="185">
+			@foreach (var file in files)
 			{
-				<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, false)" />
-			}
-			<div class="divider"></div>
-		}
-	</Virtualize>
+				<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, true)" @key=@file />
 
+				@if (file.Expanded)
+				{
+					<div class="divider"><div class="divider-text is-center"><span>@(
+				expandedfiles.Count.ToString() + " gens of this prompt"
+				)</span></div></div>
+
+					foreach (var expandedFile in expandedfiles)
+					{
+						<Thumbnail file=@expandedFile selected=@(selectedFile == expandedFile) onclick="() => imageClick(expandedFile, false)" />
+					}
+					<div class="divider"></div>
+				}
+			}
+		</Virtualize>
+	}
 	<HxOffcanvas @ref="offcanvasEnd" Placement="OffcanvasPlacement.End" ScrollingEnabled="true" Backdrop="OffcanvasBackdrop.False">
 		<BodyTemplate>
 			@if (selectedFile != null)
@@ -80,27 +89,46 @@ else
 	string GroupMode = GroupModes.First();
 	private IList<PngFileViewModel> allFiles = null;
 	private IList<PngFileViewModel> files = null;
+	private ICollection<PngFileViewModel[]> chunkedFiles = null;
 	private IList<PngFileViewModel> expandedfiles = null;
 	private PngFileViewModel selectedFile = null;
 	private bool RescanEnabled = true;
-
+	private int width = 0;
 	private string filter = "";
 
 	Action<ChangeEventArgs> onInputDebounced;
 
 	protected override async Task OnInitializedAsync()
 	{
-		allFiles = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
-		SetFiles();
-		onInputDebounced = Debounce<ChangeEventArgs>(e =>
+
+	}
+
+	protected async override Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
 		{
-			this.InvokeAsync(() =>
+			onInputDebounced = Debounce<ChangeEventArgs>(e =>
 			{
-				this.filter = (string)e.Value;
-				SetFiles();
-				this.StateHasChanged();
-			});
-		}, TimeSpan.FromMilliseconds(300));
+				this.InvokeAsync(() =>
+				{
+					this.filter = (string)e.Value;
+					SetFiles();
+					this.StateHasChanged();
+				});
+			}, TimeSpan.FromMilliseconds(300));
+
+			resizeListener.OnResized += (sender, size) =>
+			{
+				width = size.Width;
+			};
+
+			width = (await resizeListener.GetBrowserWindowSize()).Width;
+			allFiles = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
+			SetFiles();
+			this.StateHasChanged();
+		}
+
+		await base.OnAfterRenderAsync(firstRender);
 	}
 
 	void OnSelectGroupMode(ChangeEventArgs e)
@@ -119,10 +147,12 @@ else
 				p.Filename.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
 			).ToList();
 		}
+		chunkedFiles = files.Chunk(width / 185).ToList();
 
 		if (this.IsGrouped())
 		{
 			files = files.GroupBy(p => p.FullPromptHash).Select(p => p.LastOrDefault()).ToList();
+			chunkedFiles = files.Chunk(width / 185).ToList();
 		}
 		else
 		{
