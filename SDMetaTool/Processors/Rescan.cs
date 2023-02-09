@@ -23,6 +23,7 @@ namespace SDMetaTool.Processors
 
 		public void ProcessPngFiles(string root)
 		{
+			logger.Info("Rescan started");
 			var fileNames = fileLister.GetList(root);
 
 			var knownFiles = pngFileDataSource.GetAll();
@@ -45,6 +46,7 @@ namespace SDMetaTool.Processors
 				pngFileDataSource.WritePngFile(file);
 				logger.Info("Adding " + file.Filename);
 			}
+			logger.Info("Rescan finished");
 		}
 	}
 }
