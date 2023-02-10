@@ -43,6 +43,17 @@ else
 		<div class="col-auto">
 			<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" Enabled=@RescanEnabled />
 		</div>
+		<div class="col-auto ms-auto py-1">
+			<h6>
+				@if (files.Count < allFiles.Count)
+				{
+					<text>
+						@files.Count of
+					</text>
+				}
+				@allFiles.Count items
+			</h6>
+		</div>
 	</div>
 	@if (chunkedFiles != null)
 	{
