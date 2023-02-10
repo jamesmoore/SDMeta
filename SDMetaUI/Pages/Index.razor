@@ -135,12 +135,17 @@ else
 			};
 
 			width = (await resizeListener.GetBrowserWindowSize()).Width;
-			allFiles = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
-			SetFiles();
-			this.StateHasChanged();
+			LoadData();
 		}
 
 		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	private void LoadData()
+	{
+		allFiles = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
+		SetFiles();
+		this.StateHasChanged();
 	}
 
 	void OnSelectGroupMode(ChangeEventArgs e)
@@ -223,7 +228,7 @@ else
 			this.rescan.ProcessPngFiles(directory);
 			logger.LogInformation("Rescan done");
 		});
-		await OnInitializedAsync();
+		LoadData();
 	}
 
 	public void Dispose()
