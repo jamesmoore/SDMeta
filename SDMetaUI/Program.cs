@@ -8,6 +8,7 @@ using PhotoSauce.NativeCodecs.Libjpeg;
 using PhotoSauce.MagicScaler;
 using SDMetaUI.Services;
 using NLog.Web;
+using BlazorPro.BlazorSize;
 
 CodecManager.Configure(codecs => {
 	codecs.UseLibpng();
@@ -15,7 +16,6 @@ CodecManager.Configure(codecs => {
 });
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 // NLog: Setup NLog for Dependency injection
 builder.Logging.ClearProviders();
@@ -26,7 +26,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 AddCustomServices(builder);
 builder.Services.AddControllers();
-builder.Services.AddHxServices();        // <------ ADD THIS LINE
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -50,6 +50,9 @@ app.Run();
 
 static void AddCustomServices(WebApplicationBuilder builder)
 {
+	builder.Services.AddHxServices();
+	builder.Services.AddResizeListener();
+
 	builder.Services.AddSingleton<IFileSystem, FileSystem>();
 	builder.Services.AddScoped<IPngFileDataSource, SqliteDataSource>();
 	builder.Services.AddSingleton<IFileLister, FileLister>();

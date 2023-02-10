@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using BlazorPro.BlazorSize;
 @using SDMetaTool.Processors;
 @using SDMetaUI.Models;
 @using SDMetaTool;
@@ -15,10 +16,11 @@
 @inject IConfiguration configuration;
 @inject IThumbnailService thumbnailService;
 @inject ILogger<Index> logger;
+@inject IResizeListener resizeListener;
 
 <PageTitle>Gallery</PageTitle>
 
-@if (files == null)
+@if (filteredFiles == null)
 {
 	<p><em>Loading...</em></p>
 }
@@ -43,31 +45,44 @@ else
 		</div>
 		<div class="col-auto ms-auto py-1">
 			<h6>
-				@if (files.Count < allFiles.Count)
+				@if (filteredFiles.Count < allFiles.Count)
 				{
 					<text>
-						@files.Count of
+						@filteredFiles.Count of
 					</text>
 				}
 				@allFiles.Count items
 			</h6>
 		</div>
 	</div>
-	<Virtualize Items=@files Context="file" OverscanCount="60" ItemSize="185">
-		<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, true)" @key=@file />
-
-		@if (file.Expanded)
-		{
-			<div class="divider"><div class="divider-text is-center"><span>@(expandedfiles.Count.ToString() + " gens of this prompt")</span></div></div>
-
-			foreach (var file in expandedfiles)
+	@if (chunkedFiles != null)
+	{
+		<Virtualize Items=@chunkedFiles Context="files" OverscanCount="5" ItemSize="185">
+			@foreach (var file in files)
 			{
-				<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, false)" />
-			}
-			<div class="divider"></div>
-		}
-	</Virtualize>
+				<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, true)" @key=@file />
 
+				@if (file.Expanded)
+				{
+					<div class="divider">
+						<div class="divider-text is-center">
+							<span>
+								@(
+							expandedfiles.Count.ToString() + " gens of this prompt"
+							)
+							</span>
+						</div>
+					</div>
+
+					foreach (var expandedFile in expandedfiles)
+					{
+						<Thumbnail file=@expandedFile selected=@(selectedFile == expandedFile) onclick="() => imageClick(expandedFile, false)" />
+					}
+					<div class="divider"></div>
+				}
+			}
+		</Virtualize>
+	}
 	<HxOffcanvas @ref="offcanvasEnd" Placement="OffcanvasPlacement.End" ScrollingEnabled="true" Backdrop="OffcanvasBackdrop.False">
 		<BodyTemplate>
 			@if (selectedFile != null)
@@ -90,55 +105,73 @@ else
 	};
 	string GroupMode = GroupModes.First();
 	private IList<PngFileViewModel> allFiles = null;
-	private IList<PngFileViewModel> files = null;
+	private IList<PngFileViewModel> filteredFiles = null;
+	private IList<List<PngFileViewModel>> chunkedFiles = null;
 	private IList<PngFileViewModel> expandedfiles = null;
 	private PngFileViewModel selectedFile = null;
 	private bool RescanEnabled = true;
-
+	private int width = 0;
 	private string filter = "";
 
 	Action<ChangeEventArgs> onInputDebounced;
 
-	protected override async Task OnInitializedAsync()
+	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
-		allFiles = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
-		SetFiles();
-		onInputDebounced = Debounce<ChangeEventArgs>(e =>
+		if (firstRender)
 		{
-			this.InvokeAsync(() =>
+			onInputDebounced = Debounce<ChangeEventArgs>(e =>
 			{
-				this.filter = (string)e.Value;
-				SetFiles();
-				this.StateHasChanged();
-			});
-		}, TimeSpan.FromMilliseconds(300));
+				this.InvokeAsync(() =>
+				{
+					this.filter = (string)e.Value;
+					SetFiles();
+					this.StateHasChanged();
+				});
+			}, TimeSpan.FromMilliseconds(300));
+
+			resizeListener.OnResized += (sender, size) =>
+			{
+				width = size.Width;
+			};
+
+			width = (await resizeListener.GetBrowserWindowSize()).Width;
+			allFiles = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
+			SetFiles();
+			this.StateHasChanged();
+		}
+
+		await base.OnAfterRenderAsync(firstRender);
 	}
 
 	void OnSelectGroupMode(ChangeEventArgs e)
 	{
 		GroupMode = e.Value.ToString();
 		SetFiles();
+		if (this.IsGrouped() == false)
+		{
+			expandedfiles = Enumerable.Empty<PngFileViewModel>().ToList();
+		}
 	}
 
 	private void SetFiles()
 	{
-		files = allFiles.ToList();
 		if (string.IsNullOrWhiteSpace(filter) == false)
 		{
-			files = allFiles.Where(p =>
+			filteredFiles = allFiles.Where(p =>
 				p.Prompt.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
 				p.Filename.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
 			).ToList();
 		}
-
-		if (this.IsGrouped())
-		{
-			files = files.GroupBy(p => p.FullPromptHash).Select(p => p.LastOrDefault()).ToList();
-		}
 		else
 		{
-			expandedfiles = Enumerable.Empty<PngFileViewModel>().ToList();
+			filteredFiles = allFiles.ToList();
 		}
+
+		var groupedFiles = this.IsGrouped() ?
+			filteredFiles.GroupBy(p => p.FullPromptHash).Select(p => p.LastOrDefault()).ToList() :
+			filteredFiles;
+
+		chunkedFiles = groupedFiles.Chunk(width / 185).Select(p => p.ToList()).ToList();
 	}
 
 	private bool IsGrouped()
@@ -151,7 +184,7 @@ else
 		if (isParent && IsGrouped())
 		{
 			model.Expanded = !model.Expanded;
-			foreach (var file in files)
+			foreach (var file in filteredFiles)
 			{
 				if (file.Expanded && file != model)
 				{
@@ -209,8 +242,15 @@ else
 			pngfileDataSource.WritePngFile(original);
 			this.thumbnailService.Delete(this.selectedFile.Filename);
 			this.allFiles.Remove(selectedFile);
-			this.files.Remove(selectedFile);
-			this.expandedfiles.Remove(selectedFile);
+			this.filteredFiles.Remove(selectedFile);
+			this.expandedfiles?.Remove(selectedFile);
+			foreach (var row in chunkedFiles)
+			{
+				if (row.Contains(selectedFile))
+				{
+					row.Remove(selectedFile);
+				}
+			}
 			this.selectedFile = null;
 			this.StateHasChanged();
 		}
@@ -218,19 +258,19 @@ else
 
 	private async void leftKey()
 	{
-		var index = files.IndexOf(selectedFile);
+		var index = filteredFiles.IndexOf(selectedFile);
 		if (index > 0)
 		{
-			selectedFile = files[index - 1];
+			selectedFile = filteredFiles[index - 1];
 		}
 	}
 
 	private async void rightKey()
 	{
-		var index = files.IndexOf(selectedFile);
-		if (index < files.Count - 1)
+		var index = filteredFiles.IndexOf(selectedFile);
+		if (index < filteredFiles.Count - 1)
 		{
-			selectedFile = files[index + 1];
+			selectedFile = filteredFiles[index + 1];
 		}
 	}
 
