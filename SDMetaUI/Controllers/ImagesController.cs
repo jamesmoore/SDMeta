@@ -49,8 +49,8 @@ namespace SDMetaUI.Controllers
 			}
 		}
 
-		[Route("full/{path}")]
-		public IActionResult Full(string path)
+		[Route("full/{path}/{realfilename}")]
+		public IActionResult Full(string path, string realfilename)
 		{
 			try
 			{

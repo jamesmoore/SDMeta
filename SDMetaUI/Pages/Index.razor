@@ -17,6 +17,7 @@
 @inject IThumbnailService thumbnailService;
 @inject ILogger<Index> logger;
 @inject IResizeListener resizeListener;
+@inject PngFileViewModelBuilder pngFileViewModelBuilder;
 
 <PageTitle>Gallery</PageTitle>
 
@@ -153,7 +154,7 @@ else
 
 	private void LoadData()
 	{
-		allFiles = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
+		allFiles = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
 		SetFiles();
 		this.StateHasChanged();
 	}

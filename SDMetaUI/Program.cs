@@ -9,6 +9,7 @@ using PhotoSauce.MagicScaler;
 using SDMetaUI.Services;
 using NLog.Web;
 using BlazorPro.BlazorSize;
+using SDMetaUI.Models;
 
 CodecManager.Configure(codecs => {
 	codecs.UseLibpng();
@@ -63,4 +64,5 @@ static void AddCustomServices(WebApplicationBuilder builder)
 		));
 	builder.Services.AddScoped<Rescan>();
 	builder.Services.AddSingleton<IThumbnailService, ThumbnailService>();
+	builder.Services.AddSingleton<PngFileViewModelBuilder>();
 }

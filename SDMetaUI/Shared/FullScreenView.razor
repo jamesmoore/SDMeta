@@ -6,7 +6,7 @@
 		<HxModal @ref="hxModal" Fullscreen="ModalFullscreen.Always" Backdrop="ModalBackdrop.False">
 			<BodyTemplate>
 				<div @onclick="() => hxModal.HideAsync()" class="text-center img-container">
-					<img src="@selectedFile.GetImageUrl()" class="img-fit" />
+					<img src="@selectedFile.ImageUrl" class="img-fit" />
 				</div>
 			</BodyTemplate>
 		</HxModal>
