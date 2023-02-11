@@ -28,7 +28,7 @@ namespace SDMetaUI.Controllers
 		{
 			try
 			{
-				string physicalPath = Base64Decode(path);
+				string physicalPath = Base32Decode(path);
 				if (fileSystem.File.Exists(physicalPath))
 				{
 					var fileInfo = fileSystem.FileInfo.New(physicalPath);
@@ -54,7 +54,7 @@ namespace SDMetaUI.Controllers
 		{
 			try
 			{
-				string physicalPath = Base64Decode(path);
+				string physicalPath = Base32Decode(path);
 				if (fileSystem.File.Exists(physicalPath))
 				{
 					Response.Headers.LastModified = fileSystem.FileInfo.New(physicalPath).LastWriteTime.ToUniversalTime().ToString("R");
@@ -72,12 +72,10 @@ namespace SDMetaUI.Controllers
 			}
 		}
 
-		public static string Base64Decode(string base64EncodedData)
+		public static string Base32Decode(string base64EncodedData)
 		{
-			var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
-			return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+			var base32EncodedBytes = Base32Encoding.ToBytes(base64EncodedData);
+			return System.Text.Encoding.UTF8.GetString(base32EncodedBytes);
 		}
-
-
 	}
 }

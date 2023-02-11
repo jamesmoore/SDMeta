@@ -1,6 +1,8 @@
 ﻿using PhotoSauce.MagicScaler;
 using SDMetaTool.Cache;
 using System.IO.Abstractions;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SDMetaUI.Services
 {
@@ -37,7 +39,7 @@ namespace SDMetaUI.Services
 
 		private string GetThumbnailFileName(string fullName)
 		{
-			var thumbnailName = fileSystem.Path.GetFileNameWithoutExtension(fullName) + ".jpg";
+			var thumbnailName = HashWithSHA256(fullName) + ".jpg";
 
 			var thumbDir = Path.Combine(
 				new DataPath(fileSystem).GetPath(),
@@ -49,6 +51,13 @@ namespace SDMetaUI.Services
 				thumbDir,
 				thumbnailName);
 			return thumbnailFullName;
+		}
+
+		public static string HashWithSHA256(string value)
+		{
+			using var hash = SHA256.Create();
+			var byteArray = hash.ComputeHash(Encoding.UTF8.GetBytes(value));
+			return Base32Encoding.ToString(byteArray);
 		}
 	}
 }
