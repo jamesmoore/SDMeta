@@ -57,7 +57,7 @@ else
 	</div>
 	@if (chunkedFiles != null)
 	{
-		<Virtualize Items=@chunkedFiles Context="files" OverscanCount="5" ItemSize="185">
+		<Virtualize Items=@chunkedFiles Context="files" OverscanCount="5" ItemSize="191">
 			@foreach (var file in files)
 			{
 				<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, true)" @key=@file />
@@ -132,6 +132,8 @@ else
 			resizeListener.OnResized += (sender, size) =>
 			{
 				width = size.Width;
+				SetFiles();
+				this.StateHasChanged();
 			};
 
 			width = (await resizeListener.GetBrowserWindowSize()).Width;
@@ -176,7 +178,17 @@ else
 			filteredFiles.GroupBy(p => p.FullPromptHash).Select(p => p.LastOrDefault()).ToList() :
 			filteredFiles;
 
-		chunkedFiles = groupedFiles.Chunk(width / 185).Select(p => p.ToList()).ToList();
+		chunkedFiles = groupedFiles.Chunk(this.RowSize).Select(p => p.ToList()).ToList();
+	}
+
+	private const int ThumbnailSize = 191;
+
+	private int RowSize
+	{
+		get
+		{
+			return (width - 17) / ThumbnailSize;
+		}
 	}
 
 	private bool IsGrouped()
