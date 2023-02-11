@@ -19,7 +19,7 @@ namespace SDMetaUI.Models
 			return new PngFileViewModel()
 			{
 				Filename = p.Filename,
-				ThumbnailUrl = $"/images/thumb/{Base64Encode(p.Filename)}",
+				ThumbnailUrl = $"/images/thumb/{Base32Encode(p.Filename)}",
 				LastUpdated = p.LastUpdated,
 				Length = p.Length,
 				Prompt = p.Parameters?.Prompt ?? "",
@@ -43,13 +43,13 @@ namespace SDMetaUI.Models
 
 		public string GetImageUrl()
 		{
-			return $"/images/full/{Base64Encode(this.Filename)}";
+			return $"/images/full/{Base32Encode(this.Filename)}";
 		}
 
-		private static string Base64Encode(string plainText)
+		private static string Base32Encode(string plainText)
 		{
 			var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
-			return System.Convert.ToBase64String(plainTextBytes);
+			return Base32Encoding.ToString(plainTextBytes);
 		}
 	}
 }

@@ -1,5 +1,4 @@
-﻿using NLog.Filters;
-using SDMetaUI.Models;
+﻿using SDMetaUI.Models;
 
 namespace SDMetaUI.Pages
 {
@@ -60,9 +59,10 @@ namespace SDMetaUI.Pages
 			if (string.IsNullOrWhiteSpace(filter) == false)
 			{
 				filteredFiles = allFiles.Where(p =>
-					p.Prompt.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
-					p.Filename.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
-				).ToList();
+								p.Prompt.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
+								p.Filename.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
+								p.Parameters?.Seed.ToString() == filter
+							).ToList();
 			}
 			else
 			{

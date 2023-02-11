@@ -64,7 +64,7 @@
 				<HxButton Outline="false" Icon="BootstrapIcon.Clipboard" Text="Copy" Color="ThemeColor.Primary" @onclick="CopyTextToClipboard" />
 				<textarea id="selectedFileParams-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@selectedFileParams?.GetFullPrompt()</textarea>
 				<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Text="View" Color="ThemeColor.Primary" @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
-				<HxButton Outline="false" Icon="BootstrapIcon.Trash" Text="Delete" Color="ThemeColor.Danger" @onclick="(e) => onDelete.InvokeAsync(e)" />
+				<HxButton Outline="false" Icon="BootstrapIcon.Trash" Text="Delete" Color="ThemeColor.Danger" @onclick="(e) => onDelete.InvokeAsync(e)" accesskey="x"/>
 			</td>
 		</tr>
 	</tbody>

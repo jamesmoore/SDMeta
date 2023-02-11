@@ -22,7 +22,13 @@
 
 @if (viewModel.HasData == false)
 {
-	<p><em>Loading...</em></p>
+	<div class="container" style="height: 100vh">
+		<div class="d-flex align-items-center justify-content-center" style="height: 100vh">
+			<div class="spinner-border" role="status">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+		</div>
+	</div>
 }
 else
 {
@@ -57,7 +63,7 @@ else
 	</div>
 	@if (viewModel.ChunkedFiles != null)
 	{
-		<Virtualize Items=@viewModel.ChunkedFiles Context="files" OverscanCount="5" ItemSize="185">
+		<Virtualize Items=@viewModel.ChunkedFiles Context="files" OverscanCount="5" ItemSize="191">
 			@foreach (var file in files)
 			{
 				<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, true)" @key=@file />
