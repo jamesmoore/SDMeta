@@ -14,17 +14,18 @@ namespace SDMetaUI.Models
 
 		public PngFileViewModel BuildModel(PngFile p)
 		{
+			var encodedFilename = Base32Encode(p.Filename);
 			return new PngFileViewModel()
 			{
 				Filename = p.Filename,
-				ThumbnailUrl = $"/images/thumb/{Base32Encode(p.Filename)}",
+				ThumbnailUrl = $"/images/thumb/{encodedFilename}",
 				LastUpdated = p.LastUpdated,
 				Length = p.Length,
 				Prompt = p.Parameters?.Prompt ?? "",
 				FullPromptHash = p.Parameters?.Prompt + p.Parameters?.NegativePrompt ?? "",
 				Tooltip = GetTooltip(p),
 				Parameters = p.Parameters,
-				ImageUrl = this.GetImageUrl(p.Filename),
+				ImageUrl = $"/images/full/{encodedFilename}/{fileSystem.Path.GetFileName(p.Filename)}",
 			};
 		}
 
@@ -38,11 +39,6 @@ namespace SDMetaUI.Models
 					<strong>Sampler:</strong> {p.Parameters?.Sampler ?? ""}<br/>
 					<strong>Date:</strong> {p.LastUpdated}
 					</small>";
-		}
-
-		public string GetImageUrl(string fullFileName)
-		{
-			return $"/images/full/{Base32Encode(fullFileName)}/{fileSystem.Path.GetFileName(fullFileName)}";
 		}
 
 		private static string Base32Encode(string plainText)
