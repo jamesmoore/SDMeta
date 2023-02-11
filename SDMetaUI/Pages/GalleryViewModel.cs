@@ -1,0 +1,156 @@
+﻿using NLog.Filters;
+using SDMetaUI.Models;
+
+namespace SDMetaUI.Pages
+{
+	public class GalleryViewModel
+	{
+		private IList<PngFileViewModel> allFiles = null;
+		private IList<PngFileViewModel> filteredFiles = null;
+		private IList<PngFileViewModel> groupedFiles = null;
+		private IList<List<PngFileViewModel>> chunkedFiles = null;
+
+		public void Initialize(IList<PngFileViewModel> all)
+		{
+			allFiles = all;
+			RunFilter();
+		}
+
+		public bool HasData
+		{
+			get
+			{
+				return allFiles != null;
+			}
+		}
+
+		public int AllFileCount
+		{
+			get
+			{
+				return allFiles.Count;
+			}
+		}
+
+		public int FilteredFileCount
+		{
+			get
+			{
+				return filteredFiles.Count;
+			}
+		}
+
+		private string filter;
+
+		public string Filter
+		{
+			get
+			{
+				return filter;
+			}
+			set
+			{
+				filter = value;
+				RunFilter();
+			}
+		}
+
+		private void RunFilter()
+		{
+			if (string.IsNullOrWhiteSpace(filter) == false)
+			{
+				filteredFiles = allFiles.Where(p =>
+					p.Prompt.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
+					p.Filename.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
+				).ToList();
+			}
+			else
+			{
+				filteredFiles = allFiles.ToList();
+			}
+			RunGrouping();
+		}
+
+		private bool isGrouped;
+
+		public bool IsGrouped
+		{
+			get
+			{
+				return isGrouped;
+			}
+			set
+			{
+				isGrouped = value;
+				RunGrouping();
+			}
+		}
+
+		private void RunGrouping()
+		{
+			groupedFiles = isGrouped ?
+				filteredFiles.GroupBy(p => p.FullPromptHash).Select(p => p.LastOrDefault()).ToList() :
+				filteredFiles;
+			RunChunking();
+		}
+
+		private int width;
+		public int Width
+		{
+			get { return width; }
+			set
+			{
+				width = value;
+				RunChunking();
+			}
+		}
+
+		private void RunChunking()
+		{
+			if (width > 0 && groupedFiles != null)
+			{
+				int countPerRow = (width - 17) / 191;
+				chunkedFiles = groupedFiles.Chunk(countPerRow).Select(p => p.ToList()).ToList();
+			}
+		}
+
+		public void RemoveFile(PngFileViewModel selectedFile)
+		{
+			this.allFiles.Remove(selectedFile);
+			this.filteredFiles.Remove(selectedFile);
+			this.groupedFiles.Remove(selectedFile);
+			foreach (var row in chunkedFiles)
+			{
+				if (row.Contains(selectedFile))
+				{
+					row.Remove(selectedFile);
+				}
+			}
+		}
+
+		public PngFileViewModel GetPrevious(PngFileViewModel selectedFile)
+		{
+			var index = filteredFiles.IndexOf(selectedFile);
+			return (index > 0) ? filteredFiles[index - 1] : selectedFile;
+		}
+
+		public PngFileViewModel GetNext(PngFileViewModel selectedFile)
+		{
+			var index = filteredFiles.IndexOf(selectedFile);
+			return (index < filteredFiles.Count - 1) ? filteredFiles[index + 1] : selectedFile;
+		}
+
+		public IList<List<PngFileViewModel>> ChunkedFiles
+		{
+			get
+			{
+				return chunkedFiles;
+			}
+		}
+
+		public IList<PngFileViewModel> GetFilesMatchingPromptHash(string hash)
+		{
+			return filteredFiles.Where(p => p.FullPromptHash == hash).ToList();
+		}
+	}
+}

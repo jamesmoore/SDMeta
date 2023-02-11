@@ -20,7 +20,7 @@
 
 <PageTitle>Gallery</PageTitle>
 
-@if (filteredFiles == null)
+@if (viewModel.HasData == false)
 {
 	<p><em>Loading...</em></p>
 }
@@ -41,23 +41,23 @@ else
 			</select>
 		</div>
 		<div class="col-auto">
-			<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" Enabled=@RescanEnabled />
+			<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" />
 		</div>
 		<div class="col-auto ms-auto py-1">
 			<h6>
-				@if (filteredFiles.Count < allFiles.Count)
+				@if (viewModel.FilteredFileCount < viewModel.AllFileCount)
 				{
 					<text>
-						@filteredFiles.Count of
+						@viewModel.FilteredFileCount of
 					</text>
 				}
-				@allFiles.Count items
+				@viewModel.AllFileCount items
 			</h6>
 		</div>
 	</div>
-	@if (chunkedFiles != null)
+	@if (viewModel.ChunkedFiles != null)
 	{
-		<Virtualize Items=@chunkedFiles Context="files" OverscanCount="5" ItemSize="185">
+		<Virtualize Items=@viewModel.ChunkedFiles Context="files" OverscanCount="5" ItemSize="185">
 			@foreach (var file in files)
 			{
 				<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, true)" @key=@file />
@@ -104,14 +104,9 @@ else
 		"Grouped by prompt"
 	};
 	string GroupMode = GroupModes.First();
-	private IList<PngFileViewModel> allFiles = null;
-	private IList<PngFileViewModel> filteredFiles = null;
-	private IList<List<PngFileViewModel>> chunkedFiles = null;
+	GalleryViewModel viewModel = new GalleryViewModel();
 	private IList<PngFileViewModel> expandedfiles = null;
 	private PngFileViewModel selectedFile = null;
-	private bool RescanEnabled = true;
-	private int width = 0;
-	private string filter = "";
 
 	Action<ChangeEventArgs> onInputDebounced;
 
@@ -123,18 +118,18 @@ else
 			{
 				this.InvokeAsync(() =>
 				{
-					this.filter = (string)e.Value;
-					SetFiles();
+					viewModel.Filter = (string)e.Value;
 					this.StateHasChanged();
 				});
 			}, TimeSpan.FromMilliseconds(300));
 
 			resizeListener.OnResized += (sender, size) =>
 			{
-				width = size.Width;
+				viewModel.Width = size.Width;
+				this.StateHasChanged();
 			};
 
-			width = (await resizeListener.GetBrowserWindowSize()).Width;
+			//viewModel.Width = (await resizeListener.GetBrowserWindowSize()).Width;
 			LoadData();
 		}
 
@@ -143,40 +138,19 @@ else
 
 	private void LoadData()
 	{
-		allFiles = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
-		SetFiles();
-		this.StateHasChanged();
+		var data = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
+		viewModel.Initialize(data);
+		//this.StateHasChanged();
 	}
 
 	void OnSelectGroupMode(ChangeEventArgs e)
 	{
 		GroupMode = e.Value.ToString();
-		SetFiles();
+		viewModel.IsGrouped = this.IsGrouped();
 		if (this.IsGrouped() == false)
 		{
 			expandedfiles = Enumerable.Empty<PngFileViewModel>().ToList();
 		}
-	}
-
-	private void SetFiles()
-	{
-		if (string.IsNullOrWhiteSpace(filter) == false)
-		{
-			filteredFiles = allFiles.Where(p =>
-				p.Prompt.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
-				p.Filename.Contains(filter, StringComparison.InvariantCultureIgnoreCase)
-			).ToList();
-		}
-		else
-		{
-			filteredFiles = allFiles.ToList();
-		}
-
-		var groupedFiles = this.IsGrouped() ?
-			filteredFiles.GroupBy(p => p.FullPromptHash).Select(p => p.LastOrDefault()).ToList() :
-			filteredFiles;
-
-		chunkedFiles = groupedFiles.Chunk(width / 185).Select(p => p.ToList()).ToList();
 	}
 
 	private bool IsGrouped()
@@ -189,17 +163,17 @@ else
 		if (isParent && IsGrouped())
 		{
 			model.Expanded = !model.Expanded;
-			foreach (var file in filteredFiles)
-			{
-				if (file.Expanded && file != model)
-				{
-					file.Expanded = false;
-				}
-			}
+			//foreach (var file in filteredFiles)
+			//{
+			//	if (file.Expanded && file != model)
+			//	{
+			//		file.Expanded = false;
+			//	}
+			//}
 
 			if (model.Expanded)
 			{
-				expandedfiles = allFiles.Where(p => p.FullPromptHash == model.FullPromptHash).ToList();
+				expandedfiles = viewModel.GetFilesMatchingPromptHash(model.FullPromptHash);
 			}
 			else
 			{
@@ -246,16 +220,9 @@ else
 			original.Exists = false;
 			pngfileDataSource.WritePngFile(original);
 			this.thumbnailService.Delete(this.selectedFile.Filename);
-			this.allFiles.Remove(selectedFile);
-			this.filteredFiles.Remove(selectedFile);
 			this.expandedfiles?.Remove(selectedFile);
-			foreach (var row in chunkedFiles)
-			{
-				if (row.Contains(selectedFile))
-				{
-					row.Remove(selectedFile);
-				}
-			}
+			this.viewModel.RemoveFile(selectedFile);
+
 			this.selectedFile = null;
 			this.StateHasChanged();
 		}
@@ -263,20 +230,12 @@ else
 
 	private async void leftKey()
 	{
-		var index = filteredFiles.IndexOf(selectedFile);
-		if (index > 0)
-		{
-			selectedFile = filteredFiles[index - 1];
-		}
+		selectedFile = viewModel.GetPrevious(selectedFile);
 	}
 
 	private async void rightKey()
 	{
-		var index = filteredFiles.IndexOf(selectedFile);
-		if (index < filteredFiles.Count - 1)
-		{
-			selectedFile = filteredFiles[index + 1];
-		}
+		selectedFile = viewModel.GetNext(selectedFile);
 	}
 
 	// https://www.meziantou.net/debouncing-throttling-javascript-events-in-a-blazor-application.htm
