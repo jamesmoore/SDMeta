@@ -32,33 +32,35 @@
 }
 else
 {
-	<div class="row p-2" style="position: sticky; top: 0; z-index: 1; background: rgba(128, 128, 128, 0.5); border-bottom-color: rgba(128, 128, 128, 0.75); border-bottom-width: 1px; border-bottom-style: solid;">
-		<div class="col-3">
-			<label class="visually-hidden" for="autoSizingInput">Filter</label>
-			<input type="search" @oninput="onInputDebounced" class="form-control" id="autoSizingInput" placeholder="filter">
-		</div>
-		<div class="col-auto">
-			<label class="visually-hidden" for="autoSizingSelect">Preference</label>
-			<select class="form-select" id="autoSizingSelect" @onchange="OnSelectGroupMode">
-				@foreach (var template in GroupModes)
-				{
-					<option value=@template>@template</option>
-				}
-			</select>
-		</div>
-		<div class="col-auto">
-			<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" Enabled=@RescanEnabled />
-		</div>
-		<div class="col-auto ms-auto py-1">
-			<h6>
-				@if (filteredFiles.Count < allFiles.Count)
-				{
-					<text>
-						@filteredFiles.Count of
-					</text>
-				}
-				@allFiles.Count items
-			</h6>
+	<div class="container-fluid sticky-top">
+		<div class="row p-2" style="position: sticky; top: 0; z-index: 1; background: rgba(128, 128, 128, 0.5); border-bottom-color: rgba(128, 128, 128, 0.75); border-bottom-width: 1px; border-bottom-style: solid;">
+			<div class="col-3">
+				<label class="visually-hidden" for="autoSizingInput">Filter</label>
+				<input type="search" @oninput="onInputDebounced" class="form-control" id="autoSizingInput" placeholder="filter">
+			</div>
+			<div class="col-auto">
+				<label class="visually-hidden" for="autoSizingSelect">Preference</label>
+				<select class="form-select" id="autoSizingSelect" @onchange="OnSelectGroupMode">
+					@foreach (var template in GroupModes)
+					{
+						<option value=@template>@template</option>
+					}
+				</select>
+			</div>
+			<div class="col-auto">
+				<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" Enabled=@RescanEnabled />
+			</div>
+			<div class="col-auto ms-auto py-1">
+				<h6>
+					@if (filteredFiles.Count < allFiles.Count)
+					{
+						<text>
+							@filteredFiles.Count of
+						</text>
+					}
+					@allFiles.Count items
+				</h6>
+			</div>
 		</div>
 	</div>
 	@if (chunkedFiles != null)
