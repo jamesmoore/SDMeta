@@ -18,7 +18,7 @@ namespace SDMetaTool.Cache
 		{
 			this.fileSystem = fileSystem;
 			this.cachePath = new CachePath(fileSystem);
-			cache = this.InitialGetAll().ToDictionary(p => p.Filename, p => p);
+			cache = this.InitialGetAll().ToDictionary(p => p.FileName, p => p);
 		}
 
 		public IEnumerable<PngFile> GetAll()
@@ -72,7 +72,7 @@ namespace SDMetaTool.Cache
 		{
 			if (info != null)
 			{
-				cache[info.Filename] = info;
+				cache[info.FileName] = info;
 			}
 		}
 
@@ -90,7 +90,7 @@ namespace SDMetaTool.Cache
 		{
 			return new PngFile()
 			{
-				Filename = trackDTO.Filename,
+				FileName = trackDTO.FileName,
 				LastUpdated = trackDTO.LastUpdated,
 				Parameters = trackDTO.Parameters,
 				Length = trackDTO.Length,
@@ -102,7 +102,7 @@ namespace SDMetaTool.Cache
 		{
 			return new PngFileDTO()
 			{
-				Filename = track.Filename,
+				FileName = track.FileName,
 				LastUpdated = track.LastUpdated,
 				Parameters = track.Parameters,
 				Length = track.Length,
@@ -120,7 +120,7 @@ namespace SDMetaTool.Cache
 
 		internal class PngFileDTO
 		{
-			public string Filename { get; set; }
+			public string FileName { get; set; }
 			public DateTime LastUpdated { get; set; }
 			public long Length { get; set; }
 			public GenerationParams Parameters { get; set; }

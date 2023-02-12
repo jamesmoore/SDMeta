@@ -14,18 +14,18 @@ namespace SDMetaUI.Models
 
 		public PngFileViewModel BuildModel(PngFile p)
 		{
-			var encodedFilename = Base32Encode(p.Filename);
+			var encodedFileName = Base32Encode(p.FileName);
 			return new PngFileViewModel()
 			{
-				Filename = p.Filename,
-				ThumbnailUrl = $"/images/thumb/{encodedFilename}",
+				FileName = p.FileName,
+				ThumbnailUrl = $"/images/thumb/{encodedFileName}",
 				LastUpdated = p.LastUpdated,
 				Length = p.Length,
 				Prompt = p.Parameters?.Prompt ?? "",
 				FullPromptHash = p.Parameters?.Prompt + p.Parameters?.NegativePrompt ?? "",
 				Tooltip = GetTooltip(p),
 				Parameters = p.Parameters,
-				ImageUrl = $"/images/full/{encodedFilename}/{fileSystem.Path.GetFileName(p.Filename)}",
+				ImageUrl = $"/images/full/{encodedFileName}/{fileSystem.Path.GetFileName(p.FileName)}",
 			};
 		}
 

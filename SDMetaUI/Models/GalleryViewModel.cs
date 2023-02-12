@@ -39,7 +39,7 @@
 			{
 				filteredFiles = allFiles.Where(p =>
 								p.Prompt.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
-								p.Filename.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
+								p.FileName.Contains(filter, StringComparison.InvariantCultureIgnoreCase) ||
 								p.Parameters?.Seed.ToString() == filter
 							).ToList();
 			}

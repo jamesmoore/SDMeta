@@ -200,12 +200,12 @@ else
 	{
 		if (this.selectedFile != null)
 		{
-			File.Delete(this.selectedFile.Filename);
+			File.Delete(this.selectedFile.FileName);
 			await offcanvasEnd.HideAsync();
-			var original = pngfileDataSource.ReadPngFile(this.selectedFile.Filename);
+			var original = pngfileDataSource.ReadPngFile(this.selectedFile.FileName);
 			original.Exists = false;
 			pngfileDataSource.WritePngFile(original);
-			this.thumbnailService.Delete(this.selectedFile.Filename);
+			this.thumbnailService.Delete(this.selectedFile.FileName);
 
 			this.viewModel.RemoveFile(selectedFile);
 

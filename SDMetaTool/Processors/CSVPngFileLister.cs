@@ -28,7 +28,7 @@ namespace SDMetaTool.Processors
 			using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
 
 			var fileNames = fileLister.GetList(root);
-			var pngFiles = fileNames.Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).OrderBy(p => p.Filename).ToList();
+			var pngFiles = fileNames.Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).OrderBy(p => p.FileName).ToList();
 
 			var csvs = distinct ? GetCSVDistinct(pngFiles) : GetCSVPerItem(pngFiles);
 			csv.WriteRecords(csvs);
@@ -56,7 +56,7 @@ namespace SDMetaTool.Processors
 			var generationParams = p.Parameters ?? new GenerationParams();
 			return new CSVEntry()
 			{
-				Filename = p.Filename,
+				FileName = p.FileName,
 				LastUpdated = p.LastUpdated,
 				Length = p.Length,
 				Prompt = generationParams.Prompt,
@@ -93,7 +93,7 @@ namespace SDMetaTool.Processors
 
 		private class CSVEntry
 		{
-			public string Filename { get; set; }
+			public string FileName { get; set; }
 			public DateTime LastUpdated { get; set; }
 			public long Length { get; set; }
 			public string Prompt { get; set; }

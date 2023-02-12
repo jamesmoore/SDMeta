@@ -42,7 +42,7 @@ namespace SDMetaTool
             var pngfile = new PngFile()
             {
                 LastUpdated = fileInfo.LastWriteTime,
-                Filename = fileInfo.FullName,
+                FileName = fileInfo.FullName,
                 Length = fileInfo.Length,
             };
 

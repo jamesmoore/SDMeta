@@ -4,7 +4,7 @@ namespace SDMetaUI.Models
 {
 	public class PngFileViewModel
 	{
-		public string Filename { get; set; }
+		public string FileName { get; set; }
 		public DateTime LastUpdated { get; set; }
 		public long Length { get; set; }
 		public string ThumbnailUrl { get; set; }

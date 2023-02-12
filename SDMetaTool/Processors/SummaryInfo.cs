@@ -18,7 +18,7 @@ namespace SDMetaTool.Processors
 		public void ProcessPngFiles(string root)
 		{
 			var fileNames = fileLister.GetList(root);
-			var pngFiles = fileNames.Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).OrderBy(p => p.Filename).ToList();
+			var pngFiles = fileNames.Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).OrderBy(p => p.FileName).ToList();
 
 			var distinctPrompts = pngFiles.Select(p => p.Parameters?.PromptHash).Distinct().ToList();
 			var distinctFullPrompts = pngFiles.Select(p => new

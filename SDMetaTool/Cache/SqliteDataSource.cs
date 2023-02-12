@@ -26,12 +26,12 @@ namespace SDMetaTool.Cache
 			connection.Open();
 
 			// Setup table if absent https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/types
-			connection.Execute($"CREATE TABLE IF NOT EXISTS {TableName} (Filename TEXT primary key, FileExists INTEGER, Data BLOB);");
+			connection.Execute($"CREATE TABLE IF NOT EXISTS {TableName} (FileName TEXT primary key, FileExists INTEGER, Data BLOB);");
 		}
 
 		private class DataRow
 		{
-			public string Filename { get; set; }
+			public string FileName { get; set; }
 			public bool FileExists { get; set; }
 			public byte[] Data { get; set; }
 		}
@@ -57,8 +57,8 @@ namespace SDMetaTool.Cache
 			var reader = connection.QueryFirstOrDefault<DataRow>(
 			$@"SELECT *
 				FROM {TableName}
-				WHERE Filename = @Filename
-			", new { Filename = realFileName });
+				WHERE FileName = @FileName
+			", new { FileName = realFileName });
 
 			if (reader != null)
 			{
@@ -73,12 +73,12 @@ namespace SDMetaTool.Cache
 		public void WritePngFile(PngFile info)
 		{
 			var command = connection.Execute(
-			$@"INSERT INTO {TableName}(Filename,FileExists,Data) VALUES (@Filename,@FileExists,@Data)
-			ON CONFLICT(Filename) DO UPDATE SET Data=@Data,FileExists=@FileExists;
+			$@"INSERT INTO {TableName}(FileName,FileExists,Data) VALUES (@FileName,@FileExists,@Data)
+			ON CONFLICT(FileName) DO UPDATE SET Data=@Data,FileExists=@FileExists;
 			",
 			new DataRow
 			{
-				Filename = info.Filename,
+				FileName = info.FileName,
 				FileExists = info.Exists,
 				Data = Serialize(info)
 			},
