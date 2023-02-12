@@ -17,6 +17,7 @@
 @inject IThumbnailService thumbnailService;
 @inject ILogger<Index> logger;
 @inject IResizeListener resizeListener;
+@inject PngFileViewModelBuilder pngFileViewModelBuilder;
 
 <PageTitle>Gallery</PageTitle>
 
@@ -139,6 +140,7 @@ else
 
 			//viewModel.Width = (await resizeListener.GetBrowserWindowSize()).Width;
 			LoadData();
+			this.StateHasChanged();
 		}
 
 		await base.OnAfterRenderAsync(firstRender);
@@ -148,7 +150,6 @@ else
 	{
 		var data = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => PngFileViewModel.FromModel(p)).ToList();
 		viewModel.Initialize(data);
-		//this.StateHasChanged();
 	}
 
 	void OnSelectGroupMode(ChangeEventArgs e)
