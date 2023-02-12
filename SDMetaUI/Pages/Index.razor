@@ -171,24 +171,7 @@ else
 	{
 		if (isParent && IsGrouped())
 		{
-			model.Expanded = !model.Expanded;
-			//foreach (var file in filteredFiles)
-			//{
-			//	if (file.Expanded && file != model)
-			//	{
-			//		file.Expanded = false;
-			//	}
-			//}
-
-			if (model.Expanded)
-			{
-				expandedfiles = viewModel.GetFilesMatchingPromptHash(model.FullPromptHash);
-			}
-			else
-			{
-				expandedfiles = Enumerable.Empty<PngFileViewModel>().ToList();
-			}
-
+			this.expandedfiles = this.viewModel.ToggleExpandedState(model);
 			this.selectedFile = model;
 		}
 		else
@@ -197,7 +180,6 @@ else
 			{
 				await fullScreenView.ShowAsync();
 			}
-
 			this.selectedFile = model;
 			await offcanvasEnd.ShowAsync();
 		}

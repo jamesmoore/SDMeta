@@ -1,6 +1,4 @@
-﻿using SDMetaUI.Models;
-
-namespace SDMetaUI.Pages
+﻿namespace SDMetaUI.Models
 {
 	public class GalleryViewModel
 	{
@@ -116,9 +114,9 @@ namespace SDMetaUI.Pages
 
 		public void RemoveFile(PngFileViewModel selectedFile)
 		{
-			this.allFiles.Remove(selectedFile);
-			this.filteredFiles.Remove(selectedFile);
-			this.groupedFiles.Remove(selectedFile);
+			allFiles.Remove(selectedFile);
+			filteredFiles.Remove(selectedFile);
+			groupedFiles.Remove(selectedFile);
 			foreach (var row in chunkedFiles)
 			{
 				if (row.Contains(selectedFile))
@@ -131,13 +129,13 @@ namespace SDMetaUI.Pages
 		public PngFileViewModel GetPrevious(PngFileViewModel selectedFile)
 		{
 			var index = filteredFiles.IndexOf(selectedFile);
-			return (index > 0) ? filteredFiles[index - 1] : selectedFile;
+			return index > 0 ? filteredFiles[index - 1] : selectedFile;
 		}
 
 		public PngFileViewModel GetNext(PngFileViewModel selectedFile)
 		{
 			var index = filteredFiles.IndexOf(selectedFile);
-			return (index < filteredFiles.Count - 1) ? filteredFiles[index + 1] : selectedFile;
+			return index < filteredFiles.Count - 1 ? filteredFiles[index + 1] : selectedFile;
 		}
 
 		public IList<List<PngFileViewModel>> ChunkedFiles
@@ -148,9 +146,27 @@ namespace SDMetaUI.Pages
 			}
 		}
 
-		public IList<PngFileViewModel> GetFilesMatchingPromptHash(string hash)
+		private IList<PngFileViewModel> GetFilesMatchingPromptHash(string hash)
 		{
 			return filteredFiles.Where(p => p.FullPromptHash == hash).ToList();
+		}
+
+		public IList<PngFileViewModel> ToggleExpandedState(PngFileViewModel model)
+		{
+			model.Expanded = !model.Expanded;
+			foreach (var file in filteredFiles.Where(p => p.Expanded && p != model))
+			{
+				file.Expanded = false;
+			}
+
+			if (model.Expanded)
+			{
+				return this.GetFilesMatchingPromptHash(model.FullPromptHash);
+			}
+			else
+			{
+				return Enumerable.Empty<PngFileViewModel>().ToList();
+			}
 		}
 	}
 }
