@@ -1,7 +1,9 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using Dapper;
+using Microsoft.Data.Sqlite;
 using NLog;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 
@@ -24,9 +26,14 @@ namespace SDMetaTool.Cache
 			connection.Open();
 
 			// Setup table if absent https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/types
-			var createCommand = connection.CreateCommand();
-			createCommand.CommandText = $"CREATE TABLE IF NOT EXISTS {TableName} (Filename TEXT primary key, FileExists INTEGER, Data BLOB);";
-			createCommand.ExecuteNonQuery();
+			connection.Execute($"CREATE TABLE IF NOT EXISTS {TableName} (Filename TEXT primary key, FileExists INTEGER, Data BLOB);");
+		}
+
+		private class DataRow
+		{
+			public string Filename { get; set; }
+			public bool FileExists { get; set; }
+			public byte[] Data { get; set; }
 		}
 
 		public void Dispose()
@@ -37,59 +44,46 @@ namespace SDMetaTool.Cache
 
 		public IEnumerable<PngFile> GetAll()
 		{
-			var command = connection.CreateCommand();
-			command.CommandText =
-			$@"SELECT *
-				FROM {TableName}
-			";
+			var reader = connection.Query<DataRow>(
+				$@"SELECT *
+				FROM {TableName}"
+				);
 
-			using (var reader = command.ExecuteReader())
-			{
-				while (reader.Read())
-				{
-					var filename = reader.GetString(0);
-					var data = (byte[])reader["Data"];
-					var pngFile = Deserialize(data);
-					yield return pngFile;
-				}
-			}
+			return reader.Select(p => Deserialize(p.Data));
 		}
 
 		public PngFile ReadPngFile(string realFileName)
 		{
-			var command = connection.CreateCommand();
-			command.CommandText =
+			var reader = connection.QueryFirstOrDefault<DataRow>(
 			$@"SELECT *
 				FROM {TableName}
-				WHERE Filename = $id
-			";
-			command.Parameters.AddWithValue("$id", realFileName);
+				WHERE Filename = @Filename
+			", new { Filename = realFileName });
 
-			using (var reader = command.ExecuteReader())
+			if (reader != null)
 			{
-				while (reader.Read())
-				{
-					var filename = reader.GetString(0);
-					var data = (byte[])reader["Data"];
-					var pngFile = Deserialize(data);
-					return pngFile;
-				}
+				return Deserialize(reader.Data);
 			}
-			return null;
+			else
+			{
+				return null;
+			}
 		}
 
 		public void WritePngFile(PngFile info)
 		{
-			var command = connection.CreateCommand();
-			command.CommandText =
-			$@"INSERT INTO {TableName}(Filename,FileExists,Data) VALUES ($id,$exists,$data)
-			ON CONFLICT(Filename) DO UPDATE SET Data=$data,FileExists=$exists;
-			";
-			command.Parameters.AddWithValue("$id", info.Filename);
-			command.Parameters.AddWithValue("$exists", info.Exists);
-			command.Parameters.AddWithValue("$data", Serialize(info));
-			command.Transaction = this.transaction;
-			command.ExecuteNonQuery();
+			var command = connection.Execute(
+			$@"INSERT INTO {TableName}(Filename,FileExists,Data) VALUES (@Filename,@FileExists,@Data)
+			ON CONFLICT(Filename) DO UPDATE SET Data=@Data,FileExists=@FileExists;
+			",
+			new DataRow
+			{
+				Filename = info.Filename,
+				FileExists = info.Exists,
+				Data = Serialize(info)
+			},
+			this.transaction
+			);
 		}
 
 		private static PngFile Deserialize(byte[] data)
