@@ -147,6 +147,7 @@ else
 
 			width = (await resizeListener.GetBrowserWindowSize()).Width;
 			LoadData();
+			this.StateHasChanged();
 		}
 
 		await base.OnAfterRenderAsync(firstRender);
@@ -156,7 +157,6 @@ else
 	{
 		allFiles = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
 		SetFiles();
-		this.StateHasChanged();
 	}
 
 	void OnSelectGroupMode(ChangeEventArgs e)

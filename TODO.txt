@@ -1,0 +1,44 @@
+https://havit.blazor.eu/
+https://getbootstrap.com/docs/5.0/getting-started/introduction/
+
+# TODO
+Model/other param filter
+Auto rescan
+Improve DB? better querying? remove JSON
+ICON
+Back and fwd in group mode
+Move logic into view model
+
+
+# In progress
+
+# On hold
+Hide popover when thumbnail open (seems impossible)
+
+# Done
+Delete
+Make drawer stay open and not "background" the gallery
+Some visual cue of selcted 
+Bring thumbs into separate control
+Thumbnail in drawer
+Full screen image view
+Sticky toolbbar
+Scan/Rescan
+Configurable dir - appsttings with env override?
+Flush db after rescan
+Back and fwd keys Back and fwd in full screen view
+Deal with thumbnail getting duplicated with the same name
+	Delete on image delete
+Consolidate logging
+Filter debounce
+Clear filters textbox button
+Fix janky virtualization
+* Handle delete in grouped mode
+* Better key in chunked mode
+* Info about number of files - in group mode ?
+Delete key (alt-x)
+Occasional thumbs not showing
+thumbnails don't take full path into account
+Scrollbar at bottom ?
+Loading placeholder
+Set proper filenames/types for full images
