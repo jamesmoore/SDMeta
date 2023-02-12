@@ -71,19 +71,19 @@ else
 			{
 				<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, true)" @key=@file />
 
-				@if (file.Expanded)
+				@if (file.Expanded && (viewModel.Expandedfiles?.Any() ?? false))
 				{
 					<div class="divider">
 						<div class="divider-text is-center">
 							<span>
 								@(
-							expandedfiles.Count.ToString() + " gens of this prompt"
+							this.viewModel.Expandedfiles.Count.ToString() + " gens of this prompt"
 							)
 							</span>
 						</div>
 					</div>
 
-					foreach (var expandedFile in expandedfiles)
+					foreach (var expandedFile in viewModel.Expandedfiles)
 					{
 						<Thumbnail file=@expandedFile selected=@(selectedFile == expandedFile) onclick="() => imageClick(expandedFile, false)" />
 					}
@@ -114,7 +114,6 @@ else
 	};
 	string GroupMode = GroupModes.First();
 	GalleryViewModel viewModel = new GalleryViewModel();
-	private IList<PngFileViewModel> expandedfiles = null;
 	private PngFileViewModel selectedFile = null;
 
 	Action<ChangeEventArgs> onInputDebounced;
@@ -156,10 +155,6 @@ else
 	{
 		GroupMode = e.Value.ToString();
 		viewModel.IsGrouped = this.IsGrouped();
-		if (this.IsGrouped() == false)
-		{
-			expandedfiles = Enumerable.Empty<PngFileViewModel>().ToList();
-		}
 	}
 
 	private bool IsGrouped()
@@ -171,7 +166,7 @@ else
 	{
 		if (isParent && IsGrouped())
 		{
-			this.expandedfiles = this.viewModel.ToggleExpandedState(model);
+			this.viewModel.ToggleExpandedState(model);
 			this.selectedFile = model;
 		}
 		else
@@ -211,7 +206,7 @@ else
 			original.Exists = false;
 			pngfileDataSource.WritePngFile(original);
 			this.thumbnailService.Delete(this.selectedFile.Filename);
-			this.expandedfiles?.Remove(selectedFile);
+
 			this.viewModel.RemoveFile(selectedFile);
 
 			this.selectedFile = null;

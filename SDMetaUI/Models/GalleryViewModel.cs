@@ -5,7 +5,6 @@
 		private IList<PngFileViewModel> allFiles = null;
 		private IList<PngFileViewModel> filteredFiles = null;
 		private IList<PngFileViewModel> groupedFiles = null;
-		private IList<List<PngFileViewModel>> chunkedFiles = null;
 
 		public void Initialize(IList<PngFileViewModel> all)
 		{
@@ -13,29 +12,11 @@
 			RunFilter();
 		}
 
-		public bool HasData
-		{
-			get
-			{
-				return allFiles != null;
-			}
-		}
+		public bool HasData => allFiles != null;
 
-		public int AllFileCount
-		{
-			get
-			{
-				return allFiles.Count;
-			}
-		}
+		public int AllFileCount => allFiles.Count;
 
-		public int FilteredFileCount
-		{
-			get
-			{
-				return filteredFiles.Count;
-			}
-		}
+		public int FilteredFileCount => filteredFiles.Count;
 
 		private string filter;
 
@@ -81,6 +62,10 @@
 			{
 				isGrouped = value;
 				RunGrouping();
+				if (isGrouped == false)
+				{
+					this.Expandedfiles = Enumerable.Empty<PngFileViewModel>().ToList();
+				}
 			}
 		}
 
@@ -108,7 +93,7 @@
 			if (width > 0 && groupedFiles != null)
 			{
 				int countPerRow = (width - 17) / 191;
-				chunkedFiles = groupedFiles.Chunk(countPerRow).Select(p => p.ToList()).ToList();
+				this.ChunkedFiles = groupedFiles.Chunk(countPerRow).Select(p => p.ToList()).ToList();
 			}
 		}
 
@@ -117,12 +102,10 @@
 			allFiles.Remove(selectedFile);
 			filteredFiles.Remove(selectedFile);
 			groupedFiles.Remove(selectedFile);
-			foreach (var row in chunkedFiles)
+			this.Expandedfiles?.Remove(selectedFile);
+			foreach (var row in this.ChunkedFiles.Where(p => p.Contains(selectedFile)))
 			{
-				if (row.Contains(selectedFile))
-				{
-					row.Remove(selectedFile);
-				}
+				row.Remove(selectedFile);
 			}
 		}
 
@@ -138,20 +121,13 @@
 			return index < filteredFiles.Count - 1 ? filteredFiles[index + 1] : selectedFile;
 		}
 
-		public IList<List<PngFileViewModel>> ChunkedFiles
-		{
-			get
-			{
-				return chunkedFiles;
-			}
-		}
+		public IList<List<PngFileViewModel>> ChunkedFiles { get; private set; }
 
-		private IList<PngFileViewModel> GetFilesMatchingPromptHash(string hash)
-		{
-			return filteredFiles.Where(p => p.FullPromptHash == hash).ToList();
-		}
+		public IList<PngFileViewModel> Expandedfiles { get; set; }
 
-		public IList<PngFileViewModel> ToggleExpandedState(PngFileViewModel model)
+		private IList<PngFileViewModel> GetFilesMatchingPromptHash(string hash) => filteredFiles.Where(p => p.FullPromptHash == hash).ToList();
+
+		public void ToggleExpandedState(PngFileViewModel model)
 		{
 			model.Expanded = !model.Expanded;
 			foreach (var file in filteredFiles.Where(p => p.Expanded && p != model))
@@ -161,11 +137,11 @@
 
 			if (model.Expanded)
 			{
-				return this.GetFilesMatchingPromptHash(model.FullPromptHash);
+				this.Expandedfiles = this.GetFilesMatchingPromptHash(model.FullPromptHash);
 			}
 			else
 			{
-				return Enumerable.Empty<PngFileViewModel>().ToList();
+				this.Expandedfiles = Enumerable.Empty<PngFileViewModel>().ToList();
 			}
 		}
 	}
