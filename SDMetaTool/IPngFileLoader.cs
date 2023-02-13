@@ -1,7 +1,9 @@
-﻿namespace SDMetaTool
+﻿using System.Threading.Tasks;
+
+namespace SDMetaTool
 {
     public interface IPngFileLoader
     {
-        PngFile GetPngFile(string filename);
+        Task<PngFile> GetPngFile(string filename);
     }
 }

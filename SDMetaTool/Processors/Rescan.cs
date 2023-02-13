@@ -1,6 +1,7 @@
 ﻿using NLog;
 using SDMetaTool.Cache;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SDMetaTool.Processors
 {
@@ -21,13 +22,13 @@ namespace SDMetaTool.Processors
 			this.pngFileLoader = pngFileLoader;
 		}
 
-		public void ProcessPngFiles(string root)
+		public async Task ProcessPngFiles(string root)
 		{
 			logger.Info("Rescan started");
-			pngFileDataSource.BeginTransaction();
+			await pngFileDataSource.BeginTransaction();
 			var fileNames = fileLister.GetList(root);
 
-			var knownFiles = pngFileDataSource.GetAll();
+			var knownFiles = await pngFileDataSource.GetAll();
 
 			var deleted = knownFiles.Where(p => p.Exists).Select(p => p.FileName).Except(fileNames);
 
@@ -36,18 +37,22 @@ namespace SDMetaTool.Processors
 			{
 				var fileToDelete = knownFilesLookup[file].Single();
 				fileToDelete.Exists = false;
-				pngFileDataSource.WritePngFile(fileToDelete);
+				await pngFileDataSource.WritePngFile(fileToDelete);
 				logger.Info("Removing " + file);
 			}
 
-			var newFiles = fileNames.Except(knownFiles.Where(p => p.Exists).Select(p => p.FileName)).Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).ToList(); ;
-			foreach (var file in newFiles.Where(p => p.Exists == false))
+			var newFileNames = fileNames.Except(knownFiles.Where(p => p.Exists).Select(p => p.FileName));
+			var newFileTasks = newFileNames.Select( p => pngFileLoader.GetPngFile(p)).ToList();
+
+			await Task.WhenAll(newFileTasks.ToArray());
+
+			foreach (var file in newFileTasks.Select(p => p.Result).Where(p => p != null && p.Exists == false))
 			{
 				file.Exists = true;
-				pngFileDataSource.WritePngFile(file);
+				await pngFileDataSource.WritePngFile(file);
 				logger.Info("Adding " + file.FileName);
 			}
-			pngFileDataSource.CommitTransaction();
+			await pngFileDataSource.CommitTransaction();
 			logger.Info("Rescan finished");
 		}
 	}

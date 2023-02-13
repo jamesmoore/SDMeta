@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SDMetaTool.Cache
 {
-    public interface IPngFileDataSource : IDisposable
+    public interface IPngFileDataSource : IAsyncDisposable
     {
-        IEnumerable<PngFile> GetAll();
-        PngFile ReadPngFile(string realFileName);
-        void WritePngFile(PngFile info);
-		void BeginTransaction();
-		void CommitTransaction();
+        Task<IEnumerable<PngFile>> GetAll();
+        Task<PngFile> ReadPngFile(string realFileName);
+        Task WritePngFile(PngFile info);
+		Task BeginTransaction();
+		Task CommitTransaction();
 	}
 }

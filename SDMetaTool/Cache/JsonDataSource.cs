@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace SDMetaTool.Cache
 {
@@ -21,7 +23,7 @@ namespace SDMetaTool.Cache
 			cache = this.InitialGetAll().ToDictionary(p => p.FileName, p => p);
 		}
 
-		public IEnumerable<PngFile> GetAll()
+		public async Task<IEnumerable<PngFile>> GetAll()
 		{
 			return cache.Values;
 		}
@@ -43,7 +45,7 @@ namespace SDMetaTool.Cache
 			}
 		}
 
-		private void WriteCache(IEnumerable<PngFile> cache)
+		private async Task WriteCache(IEnumerable<PngFile> cache)
 		{
 			var path = cachePath.GetPath();
 
@@ -62,13 +64,13 @@ namespace SDMetaTool.Cache
 			fileSystem.File.WriteAllText(path, serialized);
 		}
 
-		public PngFile ReadPngFile(string realFileName)
+		public async Task<PngFile> ReadPngFile(string realFileName)
 		{
 			cache.TryGetValue(realFileName, out PngFile value);
 			return value;
 		}
 
-		public void WritePngFile(PngFile info)
+		public async Task WritePngFile(PngFile info)
 		{
 			if (info != null)
 			{
@@ -76,14 +78,9 @@ namespace SDMetaTool.Cache
 			}
 		}
 
-		public void Dispose()
+		public async ValueTask DisposeAsync()
 		{
-			Flush();
-		}
-
-		public void Flush()
-		{
-			this.WriteCache(cache.Values);
+			await this.WriteCache(cache.Values);
 		}
 
 		private static PngFile PngFileDTOToPngFile(PngFileDTO trackDTO)
@@ -110,11 +107,11 @@ namespace SDMetaTool.Cache
 			};
 		}
 
-		public void BeginTransaction()
+		public async Task BeginTransaction()
 		{
 		}
 
-		public void CommitTransaction()
+		public async Task CommitTransaction()
 		{
 		}
 

@@ -9,7 +9,7 @@
 @using SDMetaUI.Services;
 @using SDMetaUI.Shared;
 
-@implements IDisposable;
+@implements IAsyncDisposable;
 
 @inject IPngFileDataSource pngfileDataSource
 @inject Rescan rescan
@@ -138,16 +138,17 @@ else
 			};
 
 			//viewModel.Width = (await resizeListener.GetBrowserWindowSize()).Width;
-			LoadData();
+			await LoadData();
 			this.StateHasChanged();
 		}
 
 		await base.OnAfterRenderAsync(firstRender);
 	}
 
-	private void LoadData()
+	private async Task LoadData()
 	{
-		var data = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
+		var all = await pngfileDataSource.GetAll();
+		var data = all.Where(p => p.Exists).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
 		viewModel.Initialize(data);
 	}
 
@@ -182,18 +183,18 @@ else
 
 	private async Task Rescan()
 	{
-		await Task.Run(() =>
+		await Task.Run(async () =>
 		{
 			var directory = configuration["ImageDir"];
-			this.rescan.ProcessPngFiles(directory);
+			await this.rescan.ProcessPngFiles(directory);
 			logger.LogInformation("Rescan done");
+			await LoadData();
 		});
-		LoadData();
 	}
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
-		pngfileDataSource.Dispose();
+		await pngfileDataSource.DisposeAsync();
 	}
 
 	private async void imageDelete()
@@ -202,9 +203,9 @@ else
 		{
 			File.Delete(this.selectedFile.FileName);
 			await offcanvasEnd.HideAsync();
-			var original = pngfileDataSource.ReadPngFile(this.selectedFile.FileName);
+			var original = await pngfileDataSource.ReadPngFile(this.selectedFile.FileName);
 			original.Exists = false;
-			pngfileDataSource.WritePngFile(original);
+			await pngfileDataSource.WritePngFile(original);
 			this.thumbnailService.Delete(this.selectedFile.FileName);
 
 			this.viewModel.RemoveFile(selectedFile);
