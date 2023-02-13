@@ -5,6 +5,7 @@ using NLog;
 using System;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SDMetaTool
 {
@@ -20,13 +21,13 @@ namespace SDMetaTool
             
         }
 
-        public PngFile GetPngFile(string filename)
+        public async Task<PngFile> GetPngFile(string filename)
         {
             logger.Info($"Indexing: {filename}");
 
             try
             {
-                return ReadPngFile(fileSystem, filename);
+                return await ReadPngFile(fileSystem, filename);
             }
             catch (Exception ex)
             {
@@ -35,7 +36,7 @@ namespace SDMetaTool
             }
         }
 
-        public PngFile ReadPngFile(IFileSystem fileSystem, string filename)
+        private async Task<PngFile> ReadPngFile(IFileSystem fileSystem, string filename)
         {
             var fileInfo = fileSystem.FileInfo.New(filename);
 

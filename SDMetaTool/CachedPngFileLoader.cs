@@ -1,5 +1,6 @@
 ﻿using SDMetaTool.Cache;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 
 namespace SDMetaTool
 {
@@ -19,19 +20,19 @@ namespace SDMetaTool
 			this.fileSystem = fileSystem;
 		}
 
-		public PngFile GetPngFile(string filename)
+		public async Task<PngFile> GetPngFile(string filename)
 		{
 			var fileInfo = fileSystem.FileInfo.New(filename);
-			var pngFile = pngFileDataSource.ReadPngFile(filename);
+			var pngFile = await pngFileDataSource.ReadPngFile(filename);
 			if (pngFile != null && pngFile.LastUpdated == fileInfo.LastWriteTime)
 			{
 				return pngFile;
 			}
 			else
 			{
-				pngFile = inner.GetPngFile(filename);
+				pngFile = await inner.GetPngFile(filename);
 				pngFile.Exists = true;
-				pngFileDataSource.WritePngFile(pngFile);
+				await pngFileDataSource.WritePngFile(pngFile);
 				return pngFile;
 			}
 		}

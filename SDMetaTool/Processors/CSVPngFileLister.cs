@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SDMetaTool.Processors
 {
@@ -22,13 +23,16 @@ namespace SDMetaTool.Processors
 			this.distinct = distinct;
 		}
 
-		public void ProcessPngFiles(string root)
+		public async Task ProcessPngFiles(string root)
 		{
 			using var writer = new StreamWriter(outfile);
 			using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
 
 			var fileNames = fileLister.GetList(root);
-			var pngFiles = fileNames.Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).OrderBy(p => p.FileName).ToList();
+			var tasks = fileNames.Select(p => pngFileLoader.GetPngFile(p)).ToList();
+			await Task.WhenAll(tasks.ToArray());
+
+			var pngFiles = tasks.Select(p => p.Result).Where(p => p != null).OrderBy(p => p.FileName).ToList();
 
 			var csvs = distinct ? GetCSVDistinct(pngFiles) : GetCSVPerItem(pngFiles);
 			csv.WriteRecords(csvs);

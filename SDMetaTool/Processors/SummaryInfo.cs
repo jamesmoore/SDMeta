@@ -1,6 +1,7 @@
 ﻿using BetterConsoleTables;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SDMetaTool.Processors
 {
@@ -15,10 +16,13 @@ namespace SDMetaTool.Processors
 			this.pngFileLoader = pngFileLoader;
 		}
 
-		public void ProcessPngFiles(string root)
+		public async Task ProcessPngFiles(string root)
 		{
 			var fileNames = fileLister.GetList(root);
-			var pngFiles = fileNames.Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).OrderBy(p => p.FileName).ToList();
+			var tasks = fileNames.Select(p => pngFileLoader.GetPngFile(p)).ToList();
+			await Task.WhenAll(tasks.ToArray());
+
+			var pngFiles = tasks.Select(p => p.Result).Where(p => p != null).OrderBy(p => p.FileName).ToList();
 
 			var distinctPrompts = pngFiles.Select(p => p.Parameters?.PromptHash).Distinct().ToList();
 			var distinctFullPrompts = pngFiles.Select(p => new

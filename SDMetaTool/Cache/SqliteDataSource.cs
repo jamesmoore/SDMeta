@@ -3,8 +3,10 @@ using Microsoft.Data.Sqlite;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SDMetaTool.Cache
 {
@@ -12,7 +14,7 @@ namespace SDMetaTool.Cache
 	{
 		const string TableName = "PngFiles";
 		private readonly SqliteConnection connection;
-		private SqliteTransaction transaction;
+		private DbTransaction transaction;
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
 		private readonly string[] columns = new string[]
@@ -224,15 +226,15 @@ namespace SDMetaTool.Cache
 			}
 		}
 
-		public void Dispose()
+		public async ValueTask DisposeAsync()
 		{
-			this.CommitTransaction();
-			connection.Dispose();
+			await this.CommitTransaction();
+			await connection.DisposeAsync();
 		}
 
-		public IEnumerable<PngFile> GetAll()
+		public async Task<IEnumerable<PngFile>> GetAll()
 		{
-			var reader = connection.Query<DataRow>(
+			var reader = await connection.QueryAsync<DataRow>(
 				$@"SELECT *
 				FROM {TableName}"
 				);
@@ -240,9 +242,9 @@ namespace SDMetaTool.Cache
 			return reader.Select(p => p.ToModel());
 		}
 
-		public PngFile ReadPngFile(string realFileName)
+		public async Task<PngFile> ReadPngFile(string realFileName)
 		{
-			var reader = connection.QueryFirstOrDefault<DataRow>(
+			var reader = await connection.QueryFirstOrDefaultAsync<DataRow>(
 			$@"SELECT *
 				FROM {TableName}
 				WHERE FileName = @FileName
@@ -258,29 +260,26 @@ namespace SDMetaTool.Cache
 			}
 		}
 
-		public void WritePngFile(PngFile info)
+		public async Task WritePngFile(PngFile info)
 		{
-			connection.Execute(
+			await connection.ExecuteAsync(
 				insertSql,
 				DataRow.FromModel(info),
 				this.transaction
 			);
 		}
 
-		public void BeginTransaction()
+		public async Task BeginTransaction()
 		{
-			if (this.transaction == null)
-			{
-				this.transaction = this.connection.BeginTransaction();
-			}
+			this.transaction ??= await this.connection.BeginTransactionAsync();
 		}
 
-		public void CommitTransaction()
+		public async Task CommitTransaction()
 		{
 			if (this.transaction != null)
 			{
-				this.transaction.Commit();
-				this.transaction.Dispose();
+				await this.transaction.CommitAsync();
+				await this.transaction.DisposeAsync();
 				this.transaction = null;
 			}
 		}
