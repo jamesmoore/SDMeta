@@ -24,6 +24,7 @@ namespace SDMetaTool.Processors
 		public void ProcessPngFiles(string root)
 		{
 			logger.Info("Rescan started");
+			pngFileDataSource.BeginTransaction();
 			var fileNames = fileLister.GetList(root);
 
 			var knownFiles = pngFileDataSource.GetAll();
@@ -40,12 +41,13 @@ namespace SDMetaTool.Processors
 			}
 
 			var newFiles = fileNames.Except(knownFiles.Where(p => p.Exists).Select(p => p.FileName)).Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).ToList(); ;
-			foreach (var file in newFiles)
+			foreach (var file in newFiles.Where(p => p.Exists == false))
 			{
 				file.Exists = true;
 				pngFileDataSource.WritePngFile(file);
 				logger.Info("Adding " + file.FileName);
 			}
+			pngFileDataSource.CommitTransaction();
 			logger.Info("Rescan finished");
 		}
 	}

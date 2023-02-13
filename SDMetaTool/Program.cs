@@ -13,7 +13,6 @@ namespace SDMetaTool
         {
 			var fileSystem = new FileSystem();
 			using var sqliteDataSource = new SqliteDataSource(fileSystem);
-            sqliteDataSource.BeginTransaction();
             var datasource = sqliteDataSource;
 			var loader = new CachedPngFileLoader(fileSystem, new PngFileLoader(fileSystem), datasource);
 			var fileLister = new FileLister(fileSystem);
