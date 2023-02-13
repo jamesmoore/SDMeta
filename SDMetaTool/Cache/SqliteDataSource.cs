@@ -182,7 +182,10 @@ namespace SDMetaTool.Cache
 
 			internal GenerationParams ToGenerationParams()
 			{
-				if(string.IsNullOrWhiteSpace(this.Prompt) || string.IsNullOrWhiteSpace(this.NegativePrompt) || string.IsNullOrWhiteSpace(this.Params)) return null;
+				var hasParams = string.IsNullOrWhiteSpace(this.Prompt) == false ||
+					string.IsNullOrWhiteSpace(this.NegativePrompt) == false || 
+					string.IsNullOrWhiteSpace(this.Params) == false;
+				if (hasParams == false) return null;
 				return new GenerationParams()
 				{
 					Prompt = this.Prompt,
