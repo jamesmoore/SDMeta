@@ -30,8 +30,8 @@
 
 	private async void KeyboardEventHandler(KeyboardEventArgs args)
 	{
-		if (args.Code == "ArrowLeft") onLeft.InvokeAsync(args);
-		else if (args.Code == "ArrowRight") onRight.InvokeAsync(args);
+		if (args.Code == "ArrowLeft") await onLeft.InvokeAsync(args);
+		else if (args.Code == "ArrowRight") await onRight.InvokeAsync(args);
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)

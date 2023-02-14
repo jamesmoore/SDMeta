@@ -69,7 +69,7 @@ else
 		<Virtualize Items=@viewModel.ChunkedFiles Context="files" OverscanCount="5" ItemSize="191">
 			@foreach (var file in files)
 			{
-				<Thumbnail file=@file selected=@(selectedFile == file) onclick="() => imageClick(file, true)" @key=@file />
+				<Thumbnail file=@file selected=@(viewModel.SelectedFile == file) onclick="() => imageClick(file, true)" @key=@file />
 
 				@if (file.Expanded && (viewModel.Expandedfiles?.Any() ?? false))
 				{
@@ -85,7 +85,7 @@ else
 
 					foreach (var expandedFile in viewModel.Expandedfiles)
 					{
-						<Thumbnail file=@expandedFile selected=@(selectedFile == expandedFile) onclick="() => imageClick(expandedFile, false)" />
+						<Thumbnail file=@expandedFile selected=@(viewModel.SelectedFile == expandedFile) onclick="() => imageClick(expandedFile, false)" />
 					}
 					<div class="divider"></div>
 				}
@@ -94,14 +94,14 @@ else
 	}
 	<HxOffcanvas @ref="offcanvasEnd" Placement="OffcanvasPlacement.End" ScrollingEnabled="true" Backdrop="OffcanvasBackdrop.False">
 		<BodyTemplate>
-			@if (selectedFile != null)
+			@if (viewModel.SelectedFile != null)
 			{
-				<FilePanel selectedFile="@selectedFile" onDelete="() => imageDelete()" onFullScreenView="(e) => fullScreenView.ShowAsync()" />
+				<FilePanel selectedFile="@viewModel.SelectedFile" onDelete="() => imageDelete()" onFullScreenView="(e) => fullScreenView.ShowAsync()" />
 			}
 		</BodyTemplate>
 	</HxOffcanvas>
 
-	<FullScreenView @ref=@fullScreenView selectedFile=@selectedFile onLeft=@leftKey onRight=@rightKey />
+	<FullScreenView @ref=@fullScreenView selectedFile=@viewModel.SelectedFile onLeft=@leftKey onRight=@rightKey />
 }
 @code {
 
@@ -114,7 +114,6 @@ else
 	};
 	string GroupMode = GroupModes.First();
 	GalleryViewModel viewModel = new GalleryViewModel();
-	private PngFileViewModel selectedFile = null;
 
 	Action<ChangeEventArgs> onInputDebounced;
 
@@ -167,15 +166,18 @@ else
 		if (isParent && IsGrouped())
 		{
 			this.viewModel.ToggleExpandedState(model);
-			this.selectedFile = model;
+			this.viewModel.SelectedFile = model;
 		}
 		else
 		{
-			if (model == selectedFile)
+			if (model == viewModel.SelectedFile)
 			{
 				await fullScreenView.ShowAsync();
 			}
-			this.selectedFile = model;
+			else
+			{
+				this.viewModel.SelectedFile = model;
+			}
 			await offcanvasEnd.ShowAsync();
 		}
 	}
@@ -198,30 +200,31 @@ else
 
 	private async void imageDelete()
 	{
-		if (this.selectedFile != null)
+		if (this.viewModel.SelectedFile != null)
 		{
-			File.Delete(this.selectedFile.FileName);
 			await offcanvasEnd.HideAsync();
-			var original = pngfileDataSource.ReadPngFile(this.selectedFile.FileName);
+
+			var filename = this.viewModel.SelectedFile.FileName;
+
+			File.Delete(filename);
+			var original = pngfileDataSource.ReadPngFile(filename);
 			original.Exists = false;
 			pngfileDataSource.WritePngFile(original);
-			this.thumbnailService.Delete(this.selectedFile.FileName);
+			this.thumbnailService.Delete(filename);
 
-			this.viewModel.RemoveFile(selectedFile);
-
-			this.selectedFile = null;
+			this.viewModel.RemoveFile();
 			this.StateHasChanged();
 		}
 	}
 
 	private async void leftKey()
 	{
-		selectedFile = viewModel.GetPrevious(selectedFile);
+		viewModel.GetPrevious();
 	}
 
 	private async void rightKey()
 	{
-		selectedFile = viewModel.GetNext(selectedFile);
+		viewModel.GetNext();
 	}
 
 	// https://www.meziantou.net/debouncing-throttling-javascript-events-in-a-blazor-application.htm
