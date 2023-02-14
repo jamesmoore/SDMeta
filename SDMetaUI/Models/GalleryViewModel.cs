@@ -7,6 +7,20 @@
 		private IList<PngFileViewModel> groupedFiles = null;
 		public PngFileViewModel SelectedFile { get; set; }
 
+		private ModelSummaryViewModel modelFilter;
+		public ModelSummaryViewModel ModelFilter
+		{
+			get
+			{
+				return modelFilter;
+			}
+			set
+			{
+				modelFilter = value;
+				RunFilter();
+			}
+		}
+
 		public void Initialize(IList<PngFileViewModel> all)
 		{
 			allFiles = all;
@@ -46,8 +60,14 @@
 			}
 			else
 			{
-				filteredFiles = allFiles.ToList();
+				filteredFiles = allFiles;
 			}
+
+			if (this.ModelFilter != null)
+			{
+				filteredFiles = filteredFiles.Where(p => this.ModelFilter.Matches(p)).ToList();
+			}
+
 			RunGrouping();
 		}
 

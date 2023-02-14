@@ -30,18 +30,28 @@ else
 	<div class="container-fluid sticky-top">
 		<div class="row p-2 menu-bar">
 			<div class="col-3">
-				<label class="visually-hidden" for="autoSizingInput">Filter</label>
-				<input type="search" @oninput="onInputDebounced" class="form-control" id="autoSizingInput" placeholder="filter">
+				<label class="visually-hidden" for="filterInput">Filter</label>
+				<input type="search" @oninput="onInputDebounced" class="form-control" id="filterInput" placeholder="filter">
 			</div>
 			<div class="col-auto">
-				<label class="visually-hidden" for="autoSizingSelect">Preference</label>
-				<select class="form-select" id="autoSizingSelect" @onchange="OnSelectGroupMode">
+				<label class="visually-hidden" for="groupModeSelect">Group mode</label>
+				<select class="form-select" id="groupModeSelect" @onchange="OnSelectGroupMode">
 					@foreach (var template in GroupModes)
 					{
 						<option value=@template>@template</option>
 					}
 				</select>
 			</div>
+			<div class="col-3">
+				<label class="visually-hidden" for="modelSelect">Models</label>
+				<select class="form-select" id="modelSelect" @onchange="OnSelectModel">
+					@foreach (var template in this.modelsList)
+					{
+						<option value=@template.Id>@(template.Text)</option>
+					}
+				</select>
+			</div>
+
 			<div class="col-auto">
 				<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" />
 			</div>
@@ -107,8 +117,23 @@ else
 	};
 	string GroupMode = GroupModes.First();
 	GalleryViewModel viewModel = new GalleryViewModel();
-
 	Action<ChangeEventArgs> onInputDebounced;
+
+	IList<ModelSummaryViewModel> modelsList;
+
+	protected override void OnInitialized()
+	{
+		base.OnInitialized();
+		this.modelsList = this.pngfileDataSource.GetModelSummaryList().Select((p,i) => new ModelSummaryViewModel()
+		{
+			Id = (i + 1).ToString(),
+			Count = p.Count,
+			Model = p.Model,
+			ModelHash = p.ModelHash,
+			Text = (p.ModelHash ?? "<empty>")  +   " (" + (p.Model ?? "<no name>") + ") [" + p.Count + "]",
+		}).ToList();
+		modelsList.Insert(0, new ModelSummaryViewModel() { Id = "0", Text = "-- all models --" });
+	}
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -146,12 +171,14 @@ else
 	void OnSelectGroupMode(ChangeEventArgs e)
 	{
 		GroupMode = e.Value.ToString();
-		viewModel.IsGrouped = this.IsGrouped();
+		viewModel.IsGrouped = GroupMode == GroupModes[1];
 	}
 
-	private bool IsGrouped()
+	void OnSelectModel(ChangeEventArgs e)
 	{
-		return GroupMode == GroupModes[1];
+		var selectedModelId = e.Value.ToString();
+		var model = modelsList.FirstOrDefault(p => p.Id == selectedModelId);
+		this.viewModel.ModelFilter = model.Id == "0" ? null : model;
 	}
 
 	private void imageClickParent(PngFileViewModel model)

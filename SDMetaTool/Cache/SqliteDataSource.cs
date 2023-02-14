@@ -284,6 +284,18 @@ namespace SDMetaTool.Cache
 				this.transaction = null;
 			}
 		}
+
+		public IEnumerable<ModelSummary> GetModelSummaryList()
+		{
+			var reader = connection.Query<ModelSummary>(
+				$@"SELECT Model, ModelHash, Count(*) as Count
+				FROM {TableName}
+				GROUP BY Model, ModelHash
+				ORDER BY 3 DESC"
+				);
+
+			return reader;
+		}
 	}
 
 	public static class ExtensionMethods

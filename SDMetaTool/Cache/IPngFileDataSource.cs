@@ -10,5 +10,6 @@ namespace SDMetaTool.Cache
         void WritePngFile(PngFile info);
 		void BeginTransaction();
 		void CommitTransaction();
+        IEnumerable<ModelSummary> GetModelSummaryList();
 	}
 }

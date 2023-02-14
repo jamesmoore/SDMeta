@@ -118,6 +118,11 @@ namespace SDMetaTool.Cache
 		{
 		}
 
+		public IEnumerable<ModelSummary> GetModelSummaryList()
+		{
+			throw new NotImplementedException();
+		}
+
 		internal class PngFileDTO
 		{
 			public string FileName { get; set; }
