@@ -80,21 +80,12 @@ else
 
 					@if (file.Expanded && (viewModel.Expandedfiles?.Any() ?? false))
 					{
-						<div class="divider">
-							<div class="divider-text is-center">
-								<span>
-									@(
-						this.viewModel.Expandedfiles.Count.ToString() + " gens of this prompt"
-									)
-								</span>
-							</div>
-						</div>
-
+						<Divider Text=@(this.viewModel.Expandedfiles.Count.ToString() + " gens of this prompt")></Divider>
 						foreach (var expandedFile in viewModel.Expandedfiles)
 						{
 							<Thumbnail file=@expandedFile selected=@(viewModel.SelectedFile == expandedFile) onclick="(e) => imageClick(expandedFile)" />
 						}
-						<div class="divider"></div>
+						<Divider></Divider>
 					}
 				}
 			}
