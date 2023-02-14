@@ -5,6 +5,7 @@
 		private IList<PngFileViewModel> allFiles = null;
 		private IList<PngFileViewModel> filteredFiles = null;
 		private IList<PngFileViewModel> groupedFiles = null;
+		public PngFileViewModel SelectedFile { get; set; }
 
 		public void Initialize(IList<PngFileViewModel> all)
 		{
@@ -97,28 +98,32 @@
 			}
 		}
 
-		public void RemoveFile(PngFileViewModel selectedFile)
+		public void RemoveFile()
 		{
-			allFiles.Remove(selectedFile);
-			filteredFiles.Remove(selectedFile);
-			groupedFiles.Remove(selectedFile);
-			this.Expandedfiles?.Remove(selectedFile);
-			foreach (var row in this.ChunkedFiles.Where(p => p.Contains(selectedFile)))
+			if (this.SelectedFile != null)
 			{
-				row.Remove(selectedFile);
+				allFiles.Remove(this.SelectedFile);
+				filteredFiles.Remove(this.SelectedFile);
+				groupedFiles.Remove(this.SelectedFile);
+				this.Expandedfiles?.Remove(this.SelectedFile);
+				foreach (var row in this.ChunkedFiles.Where(p => p.Contains(this.SelectedFile)))
+				{
+					row.Remove(this.SelectedFile);
+				}
+				this.SelectedFile = null;
 			}
 		}
 
-		public PngFileViewModel GetPrevious(PngFileViewModel selectedFile)
+		public void GetPrevious()
 		{
-			var index = filteredFiles.IndexOf(selectedFile);
-			return index > 0 ? filteredFiles[index - 1] : selectedFile;
+			var index = filteredFiles.IndexOf(this.SelectedFile);
+			this.SelectedFile = index > 0 ? filteredFiles[index - 1] : this.SelectedFile;
 		}
 
-		public PngFileViewModel GetNext(PngFileViewModel selectedFile)
+		public void GetNext()
 		{
-			var index = filteredFiles.IndexOf(selectedFile);
-			return index < filteredFiles.Count - 1 ? filteredFiles[index + 1] : selectedFile;
+			var index = filteredFiles.IndexOf(this.SelectedFile);
+			this.SelectedFile = index < filteredFiles.Count - 1 ? filteredFiles[index + 1] : this.SelectedFile;
 		}
 
 		public IList<List<PngFileViewModel>> ChunkedFiles { get; private set; }
