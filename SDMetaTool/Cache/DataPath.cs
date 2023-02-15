@@ -14,7 +14,7 @@ namespace SDMetaTool.Cache
 		}
 
 		public string GetPath() => (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) ? 
-			fileSystem.Path.DirectorySeparatorChar + "SDMetaTool"
-			: fileSystem.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SDMetaTool");
+			"/var/lib/" + Application.ApplicationName.ToLower()
+			: fileSystem.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ApplicationName);
 	}
 }
