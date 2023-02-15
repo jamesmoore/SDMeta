@@ -33,15 +33,6 @@ else
 				<label class="visually-hidden" for="filterInput">Filter</label>
 				<input type="search" @oninput="onInputDebounced" class="form-control" id="filterInput" placeholder="filter">
 			</div>
-			<div class="col-auto">
-				<label class="visually-hidden" for="groupModeSelect">Group mode</label>
-				<select class="form-select" id="groupModeSelect" @onchange="OnSelectGroupMode">
-					@foreach (var template in GroupModes)
-					{
-						<option value=@template>@template</option>
-					}
-				</select>
-			</div>
 			<div class="col-3">
 				<label class="visually-hidden" for="modelSelect">Models</label>
 				<select class="form-select" id="modelSelect" @onchange="OnSelectModel">
@@ -51,7 +42,9 @@ else
 					}
 				</select>
 			</div>
-
+			<div class="col-auto d-flex align-items-center">
+				<HxSwitch Text="Group by prompt" @bind-Value="@viewModel.IsGrouped" />
+			</div>
 			<div class="col-auto">
 				<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" />
 			</div>
@@ -111,11 +104,6 @@ else
 	private HxOffcanvas? offcanvasEnd;
 	private FullScreenView? fullScreenView;
 
-	static List<string> GroupModes = new List<string>() {
-		"Each gen",
-		"Grouped by prompt"
-	};
-	string GroupMode = GroupModes.First();
 	GalleryViewModel viewModel = new GalleryViewModel();
 	Action<ChangeEventArgs> onInputDebounced;
 
@@ -166,12 +154,6 @@ else
 	{
 		var data = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
 		viewModel.Initialize(data);
-	}
-
-	void OnSelectGroupMode(ChangeEventArgs e)
-	{
-		GroupMode = e.Value.ToString();
-		viewModel.IsGrouped = GroupMode == GroupModes[1];
 	}
 
 	void OnSelectModel(ChangeEventArgs e)
