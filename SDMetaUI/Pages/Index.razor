@@ -29,11 +29,11 @@ else
 {
 	<div class="container-fluid sticky-top">
 		<div class="row p-2 menu-bar">
-			<div class="col-3">
+			<div class="col-md-3 col-xs-12 py-2 py-md-0">
 				<label class="visually-hidden" for="filterInput">Filter</label>
 				<input type="search" @oninput="onInputDebounced" class="form-control" id="filterInput" placeholder="filter">
 			</div>
-			<div class="col-3">
+			<div class="col-md-3 col-xs-12 py-2 py-md-0">
 				<label class="visually-hidden" for="modelSelect">Models</label>
 				<select class="form-select" id="modelSelect" @onchange="OnSelectModel">
 					@foreach (var template in this.modelsList)
@@ -42,13 +42,13 @@ else
 					}
 				</select>
 			</div>
-			<div class="col-auto d-flex align-items-center">
+			<div class="col-auto d-flex align-items-center py-2 py-md-0">
 				<HxSwitch Text="Group by prompt" @bind-Value="@viewModel.IsGrouped" />
 			</div>
-			<div class="col-auto">
+			<div class="col-auto py-2 py-md-0">
 				<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" />
 			</div>
-			<div class="col-auto ms-auto py-1">
+			<div class="col-auto ms-auto py-2">
 				<h6>
 					@if (viewModel.FilteredFileCount < viewModel.AllFileCount)
 					{
