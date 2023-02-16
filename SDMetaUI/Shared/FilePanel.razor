@@ -1,7 +1,9 @@
 ﻿@using SDMetaTool;
 @using SDMetaUI.Models;
 @inject IJSRuntime JSRuntime
+@inject IHxMessengerService Messenger
 
+<HxMessenger Position="ToastContainerPosition.TopEnd" />
 @if (string.IsNullOrWhiteSpace(@selectedFileParams?.Prompt) == false)
 {
 	<table class="table">
@@ -105,5 +107,6 @@
 	private async Task CopyTextToClipboard()
 	{
 		await JSRuntime.InvokeVoidAsync("copyClipboard", "selectedFileParams-textarea");
+		Messenger.AddInformation(title: "Prompt", message: "Copied to clipboard");
 	}
 }
