@@ -296,6 +296,17 @@ namespace SDMetaTool.Cache
 
 			return reader;
 		}
+
+		public IEnumerable<string> GetAllFilenames()
+		{
+			var reader = connection.Query<string>(
+				$@"SELECT Filename
+				FROM {TableName}
+				WHERE [Exists] = 1"
+				);
+
+			return reader;
+		}
 	}
 
 	public static class ExtensionMethods

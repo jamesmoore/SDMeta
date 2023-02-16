@@ -123,6 +123,11 @@ namespace SDMetaTool.Cache
 			throw new NotImplementedException();
 		}
 
+		public IEnumerable<string> GetAllFilenames()
+		{
+			return cache.Where(p => p.Value.Exists).Select(p => p.Key).ToList();
+		}
+
 		internal class PngFileDTO
 		{
 			public string FileName { get; set; }

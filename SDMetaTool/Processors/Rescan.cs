@@ -27,20 +27,19 @@ namespace SDMetaTool.Processors
 			pngFileDataSource.BeginTransaction();
 			var fileNames = fileLister.GetList(root);
 
-			var knownFiles = pngFileDataSource.GetAll();
+			var knownExisting = pngFileDataSource.GetAllFilenames();
 
-			var deleted = knownFiles.Where(p => p.Exists).Select(p => p.FileName).Except(fileNames);
+			var deleted = knownExisting.Except(fileNames);
 
-			var knownFilesLookup = knownFiles.ToLookup(p => p.FileName);
 			foreach (var file in deleted)
 			{
-				var fileToDelete = knownFilesLookup[file].Single();
+				var fileToDelete = pngFileDataSource.ReadPngFile(file);
 				fileToDelete.Exists = false;
 				pngFileDataSource.WritePngFile(fileToDelete);
 				logger.Info("Removing " + file);
 			}
 
-			var newFiles = fileNames.Except(knownFiles.Where(p => p.Exists).Select(p => p.FileName)).Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).ToList(); ;
+			var newFiles = fileNames.Except(knownExisting).Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).ToList(); ;
 			foreach (var file in newFiles.Where(p => p.Exists == false))
 			{
 				file.Exists = true;
