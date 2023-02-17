@@ -1,5 +1,4 @@
-name: Docker
-
+name: Publish builds
 on:
   workflow_dispatch:
   #schedule:
@@ -21,3 +20,8 @@ jobs:
       uses: actions/setup-dotnet@v3
     - name: Build for Windows
       run: dotnet publish -r win-x64 --configuration Release --self-contained true
+    - name: Upload win-x64-build
+      uses: actions/upload-artifact@v2
+      with:
+        name: win-x64-build
+        path: ./SDMetaUI/bin/Release/net7./win-x64/publish/
