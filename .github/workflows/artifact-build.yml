@@ -33,7 +33,7 @@ jobs:
           release_name="App-$tag-${{ matrix.target }}"
 
           # Build everything
-          dotnet publish --runtime "${{ matrix.target }}" --configuration Release --self-contained true -o "$release_name"
+          dotnet publish SDMetaUI\SDMetaUI.csproj --runtime "${{ matrix.target }}" --configuration Release --self-contained true -o "$release_name"
 
           # Pack files
           if [ "${{ matrix.target }}" == "win-x64" ]; then
