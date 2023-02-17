@@ -18,8 +18,10 @@
 @inject ILogger<Index> logger;
 @inject IResizeListener resizeListener;
 @inject PngFileViewModelBuilder pngFileViewModelBuilder;
+@inject IHxMessengerService Messenger
 
 <PageTitle>Gallery</PageTitle>
+<HxMessenger Position="ToastContainerPosition.TopEnd" />
 
 @if (viewModel.HasData == false)
 {
@@ -112,14 +114,14 @@ else
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
-		this.modelsList = this.pngfileDataSource.GetModelSummaryList().Select((p,i) => new ModelSummaryViewModel()
-		{
-			Id = (i + 1).ToString(),
-			Count = p.Count,
-			Model = p.Model,
-			ModelHash = p.ModelHash,
-			Text = (p.ModelHash ?? "<empty>")  +   " (" + (p.Model ?? "<no name>") + ") [" + p.Count + "]",
-		}).ToList();
+		this.modelsList = this.pngfileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel()
+			{
+				Id = (i + 1).ToString(),
+				Count = p.Count,
+				Model = p.Model,
+				ModelHash = p.ModelHash,
+				Text = (p.ModelHash ?? "<empty>") + " (" + (p.Model ?? "<no name>") + ") [" + p.Count + "]",
+			}).ToList();
 		modelsList.Insert(0, new ModelSummaryViewModel() { Id = "0", Text = "-- all models --" });
 	}
 
@@ -202,18 +204,26 @@ else
 	{
 		if (this.viewModel.SelectedFile != null)
 		{
-			await offcanvasEnd.HideAsync();
+			try
+			{
+				await offcanvasEnd.HideAsync();
 
-			var filename = this.viewModel.SelectedFile.FileName;
+				var filename = this.viewModel.SelectedFile.FileName;
 
-			File.Delete(filename);
-			var original = pngfileDataSource.ReadPngFile(filename);
-			original.Exists = false;
-			pngfileDataSource.WritePngFile(original);
-			this.thumbnailService.Delete(filename);
+				File.Delete(filename);
+				var original = pngfileDataSource.ReadPngFile(filename);
+				original.Exists = false;
+				pngfileDataSource.WritePngFile(original);
+				this.thumbnailService.Delete(filename);
 
-			this.viewModel.RemoveFile();
-			this.StateHasChanged();
+				this.viewModel.RemoveFile();
+				this.StateHasChanged();
+			}
+			catch (Exception ex)
+			{
+				logger.LogError("Failed to delete.", ex);
+				Messenger.AddError(title: "Delete", message: "Delete failed");
+			}
 		}
 	}
 
