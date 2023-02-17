@@ -1,0 +1,23 @@
+name: Docker
+
+on:
+  workflow_dispatch:
+  #schedule:
+  #  - cron: '0 7 * * *'
+  push:
+    branches: [ main ]
+    # Publish semver tags as releases.
+    tags: [ 'v*.*.*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v3
+    - name: Build for Windows
+      run: dotnet publish -r win-x64 --configuration Release --self-contained true
