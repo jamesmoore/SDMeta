@@ -11,6 +11,7 @@ using NLog.Web;
 using BlazorPro.BlazorSize;
 using SDMetaUI.Models;
 using Havit.Blazor.Components.Web.Bootstrap;
+using Microsoft.Extensions.FileProviders;
 
 CodecManager.Configure(codecs => {
 	codecs.UseLibpng();
@@ -40,6 +41,14 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// https://github.com/gmanvel/AspNetCoreSingleFileApp
+app.UseStaticFiles(new StaticFileOptions
+{
+	FileProvider = new EmbeddedFileProvider(
+		 assembly: typeof(Program).Assembly,
+		 baseNamespace: "SDMetaUI.wwwroot"),
+});
 
 app.UseStaticFiles();
 
