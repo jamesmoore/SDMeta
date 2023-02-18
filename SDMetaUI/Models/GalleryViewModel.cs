@@ -1,4 +1,6 @@
-﻿namespace SDMetaUI.Models
+﻿using SDMetaUI.Services;
+
+namespace SDMetaUI.Models
 {
 	public class GalleryViewModel
 	{
@@ -113,7 +115,7 @@
 		{
 			if (width > 0 && groupedFiles != null)
 			{
-				int countPerRow = (width - 17) / 191;
+				int countPerRow = (width - 17) / (ThumbnailService.ThumbnailSize + 8 * 2);
 				this.ChunkedFiles = groupedFiles.Chunk(countPerRow).Select(p => p.ToList()).ToList();
 			}
 		}
