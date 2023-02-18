@@ -63,33 +63,35 @@ else
 			</div>
 		</div>
 	</div>
-	@if (viewModel.ChunkedFiles != null)
-	{
-		<Virtualize Items=@viewModel.ChunkedFiles Context="files" OverscanCount="5" ItemSize="191">
-			@foreach (var file in files)
-			{
-				var selected = viewModel.SelectedFile == file;
-				@if (viewModel.IsGrouped == false)
+	<div class="thumbnail-background">
+		@if (viewModel.ChunkedFiles != null)
+		{
+			<Virtualize Items=@viewModel.ChunkedFiles Context="files" OverscanCount="5" ItemSize="191">
+				@foreach (var file in files)
 				{
-					<Thumbnail file=@file selected=@selected onclick="(e) => imageClick(file)" @key=@file />
-				}
-				else
-				{
-					<Thumbnail file=@file selected=@selected onclick="(e) => imageClickParent(file)" @key=@file />
-
-					@if (file.Expanded && (viewModel.Expandedfiles?.Any() ?? false))
+					var selected = viewModel.SelectedFile == file;
+					@if (viewModel.IsGrouped == false)
 					{
-						<Divider Text=@(this.viewModel.Expandedfiles.Count.ToString() + " gens of this prompt")></Divider>
-						foreach (var expandedFile in viewModel.Expandedfiles)
+						<Thumbnail file=@file selected=@selected onclick="(e) => imageClick(file)" @key=@file />
+					}
+					else
+					{
+						<Thumbnail file=@file selected=@selected onclick="(e) => imageClickParent(file)" @key=@file />
+
+						@if (file.Expanded && (viewModel.Expandedfiles?.Any() ?? false))
 						{
-							<Thumbnail file=@expandedFile selected=@(viewModel.SelectedFile == expandedFile) onclick="(e) => imageClick(expandedFile)" />
+							<Divider Text=@(this.viewModel.Expandedfiles.Count.ToString() + " gens of this prompt")></Divider>
+							foreach (var expandedFile in viewModel.Expandedfiles)
+							{
+								<Thumbnail file=@expandedFile selected=@(viewModel.SelectedFile == expandedFile) onclick="(e) => imageClick(expandedFile)" />
+							}
+							<Divider></Divider>
 						}
-						<Divider></Divider>
 					}
 				}
-			}
-		</Virtualize>
-	}
+			</Virtualize>
+		}
+	</div>
 	<HxOffcanvas @ref="offcanvasEnd" Placement="OffcanvasPlacement.End" ScrollingEnabled="true" Backdrop="OffcanvasBackdrop.False">
 		<BodyTemplate>
 			@if (viewModel.SelectedFile != null)

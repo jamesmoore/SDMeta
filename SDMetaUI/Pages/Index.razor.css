@@ -4,3 +4,7 @@
     border-bottom-width: 1px;
     border-bottom-style: solid;
 }
+
+.thumbnail-background {
+    background: #e0e0e0;
+}
