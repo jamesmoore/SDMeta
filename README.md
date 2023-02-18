@@ -1,8 +1,9 @@
 # SDMetaTool
 
-Bulk extract metadata from SD generated PNG files.
+* Bulk extract metadata from SD generated PNG files.
+* View and search in a web UI.
 
-## Command line usage
+# Command line usage
 
 ```
 Usage:
@@ -17,7 +18,7 @@ Commands:
   info <path>  Info on files.
 ```
 
-## Running on windows
+## Running on Windows
 
 ```ps
 .\SDMetaTool.exe list \\nas\sd --outfile info.csv
@@ -39,8 +40,15 @@ docker run \
 ghcr.io/jamesmoore/sdmetatool:main list /sd -o ./export/sdmetalist.csv
 ```
 
-## Running the UI
+# Web UI
 
+## Running on Windows
+
+```ps
+.\SDMetaUI.exe --ImageDir=E:\stable-diffusion-webui\outputs
+```
+
+## Running on Docker
 ```bash
 docker volume create sdmetatool_data
 
