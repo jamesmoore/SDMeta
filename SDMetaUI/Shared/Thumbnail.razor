@@ -1,8 +1,6 @@
 ﻿@using SDMetaUI.Models;
 @using SDMetaUI.Services;
-<div class="wrapper">
-	<img src="@file.ThumbnailUrl" class="@(selected ? "selected" : "")" width="@ThumbnailService.ThumbnailSize" height="@ThumbnailService.ThumbnailSize" @onclick="(e) => onclick.InvokeAsync(e)" />
-</div>
+<img src="@file.ThumbnailUrl" class="@(selected ? "selected" : "")" width="@ThumbnailService.ThumbnailSize" height="@ThumbnailService.ThumbnailSize" @onclick="(e) => onclick.InvokeAsync(e)" />
 @code {
 	[Parameter]
 	public PngFileViewModel file { get; set; }
