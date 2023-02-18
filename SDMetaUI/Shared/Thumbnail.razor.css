@@ -1,4 +1,18 @@
-﻿img.selected {
-    border-color: dimgray;
-    background-color: lightgray;
+﻿img {
+    padding: 0px;
+    border-radius: 6px;
+    margin: 8px;
+}
+
+    img.selected {
+        background: #e0e0e0;
+        box-shadow: 10px 10px 20px #5a5a5a, -10px -10px 20px #ffffff;
+        margin-top: 4px;
+        margin-left: 4px;
+        margin-right: 12px;
+        margin-bottom: 12px;
+    }
+
+.wrapper {
+    display: inline-block;
 }

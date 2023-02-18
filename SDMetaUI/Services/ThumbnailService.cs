@@ -8,6 +8,8 @@ namespace SDMetaUI.Services
 {
 	public class ThumbnailService : IThumbnailService
 	{
+		public const int ThumbnailSize = 175;
+
 		private readonly IFileSystem fileSystem;
 
 		public ThumbnailService(IFileSystem fileSystem)
@@ -21,7 +23,7 @@ namespace SDMetaUI.Services
 
 			if (fileSystem.File.Exists(thumbnailFullName) == false)
 			{
-				MagicImageProcessor.ProcessImage(fullName, thumbnailFullName, new ProcessImageSettings { Height = 175, Width = 175 });
+				MagicImageProcessor.ProcessImage(fullName, thumbnailFullName, new ProcessImageSettings { Height = ThumbnailSize, Width = ThumbnailSize });
 			}
 
 			return thumbnailFullName;
