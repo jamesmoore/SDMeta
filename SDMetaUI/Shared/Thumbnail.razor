@@ -1,6 +1,25 @@
 ﻿@using SDMetaUI.Models;
 @using SDMetaUI.Services;
-<img src="@file.ThumbnailUrl" class="@GetClass" width="@ThumbnailService.ThumbnailSize" height="@ThumbnailService.ThumbnailSize" @onclick="(e) => onclick.InvokeAsync(e)" />
+
+@if (string.IsNullOrWhiteSpace(this.Text))
+{
+	<img src="@file.ThumbnailUrl"
+	 class="@GetClass"
+	 width="@ThumbnailService.ThumbnailSize"
+	 height="@ThumbnailService.ThumbnailSize"
+	 @onclick="(e) => onclick.InvokeAsync(e)" />
+}
+else
+{
+	<div class="img-container">
+		<HxBadge Color="ThemeColor.Primary" CssClass="position-absolute bottom-0 start-50 translate-middle">@Text</HxBadge>
+		<img src="@file.ThumbnailUrl"
+		 class="@GetClass"
+		 width="@ThumbnailService.ThumbnailSize"
+		 height="@ThumbnailService.ThumbnailSize"
+		 @onclick="(e) => onclick.InvokeAsync(e)" />
+	</div>
+}
 @code {
 	[Parameter]
 	public PngFileViewModel file { get; set; }
@@ -10,6 +29,9 @@
 
 	[Parameter]
 	public bool expanded { get; set; }
+
+	[Parameter]
+	public string Text { get; set; }
 
 	private string GetClass => (selected ? "selected" : "") + (expanded ? " expanded" : "");
 

@@ -14,6 +14,6 @@ namespace SDMetaUI.Models
 		public string Tooltip { get; set; }
 		public GenerationParams Parameters { get; set; }
 
-
+		public IList<PngFileViewModel> SubItems { get; set; }
 	}
 }

@@ -9,6 +9,10 @@
     background: #e0e0e0;
 }
 
+.expanded-background {
+    background-color: #606060;
+}
+
 .expanded-tab {
     display: inline-block;
     background-color: #606060;

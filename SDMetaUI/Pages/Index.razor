@@ -67,25 +67,25 @@ else
 		@if (viewModel.ChunkedFiles != null)
 		{
 			<Virtualize Items=@viewModel.ChunkedFiles Context="row" OverscanCount="5" ItemSize="@(ThumbnailService.ThumbnailSize + 8 * 2)">
-				<div style="@( (row.IsSubGroup ? "background-color:#606060;" : "") + (row.IsStartOfGroup ? "padding-top:8px;" : "") + ( row.IsEndOfGroup ? "padding-bottom:8px;": "" ))">
+				<div class="@((row.IsSubGroup ? "expanded-background" : ""))" style="@((row.IsStartOfGroup ? "padding-top:8px;" : "") + ( row.IsEndOfGroup ? "padding-bottom:8px;": "" ))">
 					@foreach (var file in row)
 					{
 						var selected = viewModel.SelectedFile == file;
 						@if (viewModel.IsGrouped == false || row.IsSubGroup)
 						{
-							<Thumbnail file=@file selected=@selected expanded=@row.IsSubGroup onclick="(e) => imageClick(file)" @key=@file />
+							<Thumbnail file=@file selected=@selected expanded=@row.IsSubGroup onclick="(e) => imageClick(file)" @key=@file Text="" />
 						}
 						else
 						{
 							if (file == viewModel.ExpandedFile)
 							{
 								<div class="expanded-tab">
-									<Thumbnail file=@file selected=false onclick="(e) => imageClickParent(file)" @key=@file />
+									<Thumbnail file=@file selected=false onclick="(e) => imageClickParent(file)" @key=@file Text=@(file?.SubItems?.Count.ToString()) />
 								</div>
 							}
 							else
 							{
-								<Thumbnail file=@file selected=false onclick="(e) => imageClickParent(file)" @key=@file />
+								<Thumbnail file=@file selected=false onclick="(e) => imageClickParent(file)" @key=@file Text="@(file?.SubItems?.Count.ToString())" />
 							}
 						}
 					}
@@ -158,6 +158,12 @@ else
 	private void LoadData()
 	{
 		var data = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
+		var grouped = data.ToLookup(p => p.FullPromptHash);
+		foreach (var group in grouped)
+		{
+			group.Last().SubItems = group.ToList();
+		}
+
 		viewModel.Initialize(data);
 	}
 

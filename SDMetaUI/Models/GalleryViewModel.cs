@@ -73,7 +73,6 @@ namespace SDMetaUI.Models
 			if (filteredFiles.Contains(ExpandedFile) == false)
 			{
 				ExpandedFile = null;
-				Expandedfiles = null;
 			}
 			RunGrouping();
 		}
@@ -92,7 +91,6 @@ namespace SDMetaUI.Models
 				if (isGrouped == false)
 				{
 					this.ExpandedFile = null;
-					this.Expandedfiles = null;
 				}
 				RunGrouping();
 			}
@@ -101,7 +99,7 @@ namespace SDMetaUI.Models
 		private void RunGrouping()
 		{
 			groupedFiles = isGrouped ?
-				filteredFiles.GroupBy(p => p.FullPromptHash).Select(p => p.LastOrDefault()).ToList() :
+				filteredFiles.Where(p => p.SubItems != null).ToList() :
 				filteredFiles;
 			RunChunking();
 		}
@@ -123,7 +121,7 @@ namespace SDMetaUI.Models
 			{
 				int countPerRow = (width - 17) / (ThumbnailService.ThumbnailSize + 8 * 2);
 
-				if (this.IsGrouped && (this.Expandedfiles?.Any() ?? false))
+				if (this.IsGrouped && (this.ExpandedFile?.SubItems?.Any() ?? false)  )
 				{
 					var position = this.groupedFiles.TakeWhile(p => p != this.ExpandedFile).Count() + 1;
 					var modulo = position % countPerRow;
@@ -132,7 +130,7 @@ namespace SDMetaUI.Models
 						position += (countPerRow - modulo);
 					}
 					var before = this.groupedFiles.Take(position).Chunk(countPerRow).Select(p => new GalleryRow(p));
-					var expandedChunks = this.Expandedfiles.Chunk(countPerRow).ToList();
+					var expandedChunks = this.ExpandedFile.SubItems.Chunk(countPerRow).ToList();
 					var middle = expandedChunks.Select((p, i) => new GalleryRow(p, true, i == 0, i == expandedChunks.Count - 1));
 					var after = this.groupedFiles.Skip(position).Chunk(countPerRow).Select(p => new GalleryRow(p));
 					this.ChunkedFiles = before.Concat(middle).Concat(after).ToList();
@@ -151,7 +149,7 @@ namespace SDMetaUI.Models
 				allFiles.Remove(this.SelectedFile);
 				filteredFiles.Remove(this.SelectedFile);
 				groupedFiles.Remove(this.SelectedFile);
-				this.Expandedfiles?.Remove(this.SelectedFile);
+				this.ExpandedFile?.SubItems?.Remove(this.SelectedFile);
 				foreach (var row in this.ChunkedFiles.Where(p => p.Contains(this.SelectedFile)))
 				{
 					row.Remove(this.SelectedFile);
@@ -174,22 +172,9 @@ namespace SDMetaUI.Models
 
 		public IList<GalleryRow> ChunkedFiles { get; private set; }
 
-		private IList<PngFileViewModel> Expandedfiles { get; set; }
-
-		private IList<PngFileViewModel> GetFilesMatchingPromptHash(string hash) => filteredFiles.Where(p => p.FullPromptHash == hash).ToList();
-
 		public void ToggleExpandedState(PngFileViewModel model)
 		{
 			this.ExpandedFile = model == this.ExpandedFile ? null : model;
-
-			if (this.ExpandedFile != null)
-			{
-				this.Expandedfiles = this.GetFilesMatchingPromptHash(model.FullPromptHash);
-			}
-			else
-			{
-				this.Expandedfiles = null;
-			}
 			RunChunking();
 		}
 	}
