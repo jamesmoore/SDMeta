@@ -1,12 +1,17 @@
 ﻿@using SDMetaUI.Models;
 @using SDMetaUI.Services;
-<img src="@file.ThumbnailUrl" class="@(selected ? "selected" : "")" width="@ThumbnailService.ThumbnailSize" height="@ThumbnailService.ThumbnailSize" @onclick="(e) => onclick.InvokeAsync(e)" />
+<img src="@file.ThumbnailUrl" class="@GetClass" width="@ThumbnailService.ThumbnailSize" height="@ThumbnailService.ThumbnailSize" @onclick="(e) => onclick.InvokeAsync(e)" />
 @code {
 	[Parameter]
 	public PngFileViewModel file { get; set; }
 
 	[Parameter]
 	public bool selected { get; set; }
+
+	[Parameter]
+	public bool expanded { get; set; }
+
+	private string GetClass => (selected ? "selected" : "") + (expanded ? " expanded" : "");
 
 	[Parameter]
 	public EventCallback<MouseEventArgs> onclick { get; set; }

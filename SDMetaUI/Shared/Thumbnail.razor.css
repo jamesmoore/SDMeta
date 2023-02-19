@@ -12,3 +12,9 @@
         margin-right: 12px;
         margin-bottom: 12px;
     }
+
+        img.selected.expanded {
+            background: #e0e0e0;
+            box-shadow: 0px 0px 20px #ffffff;
+            margin: 8px;
+        }

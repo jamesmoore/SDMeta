@@ -8,3 +8,10 @@
 .thumbnail-background {
     background: #e0e0e0;
 }
+
+.expanded-tab {
+    display: inline-block;
+    background-color: #606060;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}

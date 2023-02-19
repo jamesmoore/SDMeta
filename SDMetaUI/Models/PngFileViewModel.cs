@@ -11,7 +11,6 @@ namespace SDMetaUI.Models
 		public string ImageUrl { get; set; }
 		public string Prompt { get; set; }
 		public string FullPromptHash { get; set; }
-		public bool Expanded { get; set; }
 		public string Tooltip { get; set; }
 		public GenerationParams Parameters { get; set; }
 
