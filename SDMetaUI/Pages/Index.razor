@@ -64,9 +64,9 @@ else
 		</div>
 	</div>
 	<div class="thumbnail-background">
-		@if (viewModel.ChunkedFiles != null)
+		@if (viewModel.Rows != null)
 		{
-			<Virtualize Items=@viewModel.ChunkedFiles Context="row" OverscanCount="5" ItemSize="@(ThumbnailService.ThumbnailSize + 8 * 2)">
+			<Virtualize Items=@viewModel.Rows Context="row" OverscanCount="5" ItemSize="@(ThumbnailService.ThumbnailSize + 8 * 2)">
 				<div class="@((row.IsSubGroup ? "expanded-background" : "") + (row.IsStartOfGroup ? " expanded-top" : "") + (row.IsEndOfGroup ? " expanded-bottom": "" ))">
 					@foreach (var file in row)
 					{

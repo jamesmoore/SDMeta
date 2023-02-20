@@ -119,9 +119,9 @@ namespace SDMetaUI.Models
 		{
 			if (width > 0 && groupedFiles != null)
 			{
-				int countPerRow = (width - 17) / (ThumbnailService.ThumbnailSize + 8 * 2);
+				var countPerRow = CountPerRow();
 
-				if (this.IsGrouped && (this.ExpandedFile?.SubItems?.Any() ?? false)  )
+				if (this.IsGrouped && (this.ExpandedFile?.SubItems?.Any() ?? false))
 				{
 					var position = this.groupedFiles.TakeWhile(p => p != this.ExpandedFile).Count() + 1;
 					var modulo = position % countPerRow;
@@ -133,14 +133,16 @@ namespace SDMetaUI.Models
 					var expandedChunks = this.ExpandedFile.SubItems.Chunk(countPerRow).ToList();
 					var middle = expandedChunks.Select((p, i) => new GalleryRow(p, true, i == 0, i == expandedChunks.Count - 1));
 					var after = this.groupedFiles.Skip(position).Chunk(countPerRow).Select(p => new GalleryRow(p));
-					this.ChunkedFiles = before.Concat(middle).Concat(after).ToList();
+					this.Rows = before.Concat(middle).Concat(after).ToList();
 				}
 				else
 				{
-					this.ChunkedFiles = groupedFiles.Chunk(countPerRow).Select(p => new GalleryRow(p)).ToList();
+					this.Rows = groupedFiles.Chunk(countPerRow).Select(p => new GalleryRow(p)).ToList();
 				}
 			}
 		}
+
+		private int CountPerRow() => (width - 17) / (ThumbnailService.ThumbnailSize + 8 * 2);
 
 		public void RemoveFile()
 		{
@@ -150,10 +152,11 @@ namespace SDMetaUI.Models
 				filteredFiles.Remove(this.SelectedFile);
 				groupedFiles.Remove(this.SelectedFile);
 				this.ExpandedFile?.SubItems?.Remove(this.SelectedFile);
-				foreach (var row in this.ChunkedFiles.Where(p => p.Contains(this.SelectedFile)))
+				foreach (var row in this.Rows.Where(p => p.Contains(this.SelectedFile)))
 				{
 					row.Remove(this.SelectedFile);
 				}
+				RunChunking();
 				this.SelectedFile = null;
 			}
 		}
@@ -170,7 +173,7 @@ namespace SDMetaUI.Models
 			this.SelectedFile = index < filteredFiles.Count - 1 ? filteredFiles[index + 1] : this.SelectedFile;
 		}
 
-		public IList<GalleryRow> ChunkedFiles { get; private set; }
+		public IList<GalleryRow> Rows { get; private set; }
 
 		public void ToggleExpandedState(PngFileViewModel model)
 		{
