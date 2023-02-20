@@ -73,20 +73,17 @@ else
 						var selected = viewModel.SelectedFile == file;
 						@if (viewModel.IsGrouped == false || row.IsSubGroup)
 						{
-							<Thumbnail file=@file Selected=@selected Expanded=@row.IsSubGroup onclick="(e) => imageClick(file)" @key=@file Text="" />
+							<Thumbnail File=@file Selected=@selected Expanded=@row.IsSubGroup onclick="(e) => imageClick(file)" @key=@file Text="" />
+						}
+						else if (file == viewModel.ExpandedFile)
+						{
+							<div class="expanded-tab">
+								<Thumbnail File=@file Selected=false onclick="(e) => imageClickParent(file)" @key=@file Text=@(file?.SubItems?.Count.ToString()) />
+							</div>
 						}
 						else
 						{
-							if (file == viewModel.ExpandedFile)
-							{
-								<div class="expanded-tab">
-									<Thumbnail file=@file Selected=false onclick="(e) => imageClickParent(file)" @key=@file Text=@(file?.SubItems?.Count.ToString()) />
-								</div>
-							}
-							else
-							{
-								<Thumbnail file=@file Selected=false onclick="(e) => imageClickParent(file)" @key=@file Text="@(file?.SubItems?.Count.ToString())" />
-							}
+							<Thumbnail File=@file Selected=false onclick="(e) => imageClickParent(file)" @key=@file Text="@(file?.SubItems?.Count.ToString())" />
 						}
 					}
 				</div>
