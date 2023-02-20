@@ -66,29 +66,27 @@ else
 	<div class="thumbnail-background">
 		@if (viewModel.ChunkedFiles != null)
 		{
-			<Virtualize Items=@viewModel.ChunkedFiles Context="files" OverscanCount="5" ItemSize="@(ThumbnailService.ThumbnailSize + 8 * 2)">
-				@foreach (var file in files)
-				{
-					var selected = viewModel.SelectedFile == file;
-					@if (viewModel.IsGrouped == false)
+			<Virtualize Items=@viewModel.ChunkedFiles Context="row" OverscanCount="5" ItemSize="@(ThumbnailService.ThumbnailSize + 8 * 2)">
+				<div class="@((row.IsSubGroup ? "expanded-background" : "") + (row.IsStartOfGroup ? " expanded-top" : "") + (row.IsEndOfGroup ? " expanded-bottom": "" ))">
+					@foreach (var file in row)
 					{
-						<Thumbnail file=@file selected=@selected onclick="(e) => imageClick(file)" @key=@file />
-					}
-					else
-					{
-						<Thumbnail file=@file selected=@selected onclick="(e) => imageClickParent(file)" @key=@file />
-
-						@if (file.Expanded && (viewModel.Expandedfiles?.Any() ?? false))
+						var selected = viewModel.SelectedFile == file;
+						@if (viewModel.IsGrouped == false || row.IsSubGroup)
 						{
-							<Divider Text=@(this.viewModel.Expandedfiles.Count.ToString() + " gens of this prompt")></Divider>
-							foreach (var expandedFile in viewModel.Expandedfiles)
-							{
-								<Thumbnail file=@expandedFile selected=@(viewModel.SelectedFile == expandedFile) onclick="(e) => imageClick(expandedFile)" />
-							}
-							<Divider></Divider>
+							<Thumbnail File=@file Selected=@selected Expanded=@row.IsSubGroup onclick="(e) => imageClick(file)" @key=@file Text="" />
+						}
+						else if (file == viewModel.ExpandedFile)
+						{
+							<div class="expanded-tab">
+								<Thumbnail File=@file Selected=false onclick="(e) => imageClickParent(file)" @key=@file Text=@(file?.SubItems?.Count.ToString()) />
+							</div>
+						}
+						else
+						{
+							<Thumbnail File=@file Selected=false onclick="(e) => imageClickParent(file)" @key=@file Text="@(file?.SubItems?.Count.ToString())" />
 						}
 					}
-				}
+				</div>
 			</Virtualize>
 		}
 	</div>
@@ -157,6 +155,12 @@ else
 	private void LoadData()
 	{
 		var data = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
+		var grouped = data.ToLookup(p => p.FullPromptHash);
+		foreach (var group in grouped)
+		{
+			group.Last().SubItems = group.ToList();
+		}
+
 		viewModel.Initialize(data);
 	}
 
@@ -170,7 +174,6 @@ else
 	private void imageClickParent(PngFileViewModel model)
 	{
 		this.viewModel.ToggleExpandedState(model);
-		this.viewModel.SelectedFile = model;
 	}
 
 	private async void imageClick(PngFileViewModel model)
