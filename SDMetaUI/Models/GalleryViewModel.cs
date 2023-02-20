@@ -26,6 +26,14 @@ namespace SDMetaUI.Models
 		public void Initialize(IList<PngFileViewModel> all)
 		{
 			allFiles = all;
+			if (SelectedFile != null)
+			{
+				this.SelectedFile = all.FirstOrDefault(p => p.FileName == SelectedFile.FileName);
+			}
+			if (ExpandedFile != null)
+			{
+				this.ExpandedFile = all.FirstOrDefault(p => p.FileName == ExpandedFile.FileName);
+			}
 			RunFilter();
 		}
 
