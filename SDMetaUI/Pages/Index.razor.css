@@ -19,3 +19,11 @@
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
 }
+
+.expanded-top {
+    padding-top: 8px;
+}
+
+.expanded-bottom {
+    padding-bottom: 8px;
+}

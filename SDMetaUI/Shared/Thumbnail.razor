@@ -3,7 +3,7 @@
 
 @if (string.IsNullOrWhiteSpace(this.Text))
 {
-	<img src="@file.ThumbnailUrl"
+	<img src="@File.ThumbnailUrl"
 	 class="@GetClass"
 	 width="@ThumbnailService.ThumbnailSize"
 	 height="@ThumbnailService.ThumbnailSize"
@@ -13,7 +13,7 @@ else
 {
 	<div class="img-container">
 		<HxBadge Color="ThemeColor.Primary" CssClass="position-absolute bottom-0 start-50 translate-middle">@Text</HxBadge>
-		<img src="@file.ThumbnailUrl"
+		<img src="@File.ThumbnailUrl"
 		 class="@GetClass"
 		 width="@ThumbnailService.ThumbnailSize"
 		 height="@ThumbnailService.ThumbnailSize"
@@ -22,18 +22,18 @@ else
 }
 @code {
 	[Parameter]
-	public PngFileViewModel file { get; set; }
+	public PngFileViewModel File { get; set; }
 
 	[Parameter]
-	public bool selected { get; set; }
+	public bool Selected { get; set; }
 
 	[Parameter]
-	public bool expanded { get; set; }
+	public bool Expanded { get; set; }
 
 	[Parameter]
 	public string Text { get; set; }
 
-	private string GetClass => (selected ? "selected" : "") + (expanded ? " expanded" : "");
+	private string GetClass => (Selected ? "selected" : "") + (Expanded ? " expanded" : "");
 
 	[Parameter]
 	public EventCallback<MouseEventArgs> onclick { get; set; }
