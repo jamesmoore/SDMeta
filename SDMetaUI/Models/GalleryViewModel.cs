@@ -18,8 +18,11 @@ namespace SDMetaUI.Models
 			}
 			set
 			{
-				modelFilter = value;
-				RunFilter();
+				if (modelFilter != value)
+				{
+					modelFilter = value;
+					RunFilter();
+				}
 			}
 		}
 
@@ -53,8 +56,11 @@ namespace SDMetaUI.Models
 			}
 			set
 			{
-				filter = value;
-				RunFilter();
+				if (filter != value)
+				{
+					filter = value;
+					RunFilter();
+				}
 			}
 		}
 
@@ -95,12 +101,15 @@ namespace SDMetaUI.Models
 			}
 			set
 			{
-				isGrouped = value;
-				if (isGrouped == false)
+				if (isGrouped != value)
 				{
-					this.ExpandedFile = null;
+					isGrouped = value;
+					if (isGrouped == false)
+					{
+						this.ExpandedFile = null;
+					}
+					RunGrouping();
 				}
-				RunGrouping();
 			}
 		}
 
