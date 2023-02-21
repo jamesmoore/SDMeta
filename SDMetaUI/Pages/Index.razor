@@ -19,8 +19,9 @@
 @inject IResizeListener resizeListener;
 @inject PngFileViewModelBuilder pngFileViewModelBuilder;
 @inject IHxMessengerService Messenger
+@inject NavigationManager NavigationManager
 
-<PageTitle>Gallery</PageTitle>
+<PageTitle>@("Gallery" + (string.IsNullOrWhiteSpace(this.Filter) ? "" : " - " + this.Filter))</PageTitle>
 <HxMessenger Position="ToastContainerPosition.TopEnd" />
 
 @if (viewModel.HasData == false)
@@ -33,7 +34,7 @@ else
 		<div class="row p-2 menu-bar">
 			<div class="col-md-3 col-xs-12 py-2 py-md-0">
 				<label class="visually-hidden" for="filterInput">Filter</label>
-				<input type="search" @oninput="onInputDebounced" class="form-control" id="filterInput" placeholder="filter">
+				<input type="search" @oninput="onInputDebounced" class="form-control" id="filterInput" placeholder="filter" @bind-value=@FilterInput>
 			</div>
 			<div class="col-md-3 col-xs-12 py-2 py-md-0">
 				<label class="visually-hidden" for="modelSelect">Models</label>
@@ -103,6 +104,12 @@ else
 }
 @code {
 
+	[Parameter]
+	[SupplyParameterFromQuery(Name = "filter")]
+	public string? Filter { get; set; }
+
+	private string FilterInput { get; set; }
+
 	private HxOffcanvas? offcanvasEnd;
 	private FullScreenView? fullScreenView;
 
@@ -110,6 +117,21 @@ else
 	Action<ChangeEventArgs> onInputDebounced;
 
 	IList<ModelSummaryViewModel> modelsList;
+
+	/// <summary>
+	/// For when the back/forward navigation is clicked
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	void LocationChanged(object sender, LocationChangedEventArgs e)
+	{
+		if(this.viewModel.Filter != this.Filter)
+		{
+			this.viewModel.Filter = this.Filter;
+			this.FilterInput = this.Filter;
+			this.StateHasChanged();
+		}
+	}
 
 	protected override void OnInitialized()
 	{
@@ -123,6 +145,7 @@ else
 				Text = (p.ModelHash ?? "<empty>") + " (" + (p.Model ?? "<no name>") + ") [" + p.Count + "]",
 			}).ToList();
 		modelsList.Insert(0, new ModelSummaryViewModel() { Id = "0", Text = "-- all models --" });
+		NavigationManager.LocationChanged += LocationChanged;
 	}
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -133,10 +156,13 @@ else
 			{
 				this.InvokeAsync(() =>
 				{
-					viewModel.Filter = (string)e.Value;
+					var updatedFilter = (string)e.Value;
+					if (updatedFilter == string.Empty) updatedFilter = null;
+					viewModel.Filter = updatedFilter;
+					NavigationManager.NavigateTo(NavigationManager.GetUriWithQueryParameter("filter", updatedFilter));
 					this.StateHasChanged();
 				});
-			}, TimeSpan.FromMilliseconds(300));
+			}, TimeSpan.FromMilliseconds(500));
 
 			resizeListener.OnResized += (sender, size) =>
 			{
@@ -146,6 +172,9 @@ else
 
 			//viewModel.Width = (await resizeListener.GetBrowserWindowSize()).Width;
 			LoadData();
+			// Update filter from initial URL
+			this.viewModel.Filter = this.Filter;
+			this.FilterInput = this.Filter;
 			this.StateHasChanged();
 		}
 
@@ -203,6 +232,8 @@ else
 	public void Dispose()
 	{
 		pngfileDataSource.Dispose();
+		// Unsubscribe from the event when our component is disposed
+		NavigationManager.LocationChanged -= LocationChanged;
 	}
 
 	private async void imageDelete()
