@@ -22,9 +22,9 @@
 @inject NavigationManager NavigationManager
 
 <PageTitle>@("Gallery" + (string.IsNullOrWhiteSpace(this.Filter) ? "" : " - " + this.Filter))</PageTitle>
-<HxMessenger Position="ToastContainerPosition.TopEnd" />
+	<HxMessenger Position="ToastContainerPosition.TopEnd" />
 
-@if (viewModel.HasData == false)
+	@if (viewModel.HasData == false)
 {
 	<LoadingSpinner></LoadingSpinner>
 }
@@ -125,7 +125,7 @@ else
 	/// <param name="e"></param>
 	void LocationChanged(object sender, LocationChangedEventArgs e)
 	{
-		if(this.viewModel.Filter != this.Filter)
+		if (this.viewModel.Filter != this.Filter)
 		{
 			this.viewModel.Filter = this.Filter;
 			this.FilterInput = this.Filter;
@@ -242,8 +242,6 @@ else
 		{
 			try
 			{
-				await offcanvasEnd.HideAsync();
-
 				var filename = this.viewModel.SelectedFile.FileName;
 
 				File.Delete(filename);
@@ -253,6 +251,10 @@ else
 				this.thumbnailService.Delete(filename);
 
 				this.viewModel.RemoveFile();
+				if(this.viewModel.SelectedFile == null)
+				{
+					await this.offcanvasEnd.HideAsync();
+				}
 				this.StateHasChanged();
 			}
 			catch (Exception ex)
@@ -265,12 +267,12 @@ else
 
 	private async void leftKey()
 	{
-		viewModel.GetPrevious();
+		viewModel.MovePrevious();
 	}
 
 	private async void rightKey()
 	{
-		viewModel.GetNext();
+		viewModel.MoveNext();
 	}
 
 	// https://www.meziantou.net/debouncing-throttling-javascript-events-in-a-blazor-application.htm

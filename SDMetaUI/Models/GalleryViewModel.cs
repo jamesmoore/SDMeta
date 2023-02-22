@@ -165,29 +165,51 @@ namespace SDMetaUI.Models
 		{
 			if (this.SelectedFile != null)
 			{
-				allFiles.Remove(this.SelectedFile);
-				filteredFiles.Remove(this.SelectedFile);
-				groupedFiles.Remove(this.SelectedFile);
-				this.ExpandedFile?.SubItems?.Remove(this.SelectedFile);
-				foreach (var row in this.Rows.Where(p => p.Contains(this.SelectedFile)))
+				var next = this.GetNext();
+				if (this.SelectedFile == this.ExpandedFile && this.ExpandedFile.SubItems?.Count > 1)
 				{
-					row.Remove(this.SelectedFile);
+					this.ExpandedFile.SubItems.Remove(SelectedFile);
+					var replacement = this.ExpandedFile.SubItems.Last();
+					replacement.SubItems = this.ExpandedFile.SubItems;
+					allFiles.Replace(this.ExpandedFile, replacement);
+					filteredFiles.Replace(this.ExpandedFile, replacement);
+					groupedFiles.Replace(this.ExpandedFile, replacement);
+					this.ExpandedFile = replacement;
+				}
+				else
+				{
+					allFiles.Remove(this.SelectedFile);
+					filteredFiles.Remove(this.SelectedFile);
+					groupedFiles.Remove(this.SelectedFile);
+					this.ExpandedFile?.SubItems?.Remove(this.SelectedFile);
 				}
 				RunChunking();
-				this.SelectedFile = null;
+				this.SelectedFile = next;
 			}
 		}
 
-		public void GetPrevious()
+		public void MovePrevious()
 		{
-			var index = filteredFiles.IndexOf(this.SelectedFile);
-			this.SelectedFile = index > 0 ? filteredFiles[index - 1] : this.SelectedFile;
+			this.SelectedFile = GetPrevious();
 		}
 
-		public void GetNext()
+		private PngFileViewModel GetPrevious()
 		{
 			var index = filteredFiles.IndexOf(this.SelectedFile);
-			this.SelectedFile = index < filteredFiles.Count - 1 ? filteredFiles[index + 1] : this.SelectedFile;
+			var previous = index > 0 ? filteredFiles[index - 1] : this.SelectedFile;
+			return previous;
+		}
+
+		public void MoveNext()
+		{
+			this.SelectedFile = GetNext();
+		}
+
+		private PngFileViewModel GetNext()
+		{
+			var index = filteredFiles.IndexOf(this.SelectedFile);
+			var next = index < filteredFiles.Count - 1 ? filteredFiles[index + 1] : this.SelectedFile;
+			return next;
 		}
 
 		public IList<GalleryRow> Rows { get; private set; }
@@ -196,6 +218,18 @@ namespace SDMetaUI.Models
 		{
 			this.ExpandedFile = model == this.ExpandedFile ? null : model;
 			RunChunking();
+		}
+	}
+
+	public static class ListExtensions
+	{
+		public static void Replace<T>(this IList<T> list, T oldItem, T newItem)
+		{
+			var oldItemIndex = list.IndexOf(oldItem);
+			if (oldItemIndex >= 0)
+			{
+				list[oldItemIndex] = newItem;
+			}
 		}
 	}
 }
