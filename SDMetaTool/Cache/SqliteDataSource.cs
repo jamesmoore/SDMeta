@@ -269,10 +269,7 @@ namespace SDMetaTool.Cache
 
 		public void BeginTransaction()
 		{
-			if (this.transaction == null)
-			{
-				this.transaction = this.connection.BeginTransaction();
-			}
+			this.transaction ??= this.connection.BeginTransaction();
 		}
 
 		public void CommitTransaction()

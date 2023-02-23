@@ -12,7 +12,7 @@ namespace SDMetaTool
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private readonly IFileSystem fileSystem;
-        private readonly ParameterDecoder decoder = new ParameterDecoder();
+        private readonly ParameterDecoder decoder = new();
 
         public PngFileLoader(IFileSystem fileSystem)
         {

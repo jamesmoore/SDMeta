@@ -27,7 +27,7 @@ namespace SDMetaTool.Processors
 				p.Parameters?.NegativePromptHash
 			}).Distinct().ToList();
 
-			Console.WriteLine($"{pngFiles.Count()} png files");
+			Console.WriteLine($"{pngFiles.Count} png files");
 			Console.WriteLine($"{GetBytesReadable(pngFiles.Sum(p => p.Length))} stored");
 			Console.WriteLine($"{distinctPrompts.Count} positive prompts");
 			Console.WriteLine($"{distinctFullPrompts.Count} positive/negative prompts");
@@ -60,7 +60,7 @@ namespace SDMetaTool.Processors
 
 		// Returns the human-readable file size for an arbitrary, 64-bit file size 
 		// The default format is "0.### XB", e.g. "4.2 KB" or "1.434 GB"
-		public string GetBytesReadable(long i)
+		public static string GetBytesReadable(long i)
 		{
 			// Get absolute value
 			long absolute_i = i < 0 ? -i : i;
@@ -102,7 +102,7 @@ namespace SDMetaTool.Processors
 				return i.ToString("0 B"); // Byte
 			}
 			// Divide by 1024 to get fractional value
-			readable = readable / 1024;
+			readable /= 1024;
 			// Return formatted number with suffix
 			return readable.ToString("0.## ") + suffix;
 		}
