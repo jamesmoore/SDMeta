@@ -15,33 +15,21 @@
 		<tbody>
 			<tr>
 				<td scope="row">
-					<div class="scroll" style="max-height: 150px;">
-						<small>@selectedFileParams?.Prompt</small>
+					<div class="scroll" style="max-height: 300px;">
+						<small>
+							<pre>@selectedFileParams?.Prompt</pre>
+							@if (string.IsNullOrWhiteSpace(@selectedFileParams?.NegativePrompt) == false)
+							{
+								<pre><strong>Negative prompt:</strong> @selectedFileParams?.NegativePrompt</pre>
+							}
+						</small>
 					</div>
 				</td>
 			</tr>
 		</tbody>
 	</table>
 }
-@if (string.IsNullOrWhiteSpace(@selectedFileParams?.NegativePrompt) == false)
-{
-	<table class="table">
-		<thead>
-			<tr>
-				<th scope="col">Negatives</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td scope="row">
-					<div class="scroll" style="max-height: 150px;">
-						<small>@selectedFileParams?.NegativePrompt</small>
-					</div>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-}
+
 <table class="table">
 	<thead>
 		<tr>
@@ -66,13 +54,16 @@
 				<HxButton Outline="false" Icon="BootstrapIcon.Clipboard" Text="Copy" Color="ThemeColor.Primary" @onclick="CopyTextToClipboard" />
 				<textarea id="selectedFileParams-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@selectedFileParams?.GetFullPrompt()</textarea>
 				<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Text="View" Color="ThemeColor.Primary" @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
-				<HxButton Outline="false" Icon="BootstrapIcon.Trash" Text="Delete" Color="ThemeColor.Danger" @onclick="(e) => onDelete.InvokeAsync(e)" accesskey="x"/>
+				<HxButton Outline="false" Icon="BootstrapIcon.Trash" Text="Delete" Color="ThemeColor.Danger" @onclick="(e) => onDelete.InvokeAsync(e)" accesskey="x" />
 			</td>
 		</tr>
 	</tbody>
 </table>
-<Thumbnail file="@(selectedFile)" @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
-
+<div class="text-center">
+	<HxTooltip Text=@selectedFile.FileName Placement="TooltipPlacement.Auto">
+		<Thumbnail file=@selectedFile @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
+	</HxTooltip>
+</div>
 @code {
 	[Parameter]
 	public PngFileViewModel selectedFile { get; set; }
