@@ -10,6 +10,9 @@ namespace SDMetaUI.Models
 		public PngFileViewModel SelectedFile { get; set; }
 		public PngFileViewModel ExpandedFile { get; private set; }
 		private ModelSummaryViewModel modelFilter;
+
+		private IDictionary<string, List<PngFileViewModel>> promptGroups = null;
+
 		public ModelSummaryViewModel ModelFilter
 		{
 			get
@@ -88,6 +91,9 @@ namespace SDMetaUI.Models
 			{
 				ExpandedFile = null;
 			}
+
+			this.promptGroups = filteredFiles.GroupBy(p => p.FullPromptHash).ToDictionary(p => p.Key, p => p.ToList());
+
 			RunGrouping();
 		}
 
@@ -115,9 +121,18 @@ namespace SDMetaUI.Models
 
 		private void RunGrouping()
 		{
-			groupedFiles = isGrouped ?
-				filteredFiles.Where(p => p.SubItems != null).ToList() :
-				filteredFiles;
+			if (isGrouped)
+			{
+				groupedFiles = this.promptGroups.Select(p => p.Value.First()).ToList();
+				foreach (var file in groupedFiles)
+				{
+					file.SubItems = this.promptGroups[file.FullPromptHash];
+				}
+			}
+			else
+			{
+				groupedFiles = filteredFiles;
+			}
 			RunChunking();
 		}
 
@@ -166,10 +181,11 @@ namespace SDMetaUI.Models
 			if (this.SelectedFile != null)
 			{
 				var next = this.GetNext();
+				if (next == this.SelectedFile) next = null;
 				if (this.SelectedFile == this.ExpandedFile && this.ExpandedFile.SubItems?.Count > 1)
 				{
 					this.ExpandedFile.SubItems.Remove(SelectedFile);
-					var replacement = this.ExpandedFile.SubItems.Last();
+					var replacement = this.ExpandedFile.SubItems.First();
 					replacement.SubItems = this.ExpandedFile.SubItems;
 					allFiles.Replace(this.ExpandedFile, replacement);
 					filteredFiles.Replace(this.ExpandedFile, replacement);
@@ -195,9 +211,8 @@ namespace SDMetaUI.Models
 
 		private PngFileViewModel GetPrevious()
 		{
-			var index = filteredFiles.IndexOf(this.SelectedFile);
-			var previous = index > 0 ? filteredFiles[index - 1] : this.SelectedFile;
-			return previous;
+			var sourceList = this.isGrouped ? this.promptGroups[this.SelectedFile.FullPromptHash] : filteredFiles;
+			return sourceList.GetPrevious(this.SelectedFile);
 		}
 
 		public void MoveNext()
@@ -207,9 +222,8 @@ namespace SDMetaUI.Models
 
 		private PngFileViewModel GetNext()
 		{
-			var index = filteredFiles.IndexOf(this.SelectedFile);
-			var next = index < filteredFiles.Count - 1 ? filteredFiles[index + 1] : this.SelectedFile;
-			return next;
+			var sourceList = this.IsGrouped ? this.promptGroups[this.SelectedFile.FullPromptHash] : filteredFiles;
+			return sourceList.GetNext(this.SelectedFile);
 		}
 
 		public IList<GalleryRow> Rows { get; private set; }

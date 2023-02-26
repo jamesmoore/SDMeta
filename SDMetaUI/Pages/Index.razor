@@ -184,12 +184,6 @@ else
 	private void LoadData()
 	{
 		var data = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
-		var grouped = data.ToLookup(p => p.FullPromptHash);
-		foreach (var group in grouped)
-		{
-			group.Last().SubItems = group.ToList();
-		}
-
 		viewModel.Initialize(data);
 	}
 
@@ -251,7 +245,7 @@ else
 				this.thumbnailService.Delete(filename);
 
 				this.viewModel.RemoveFile();
-				if(this.viewModel.SelectedFile == null)
+				if (this.viewModel.SelectedFile == null)
 				{
 					await this.offcanvasEnd.HideAsync();
 				}
@@ -273,7 +267,7 @@ else
 	private async void rightKey()
 	{
 		viewModel.MoveNext();
-	}
+		}
 
 	// https://www.meziantou.net/debouncing-throttling-javascript-events-in-a-blazor-application.htm
 	Action<T> Debounce<T>(Action<T> action, TimeSpan interval)
