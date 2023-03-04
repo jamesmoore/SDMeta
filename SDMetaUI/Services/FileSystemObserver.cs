@@ -25,6 +25,7 @@
 
 				watcher.Created += OnCreated;
 				watcher.Deleted += OnDeleted;
+				watcher.Renamed += OnCreated;
 
 				// watcher.Filter = "*.png";
 				watcher.IncludeSubdirectories = true;
@@ -45,7 +46,7 @@
 				{
 					added.Remove(e.FullPath);
 				}
-				else
+				else if (removed.Contains(e.FullPath) == false)
 				{
 					removed.Add(e.FullPath);
 				}
@@ -62,7 +63,7 @@
 				{
 					removed.Remove(e.FullPath);
 				}
-				else
+				else if (added.Contains(e.FullPath) == false)
 				{
 					added.Add(e.FullPath);
 				}
