@@ -166,14 +166,13 @@ else
 
 	private void OnFileSystemChanged(object sender, FileSystemEventArgs e)
 	{
+		logger.LogInformation("Filesystem change: " + e.ChangeType + " " + e.FullPath);
 		this.InvokeAsync(() =>
 		{
 			this.Added = this.FileSystemObserver.Added;
 			this.Removed = this.FileSystemObserver.Removed;
 			this.StateHasChanged();
 		});
-		logger.LogInformation("Filesystem " + this.FileSystemObserver.Added + " " + this.FileSystemObserver.Removed + " " + e.ChangeType);
-
 	}
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
