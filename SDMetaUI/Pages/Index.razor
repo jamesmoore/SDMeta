@@ -20,6 +20,7 @@
 @inject PngFileViewModelBuilder pngFileViewModelBuilder;
 @inject IHxMessengerService Messenger
 @inject NavigationManager NavigationManager
+@inject FileSystemObserver FileSystemObserver
 
 <PageTitle>@("Gallery" + (string.IsNullOrWhiteSpace(this.Filter) ? "" : " - " + this.Filter))</PageTitle>
 	<HxMessenger Position="ToastContainerPosition.TopEnd" />
@@ -49,7 +50,17 @@ else
 				<HxSwitch Text="Group by prompt" @bind-Value="@viewModel.IsGrouped" />
 			</div>
 			<div class="col-auto py-2 py-md-0">
-				<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" />
+				<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" CssClass="position-relative">
+					@if (this.Added != 0)
+					{
+						<HxBadge Color="ThemeColor.Success" CssClass="position-absolute top-0 start-100 translate-middle">+@this.Added</HxBadge>
+					}
+					@if (this.Removed != 0)
+					{
+						<HxBadge Color="ThemeColor.Danger" CssClass="position-absolute top-100 start-100 translate-middle">-@this.Removed</HxBadge>
+					}
+
+				</HxButton>
 			</div>
 			<div class="col-auto ms-auto py-2">
 				<h6>
@@ -118,6 +129,9 @@ else
 
 	IList<ModelSummaryViewModel> modelsList;
 
+	private int Added = 0;
+	private int Removed = 0;
+
 	/// <summary>
 	/// For when the back/forward navigation is clicked
 	/// </summary>
@@ -146,6 +160,20 @@ else
 			}).ToList();
 		modelsList.Insert(0, new ModelSummaryViewModel() { Id = "0", Text = "-- all models --" });
 		NavigationManager.LocationChanged += LocationChanged;
+		FileSystemObserver.FileSystemChanged += OnFileSystemChanged;
+		FileSystemObserver.Start();
+	}
+
+	private void OnFileSystemChanged(object sender, FileSystemEventArgs e)
+	{
+		this.InvokeAsync(() =>
+		{
+			this.Added = this.FileSystemObserver.Added;
+			this.Removed = this.FileSystemObserver.Removed;
+			this.StateHasChanged();
+		});
+		logger.LogInformation("Filesystem " + this.FileSystemObserver.Added + " " + this.FileSystemObserver.Removed + " " + e.ChangeType);
+
 	}
 
 	protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -216,6 +244,9 @@ else
 	{
 		await Task.Run(() =>
 		{
+			this.FileSystemObserver.Reset();
+			this.Added = 0;
+			this.Removed = 0;
 			var directory = configuration["ImageDir"];
 			this.rescan.ProcessPngFiles(directory);
 			logger.LogInformation("Rescan done");
@@ -228,6 +259,7 @@ else
 		pngfileDataSource.Dispose();
 		// Unsubscribe from the event when our component is disposed
 		NavigationManager.LocationChanged -= LocationChanged;
+		this.FileSystemObserver.FileSystemChanged -= this.OnFileSystemChanged;
 	}
 
 	private async void imageDelete()
@@ -237,7 +269,7 @@ else
 			try
 			{
 				var filename = this.viewModel.SelectedFile.FileName;
-
+				this.FileSystemObserver.RegisterRemoval(filename);
 				File.Delete(filename);
 				var original = pngfileDataSource.ReadPngFile(filename);
 				original.Exists = false;
@@ -267,7 +299,7 @@ else
 	private async void rightKey()
 	{
 		viewModel.MoveNext();
-		}
+	}
 
 	// https://www.meziantou.net/debouncing-throttling-javascript-events-in-a-blazor-application.htm
 	Action<T> Debounce<T>(Action<T> action, TimeSpan interval)
