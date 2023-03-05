@@ -210,7 +210,7 @@ else
 
 	private void LoadData()
 	{
-		var data = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
+		var data = pngfileDataSource.GetAll().OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
 		viewModel.Initialize(data);
 	}
 

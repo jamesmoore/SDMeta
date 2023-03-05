@@ -21,9 +21,20 @@ namespace SDMetaTool.Cache
 			cache = this.InitialGetAll().ToDictionary(p => p.FileName, p => p);
 		}
 
-		public IEnumerable<PngFile> GetAll()
+		public IEnumerable<PngFileSummary> GetAll()
 		{
-			return cache.Values;
+			return cache.Values.Select(p => new PngFileSummary()
+				{
+					FileName = p.FileName,
+					Length = p.Length,
+					Prompt = p.Parameters?.Prompt,
+					FullPromptHash = p.Parameters?.PromptHash + p.Parameters?.NegativePromptHash,
+					LastUpdated = p.LastUpdated,
+					Model = p.Parameters?.Model,
+					ModelHash = p.Parameters?.ModelHash,
+					Seed = p.Parameters?.Seed,
+				}
+			).ToList();
 		}
 
 		private IEnumerable<PngFile> InitialGetAll()

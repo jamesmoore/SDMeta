@@ -11,11 +11,7 @@
 		public bool Matches(PngFileViewModel pngFileViewModel)
 		{
 			if (Id == "0") return true;
-			var parameters = pngFileViewModel.Parameters;
-			if (parameters == null && string.IsNullOrWhiteSpace(this.Model) && string.IsNullOrWhiteSpace(ModelHash)) return true;
-			if (parameters != null && parameters.Model == this.Model && parameters.ModelHash == this.ModelHash) return true;
-			return false;
+			return pngFileViewModel.Model == this.Model && pngFileViewModel.ModelHash == this.ModelHash;
 		}
-
 	}
 }
