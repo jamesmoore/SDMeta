@@ -64,13 +64,7 @@ else
 			</div>
 			<div class="col-auto ms-auto py-2">
 				<h6>
-					@if (viewModel.FilteredFileCount < viewModel.AllFileCount)
-					{
-						<text>
-							@viewModel.FilteredFileCount of
-						</text>
-					}
-					@viewModel.AllFileCount items
+					@viewModel.FilteredFileCount items
 				</h6>
 			</div>
 		</div>
@@ -124,7 +118,7 @@ else
 	private HxOffcanvas? offcanvasEnd;
 	private FullScreenView? fullScreenView;
 
-	GalleryViewModel viewModel = new GalleryViewModel();
+	GalleryViewModel viewModel = null;
 	Action<ChangeEventArgs> onInputDebounced;
 
 	IList<ModelSummaryViewModel> modelsList;
@@ -150,6 +144,7 @@ else
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
+		this.viewModel = new GalleryViewModel(this.pngfileDataSource, pngFileViewModelBuilder);
 		this.modelsList = this.pngfileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel()
 			{
 				Id = (i + 1).ToString(),
@@ -210,8 +205,7 @@ else
 
 	private void LoadData()
 	{
-		var data = pngfileDataSource.GetAll().Where(p => p.Exists == true).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
-		viewModel.Initialize(data);
+		viewModel.Initialize();
 	}
 
 	void OnSelectModel(ChangeEventArgs e)

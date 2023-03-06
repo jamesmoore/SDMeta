@@ -1,7 +1,9 @@
 ﻿@using SDMetaTool;
+@using SDMetaTool.Cache;
 @using SDMetaUI.Models;
 @inject IJSRuntime JSRuntime
 @inject IHxMessengerService Messenger
+@inject IPngFileDataSource pngfileDataSource
 
 <HxMessenger Position="ToastContainerPosition.TopEnd" />
 @if (string.IsNullOrWhiteSpace(@selectedFileParams?.Prompt) == false)
@@ -80,11 +82,13 @@
 
 	protected override Task OnParametersSetAsync()
 	{
-		selectedFileParams = selectedFile?.Parameters;
+		var realFile = pngfileDataSource.ReadPngFile(selectedFile.FileName);
+
+		selectedFileParams = realFile?.Parameters;
 
 		parameters = new List<(string key, string value)>
 		{
-			new ("Date", selectedFile?.LastUpdated.ToString()),
+			new ("Date", realFile.LastUpdated.ToString()),
 			new ("Model", selectedFileParams?.Model),
 			new ("Model hash", selectedFileParams?.ModelHash),
 			new ("Sampler", selectedFileParams?.Sampler),

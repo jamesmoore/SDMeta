@@ -18,15 +18,29 @@ namespace SDMetaTool.Cache
 		{
 			this.fileSystem = fileSystem;
 			this.cachePath = new CachePath(fileSystem);
-			cache = this.InitialGetAll().ToDictionary(p => p.FileName, p => p);
+			cache = this.InitialQuery().ToDictionary(p => p.FileName, p => p);
 		}
 
-		public IEnumerable<PngFile> GetAll()
+		public IEnumerable<PngFileSummary> Query(QueryParams queryParams)
 		{
-			return cache.Values;
+			var f = queryParams.Filter;
+			return cache.Values.Where(p =>
+				string.IsNullOrWhiteSpace(f) ||
+				p.FileName.Contains(f) ||
+				p.Parameters != null && (
+					(p.Parameters.Seed == f) ||
+					(p.Parameters.Prompt.Contains(f))
+				)).
+			Select(p => new PngFileSummary()
+			{
+				FileName = p.FileName,
+				FullPromptHash = p.Parameters?.PromptHash + p.Parameters?.NegativePromptHash,
+				LastUpdated = p.LastUpdated,
+			}
+			).ToList();
 		}
 
-		private IEnumerable<PngFile> InitialGetAll()
+		private IEnumerable<PngFile> InitialQuery()
 		{
 			var path = cachePath.GetPath();
 			if (fileSystem.File.Exists(path))
