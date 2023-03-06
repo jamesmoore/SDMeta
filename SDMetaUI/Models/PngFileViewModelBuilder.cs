@@ -14,21 +14,11 @@ namespace SDMetaUI.Models
 
 		public PngFileViewModel BuildModel(PngFileSummary p)
 		{
-			var encodedFileName = Base32Encode(p.FileName);
-			return new PngFileViewModel()
+			return new PngFileViewModel(fileSystem.Path.GetFileName)
 			{
 				FileName = p.FileName,
-				ThumbnailUrl = $"/images/thumb/{encodedFileName}",
 				FullPromptHash = p.FullPromptHash,
-				ImageUrl = $"/images/full/{encodedFileName}/{fileSystem.Path.GetFileName(p.FileName)}",
 			};
 		}
-
-		private static string Base32Encode(string plainText)
-		{
-			var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
-			return Base32Encoding.ToString(plainTextBytes);
-		}
-
 	}
 }
