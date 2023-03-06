@@ -18,26 +18,31 @@ namespace SDMetaTool.Cache
 		{
 			this.fileSystem = fileSystem;
 			this.cachePath = new CachePath(fileSystem);
-			cache = this.InitialGetAll().ToDictionary(p => p.FileName, p => p);
+			cache = this.InitialQuery().ToDictionary(p => p.FileName, p => p);
 		}
 
-		public IEnumerable<PngFileSummary> GetAll()
+		public IEnumerable<PngFileSummary> Query(string f)
 		{
-			return cache.Values.Select(p => new PngFileSummary()
-				{
-					FileName = p.FileName,
-					Length = p.Length,
-					Prompt = p.Parameters?.Prompt,
-					FullPromptHash = p.Parameters?.PromptHash + p.Parameters?.NegativePromptHash,
-					LastUpdated = p.LastUpdated,
-					Model = p.Parameters?.Model,
-					ModelHash = p.Parameters?.ModelHash,
-					Seed = p.Parameters?.Seed,
-				}
+			return cache.Values.Where(p =>
+				string.IsNullOrWhiteSpace(f) ||
+				p.FileName.Contains(f) ||
+				p.Parameters != null && (
+					(p.Parameters.Seed == f) ||
+					(p.Parameters.Prompt.Contains(f))
+				)).
+			Select(p => new PngFileSummary()
+			{
+				FileName = p.FileName,
+				Length = p.Length,
+				FullPromptHash = p.Parameters?.PromptHash + p.Parameters?.NegativePromptHash,
+				LastUpdated = p.LastUpdated,
+				Model = p.Parameters?.Model,
+				ModelHash = p.Parameters?.ModelHash,
+			}
 			).ToList();
 		}
 
-		private IEnumerable<PngFile> InitialGetAll()
+		private IEnumerable<PngFile> InitialQuery()
 		{
 			var path = cachePath.GetPath();
 			if (fileSystem.File.Exists(path))

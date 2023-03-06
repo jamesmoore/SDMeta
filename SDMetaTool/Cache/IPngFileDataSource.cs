@@ -5,7 +5,7 @@ namespace SDMetaTool.Cache
 {
     public interface IPngFileDataSource : IDisposable
     {
-        IEnumerable<PngFileSummary> GetAll();
+        IEnumerable<PngFileSummary> Query(string filter);
 		IEnumerable<string> GetAllFilenames();
 
 		PngFile ReadPngFile(string realFileName);

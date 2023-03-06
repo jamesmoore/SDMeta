@@ -230,23 +230,30 @@ namespace SDMetaTool.Cache
 			connection.Dispose();
 		}
 
-		public IEnumerable<PngFileSummary> GetAll()
+		public IEnumerable<PngFileSummary> Query(string filter)
 		{
-			var reader = connection.Query<PngFileSummary>(
-				$@"SELECT 
+			var Sql = $@"SELECT 
 					FileName,
 					LastUpdated,
 					Length,
-					Prompt,
 					IFNULL(PromptHash,"") + IFNULL(NegativePromptHash,"") as FullPromptHash,
 					Model,
-					ModelHash,
-					Seed
+					ModelHash
 				FROM {TableName}
-				WHERE [Exists] = 1"
-				);
+				WHERE [Exists] = 1";
 
-			return reader;
+			if(string.IsNullOrWhiteSpace(filter))
+			{
+				var reader = connection.Query<PngFileSummary>(Sql);
+				return reader;
+			}
+			else
+			{
+				var reader = connection.Query<PngFileSummary> (Sql + " AND ( FileName LIKE '%' || @filter || '%' OR Prompt LIKE '%' || @filter || '%' OR Seed = @filter)",
+					new { filter = filter }
+				);
+				return reader;
+			}
 		}
 
 		public PngFile ReadPngFile(string realFileName)
