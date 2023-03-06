@@ -71,7 +71,7 @@ namespace SDMetaTool.Cache
 				Column: p,
 				Parameter: "@" + p.Replace("[", "").Replace("]", ""),
 				DataType: p == "Length" || p == "[Exists]" ? "INTEGER" : "TEXT",
-				IsPrimaryKey: p == "FileName" ));
+				IsPrimaryKey: p == "FileName"));
 
 			insertSql = $@"INSERT INTO {TableName}({columns.ToCommaSeparated()}) VALUES ( {tabledef.Select(p => p.Parameter).ToCommaSeparated()} )
 			ON CONFLICT(FileName) DO UPDATE SET {tabledef.Where(p => p.Column != "FileName").Select(p => p.Column + "=" + p.Parameter).ToCommaSeparated()};
@@ -183,7 +183,7 @@ namespace SDMetaTool.Cache
 			internal GenerationParams ToGenerationParams()
 			{
 				var hasParams = string.IsNullOrWhiteSpace(this.Prompt) == false ||
-					string.IsNullOrWhiteSpace(this.NegativePrompt) == false || 
+					string.IsNullOrWhiteSpace(this.NegativePrompt) == false ||
 					string.IsNullOrWhiteSpace(this.Params) == false;
 				if (hasParams == false) return null;
 				return new GenerationParams()
@@ -230,30 +230,48 @@ namespace SDMetaTool.Cache
 			connection.Dispose();
 		}
 
-		public IEnumerable<PngFileSummary> Query(string filter)
+		public IEnumerable<PngFileSummary> Query(QueryParams queryParams)
 		{
 			var Sql = $@"SELECT 
 					FileName,
 					LastUpdated,
 					Length,
-					IFNULL(PromptHash,"") + IFNULL(NegativePromptHash,"") as FullPromptHash,
-					Model,
-					ModelHash
+					IFNULL(PromptHash,"") + IFNULL(NegativePromptHash,"") as FullPromptHash
 				FROM {TableName}
 				WHERE [Exists] = 1";
 
-			if(string.IsNullOrWhiteSpace(filter))
+			if (string.IsNullOrWhiteSpace(queryParams.Filter) == false)
 			{
-				var reader = connection.Query<PngFileSummary>(Sql);
-				return reader;
+				Sql += " AND ( FileName LIKE '%' || @filter || '%' OR Prompt LIKE '%' || @filter || '%' OR Seed = @filter)";
 			}
-			else
+
+			if(queryParams.ModelFilter != null)
 			{
-				var reader = connection.Query<PngFileSummary> (Sql + " AND ( FileName LIKE '%' || @filter || '%' OR Prompt LIKE '%' || @filter || '%' OR Seed = @filter)",
-					new { filter = filter }
-				);
-				return reader;
+				if(queryParams.ModelFilter.Model == null)
+				{
+					Sql += " AND Model IS NULL";
+				}
+				else
+				{
+					Sql += " AND Model = @model";
+				}
+
+				if (queryParams.ModelFilter.ModelHash == null)
+				{
+					Sql += " AND ModelHash IS NULL";
+				}
+				else
+				{
+					Sql += " AND ModelHash = @modelHash";
+				}
 			}
+
+			var reader = connection.Query<PngFileSummary>(Sql, new { 
+				filter = queryParams.Filter, 
+				model = queryParams.ModelFilter?.Model, 
+				modelHash = queryParams.ModelFilter?.ModelHash,
+			});
+			return reader;
 		}
 
 		public PngFile ReadPngFile(string realFileName)

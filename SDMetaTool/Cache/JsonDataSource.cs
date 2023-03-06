@@ -21,8 +21,9 @@ namespace SDMetaTool.Cache
 			cache = this.InitialQuery().ToDictionary(p => p.FileName, p => p);
 		}
 
-		public IEnumerable<PngFileSummary> Query(string f)
+		public IEnumerable<PngFileSummary> Query(QueryParams queryParams)
 		{
+			var f = queryParams.Filter;
 			return cache.Values.Where(p =>
 				string.IsNullOrWhiteSpace(f) ||
 				p.FileName.Contains(f) ||
@@ -36,8 +37,6 @@ namespace SDMetaTool.Cache
 				Length = p.Length,
 				FullPromptHash = p.Parameters?.PromptHash + p.Parameters?.NegativePromptHash,
 				LastUpdated = p.LastUpdated,
-				Model = p.Parameters?.Model,
-				ModelHash = p.Parameters?.ModelHash,
 			}
 			).ToList();
 		}

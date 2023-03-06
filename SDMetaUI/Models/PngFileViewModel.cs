@@ -10,9 +10,6 @@ namespace SDMetaUI.Models
 		public string ThumbnailUrl { get; set; }
 		public string ImageUrl { get; set; }
 		public string FullPromptHash { get; set; }
-		public string Model { get; set; }
-		public string ModelHash { get; set; }
-
 		public IList<PngFileViewModel> SubItems { get; set; }
 	}
 }

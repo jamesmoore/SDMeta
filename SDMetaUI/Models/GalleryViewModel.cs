@@ -76,12 +76,16 @@ namespace SDMetaUI.Models
 
 		private void RunFilter()
 		{
-			filteredFiles = pngFileDataSource.Query(this.filter).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
-
-			if (this.ModelFilter != null)
+			var queryParams = new QueryParams()
 			{
-				filteredFiles = filteredFiles.Where(p => this.ModelFilter.Matches(p)).ToList();
-			}
+				Filter = this.filter,
+				ModelFilter = this.modelFilter == null ? null : new ModelFilter()
+				{
+					Model = this.modelFilter.Model,
+					ModelHash = this.modelFilter.ModelHash,
+				}
+			};
+			filteredFiles = pngFileDataSource.Query(queryParams).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
 
 			if (this.ExpandedFile != null)
 			{

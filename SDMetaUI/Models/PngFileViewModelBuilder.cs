@@ -23,8 +23,6 @@ namespace SDMetaUI.Models
 				Length = p.Length,
 				FullPromptHash = p.FullPromptHash,
 				ImageUrl = $"/images/full/{encodedFileName}/{fileSystem.Path.GetFileName(p.FileName)}",
-				ModelHash = p.ModelHash,
-				Model = p.Model,
 			};
 		}
 
