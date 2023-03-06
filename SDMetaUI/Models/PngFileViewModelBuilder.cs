@@ -19,8 +19,6 @@ namespace SDMetaUI.Models
 			{
 				FileName = p.FileName,
 				ThumbnailUrl = $"/images/thumb/{encodedFileName}",
-				LastUpdated = p.LastUpdated,
-				Length = p.Length,
 				FullPromptHash = p.FullPromptHash,
 				ImageUrl = $"/images/full/{encodedFileName}/{fileSystem.Path.GetFileName(p.FileName)}",
 			};

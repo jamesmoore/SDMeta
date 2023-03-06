@@ -6,7 +6,6 @@ namespace SDMetaUI.Models
 	{
 		public string FileName { get; set; }
 		public DateTime LastUpdated { get; set; }
-		public long Length { get; set; }
 		public string ThumbnailUrl { get; set; }
 		public string ImageUrl { get; set; }
 		public string FullPromptHash { get; set; }

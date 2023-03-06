@@ -88,7 +88,7 @@
 
 		parameters = new List<(string key, string value)>
 		{
-			new ("Date", selectedFile?.LastUpdated.ToString()),
+			new ("Date", realFile.LastUpdated.ToString()),
 			new ("Model", selectedFileParams?.Model),
 			new ("Model hash", selectedFileParams?.ModelHash),
 			new ("Sampler", selectedFileParams?.Sampler),

@@ -235,7 +235,6 @@ namespace SDMetaTool.Cache
 			var Sql = $@"SELECT 
 					FileName,
 					LastUpdated,
-					Length,
 					IFNULL(PromptHash,"") + IFNULL(NegativePromptHash,"") as FullPromptHash
 				FROM {TableName}
 				WHERE [Exists] = 1";

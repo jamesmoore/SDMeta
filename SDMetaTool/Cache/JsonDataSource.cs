@@ -34,7 +34,6 @@ namespace SDMetaTool.Cache
 			Select(p => new PngFileSummary()
 			{
 				FileName = p.FileName,
-				Length = p.Length,
 				FullPromptHash = p.Parameters?.PromptHash + p.Parameters?.NegativePromptHash,
 				LastUpdated = p.LastUpdated,
 			}
