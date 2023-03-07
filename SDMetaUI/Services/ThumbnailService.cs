@@ -43,15 +43,13 @@ namespace SDMetaUI.Services
 		{
 			var thumbnailName = HashWithSHA256(fullName) + ".jpg";
 
-			var thumbDir = Path.Combine(
-				new DataPath(fileSystem).GetPath(),
-				"cache",
-				"thumbs",
+			var thumbDir = fileSystem.Path.Combine(
+				GetThumbnailDirectory(),
 				thumbnailName[..2]
 				);
 			fileSystem.Directory.CreateDirectory(thumbDir);
 
-			var thumbnailFullName = Path.Combine(
+			var thumbnailFullName = fileSystem.Path.Combine(
 				thumbDir,
 				thumbnailName);
 			return thumbnailFullName;
@@ -62,6 +60,25 @@ namespace SDMetaUI.Services
 			using var hash = SHA256.Create();
 			var byteArray = hash.ComputeHash(Encoding.UTF8.GetBytes(value));
 			return Base32Encoding.ToString(byteArray);
+		}
+
+		public void DeleteThumbs()
+		{
+			var thumbDir = GetThumbnailDirectory();
+
+			if (fileSystem.Directory.Exists(thumbDir))
+			{
+				fileSystem.Directory.Delete(thumbDir, true);
+			}
+		}
+
+		public string GetThumbnailDirectory()
+		{
+			return fileSystem.Path.Combine(
+				new DataPath(fileSystem).GetPath(),
+				"cache",
+				"thumbs"
+				);
 		}
 	}
 }

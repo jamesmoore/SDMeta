@@ -1,0 +1,31 @@
+﻿@page "/settings"
+@using System.IO.Abstractions;
+@using SDMetaUI.Services;
+
+@inject IThumbnailService thumbnailService;
+@inject ILogger<Settings> logger;
+
+<div class="container">
+	<h1>Settings</h1>
+
+	<div class="row mt-2">
+		<div class="col-2">Thumbnails</div>
+		<div class="col-6">
+			@thumbnailService.GetThumbnailDirectory();
+		</div>
+		<div class="col-4">
+			<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Clear" Color="ThemeColor.Primary" @onclick="DeleteThumbs">
+			</HxButton>
+		</div>
+	</div>
+</div>
+
+@code {
+	private async void DeleteThumbs()
+	{
+		await Task.Run(() =>
+		{
+			thumbnailService.DeleteThumbs();
+		});
+	}
+}
