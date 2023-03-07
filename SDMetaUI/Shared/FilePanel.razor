@@ -89,6 +89,7 @@
 		parameters = new List<(string key, string value)>
 		{
 			new ("Date", realFile.LastUpdated.ToString()),
+			new ("Size", realFile.Length.GetBytesReadable()),
 			new ("Model", selectedFileParams?.Model),
 			new ("Model hash", selectedFileParams?.ModelHash),
 			new ("Sampler", selectedFileParams?.Sampler),

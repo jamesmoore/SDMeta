@@ -12,6 +12,7 @@ using BlazorPro.BlazorSize;
 using SDMetaUI.Models;
 using Havit.Blazor.Components.Web.Bootstrap;
 using Microsoft.Extensions.FileProviders;
+using SDMetaUI;
 
 CodecManager.Configure(codecs => {
 	codecs.UseLibpng();
@@ -77,5 +78,6 @@ static void AddCustomServices(WebApplicationBuilder builder)
 	builder.Services.AddSingleton<IThumbnailService, ThumbnailService>();
 	builder.Services.AddSingleton<PngFileViewModelBuilder>();
 	builder.Services.AddSingleton<FileSystemObserver>();
+	builder.Services.AddSingleton<ImageDir>();
 	HxMessengerServiceExtensions.Defaults.InformationAutohideDelay = 1000;
 }

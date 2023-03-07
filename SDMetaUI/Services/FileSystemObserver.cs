@@ -2,9 +2,9 @@
 {
 	public class FileSystemObserver : IDisposable
 	{
-		private readonly IConfiguration configuration;
+		private readonly ImageDir configuration;
 
-		public FileSystemObserver(IConfiguration configuration)
+		public FileSystemObserver(ImageDir configuration)
 		{
 			this.configuration = configuration;
 		}
@@ -19,7 +19,7 @@
 		{
 			if (watcher == null)
 			{
-				var directory = configuration["ImageDir"];
+				var directory = configuration.GetPath();
 
 				watcher = new FileSystemWatcher(directory);
 

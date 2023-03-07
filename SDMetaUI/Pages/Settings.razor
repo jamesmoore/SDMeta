@@ -1,9 +1,14 @@
 ﻿@page "/settings"
 @using System.IO.Abstractions;
+@using SDMetaTool.Cache;
+@using SDMetaTool;
 @using SDMetaUI.Services;
 
 @inject IThumbnailService thumbnailService;
 @inject ILogger<Settings> logger;
+@inject IFileSystem fileSystem;
+@inject IPngFileDataSource dataSource;
+@inject ImageDir imageDir
 
 <div class="container">
 	<h1>Settings</h1>
@@ -11,21 +16,77 @@
 	<div class="row mt-2">
 		<div class="col-2">Thumbnails</div>
 		<div class="col-6">
-			@thumbnailService.GetThumbnailDirectory();
+			@thumbnailService.GetThumbnailDirectory()
 		</div>
 		<div class="col-4">
-			<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Clear" Color="ThemeColor.Primary" @onclick="DeleteThumbs">
+			<HxButton Outline="false" Text="Clear" Color="ThemeColor.Primary" @onclick="DeleteThumbs">
 			</HxButton>
 		</div>
 	</div>
+
+	<div class="row mt-2">
+		<div class="col-2">Prompt database</div>
+		<div class="col-6">
+			@dbPath<br/>
+			@if(dbSize == null)
+			{
+				<text>Does not exist</text>
+			}
+			else
+			{
+				<text>@dbSize.Value.GetBytesReadable()</text>
+			}
+		</div>
+		<div class="col-4">
+			<HxButton Outline="false" Text="Clear" Color="ThemeColor.Primary" @onclick="TruncateDB">
+			</HxButton>
+		</div>
+	</div>
+
+	<div class="row mt-2">
+		<div class="col-2">Image directory</div>
+		<div class="col-6">
+			@imageDir.GetPath()
+		</div>
+		<div class="col-4">
+		</div>
+	</div>
+
 </div>
 
 @code {
-	private async void DeleteThumbs()
+
+	private string dbPath;
+	private long? dbSize;
+
+	protected override void OnInitialized()
+	{
+		this.dbPath = new DbPath(fileSystem).GetPath();
+		SetDbSize();
+	}
+
+	private void SetDbSize()
+	{
+		if (fileSystem.File.Exists(dbPath))
+		{
+			dbSize = fileSystem.FileInfo.New(dbPath).Length;
+		}
+	}
+
+	private async Task DeleteThumbs()
 	{
 		await Task.Run(() =>
 		{
 			thumbnailService.DeleteThumbs();
+		});
+	}
+
+	private async Task TruncateDB()
+	{
+		await Task.Run(() =>
+		{
+			dataSource.Truncate();
+			SetDbSize();
 		});
 	}
 }

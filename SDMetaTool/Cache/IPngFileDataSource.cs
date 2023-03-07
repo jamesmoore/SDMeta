@@ -13,6 +13,7 @@ namespace SDMetaTool.Cache
 		void BeginTransaction();
 		void CommitTransaction();
         IEnumerable<ModelSummary> GetModelSummaryList();
+		void Truncate();
 	}
 
 	public class QueryParams

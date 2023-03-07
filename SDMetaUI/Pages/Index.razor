@@ -13,7 +13,6 @@
 
 @inject IPngFileDataSource pngfileDataSource
 @inject Rescan rescan
-@inject IConfiguration configuration;
 @inject IThumbnailService thumbnailService;
 @inject ILogger<Index> logger;
 @inject IResizeListener resizeListener;
@@ -21,6 +20,7 @@
 @inject IHxMessengerService Messenger
 @inject NavigationManager NavigationManager
 @inject FileSystemObserver FileSystemObserver
+@inject ImageDir imageDir
 
 <PageTitle>@("Gallery" + (string.IsNullOrWhiteSpace(this.Filter) ? "" : " - " + this.Filter))</PageTitle>
 	<HxMessenger Position="ToastContainerPosition.TopEnd" />
@@ -239,7 +239,7 @@ else
 			this.FileSystemObserver.Reset();
 			this.Added = 0;
 			this.Removed = 0;
-			var directory = configuration["ImageDir"];
+			var directory = imageDir.GetPath();
 			this.rescan.ProcessPngFiles(directory);
 			logger.LogInformation("Rescan done");
 		});

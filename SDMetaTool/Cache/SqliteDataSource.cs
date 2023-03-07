@@ -337,6 +337,11 @@ namespace SDMetaTool.Cache
 
 			return reader;
 		}
+
+		public void Truncate()
+		{
+			connection.Execute($"DELETE FROM {TableName}");
+		}
 	}
 
 	public static class ExtensionMethods
