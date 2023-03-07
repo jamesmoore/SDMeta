@@ -46,7 +46,9 @@ namespace SDMetaUI.Services
 			var thumbDir = Path.Combine(
 				new DataPath(fileSystem).GetPath(),
 				"cache",
-				"thumbs");
+				"thumbs",
+				thumbnailName[..2]
+				);
 			fileSystem.Directory.CreateDirectory(thumbDir);
 
 			var thumbnailFullName = Path.Combine(
