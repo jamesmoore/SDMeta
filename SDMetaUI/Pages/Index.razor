@@ -61,10 +61,9 @@ else
 					}
 				</HxButton>
 			</div>
-			<div class="col-auto ms-auto py-2">
-				<h6>
+			<div class="col-auto ms-auto">
 					@viewModel.FilteredFileCount items
-				</h6>
+				<HxButton Outline="false" Icon="BootstrapIcon.Gear" Text="" Color="ThemeColor.Link" @onclick=@(() => NavigationManager.NavigateTo("/settings")) />
 			</div>
 		</div>
 	</div>

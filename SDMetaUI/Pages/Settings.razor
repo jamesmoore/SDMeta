@@ -9,6 +9,15 @@
 @inject IFileSystem fileSystem;
 @inject IPngFileDataSource dataSource;
 @inject ImageDir imageDir
+@inject NavigationManager NavigationManager
+
+<div class="container-fluid sticky-top">
+	<div class="row p-2 menu-bar">
+		<div class="col-auto">
+			<HxButton Outline="false" Icon="BootstrapIcon.ArrowLeft" Text="Back" Color="ThemeColor.Link" @onclick=@(() => NavigationManager.NavigateTo("/")) />
+		</div>
+	</div>
+</div>
 
 <div class="container">
 	<h1>Settings</h1>
