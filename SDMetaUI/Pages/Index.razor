@@ -190,7 +190,10 @@ else
 				this.StateHasChanged();
 			};
 
-			//viewModel.Width = (await resizeListener.GetBrowserWindowSize()).Width;
+			if (viewModel.Width == 0)
+			{
+				viewModel.Width = (await resizeListener.GetBrowserWindowSize()).Width;
+			}
 			LoadData();
 			// Update filter from initial URL
 			this.viewModel.Filter = this.Filter;
@@ -247,7 +250,6 @@ else
 
 	public void Dispose()
 	{
-		pngfileDataSource.Dispose();
 		// Unsubscribe from the event when our component is disposed
 		NavigationManager.LocationChanged -= LocationChanged;
 		this.FileSystemObserver.FileSystemChanged -= this.OnFileSystemChanged;
