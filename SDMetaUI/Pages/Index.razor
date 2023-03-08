@@ -65,6 +65,14 @@ else
 				@viewModel.FilteredFileCount items
 				<HxButton Outline="false" Icon="BootstrapIcon.Gear" Text="" Color="ThemeColor.Link" @onclick=@(() => NavigationManager.NavigateTo("/settings")) />
 			</div>
+			@if (scanProgess > 0)
+			{
+				<div class="pt-2">
+					<HxProgress Height="2">
+						<HxProgressBar Value=@scanProgess />
+					</HxProgress>
+				</div>
+			}
 		</div>
 	</div>
 	<div class="thumbnail-background">
@@ -105,7 +113,7 @@ else
 		</BodyTemplate>
 	</HxOffcanvas>
 
-	<FullScreenView @ref=@fullScreenView selectedFile=@viewModel.SelectedFile onLeft=@leftKey onRight=@rightKey/>
+	<FullScreenView @ref=@fullScreenView selectedFile=@viewModel.SelectedFile onLeft=@leftKey onRight=@rightKey />
 }
 @code {
 
@@ -123,7 +131,6 @@ else
 	Action<ChangeEventArgs> onInputDebounced;
 
 	IList<ModelSummaryViewModel> modelsList;
-
 	private int Added = 0;
 	private int Removed = 0;
 
@@ -158,6 +165,18 @@ else
 		NavigationManager.LocationChanged += LocationChanged;
 		FileSystemObserver.FileSystemChanged += OnFileSystemChanged;
 		FileSystemObserver.Start();
+		this.rescan.ProgressNotification += ProgressNotification;
+	}
+
+	private float scanProgess = 0;
+
+	private void ProgressNotification(object sender, float i)
+	{
+		this.InvokeAsync(() =>
+		{
+			scanProgess = i;
+			this.StateHasChanged();
+		});
 	}
 
 	private void OnFileSystemChanged(object sender, FileSystemEventArgs e)
@@ -254,6 +273,7 @@ else
 			this.rescan.ProcessPngFiles(directory);
 			logger.LogInformation("Rescan done");
 		});
+		this.scanProgess = 0;
 		LoadData();
 	}
 

@@ -1,5 +1,6 @@
 ﻿using NLog;
 using SDMetaTool.Cache;
+using System;
 using System.Linq;
 
 namespace SDMetaTool.Processors
@@ -10,6 +11,7 @@ namespace SDMetaTool.Processors
 		private readonly IFileLister fileLister;
 		private readonly IPngFileLoader pngFileLoader;
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		public event EventHandler<float> ProgressNotification;
 
 		public Rescan(
 			IFileLister fileLister,
@@ -29,25 +31,48 @@ namespace SDMetaTool.Processors
 
 			var knownExisting = pngFileDataSource.GetAllFilenames();
 
-			var deleted = knownExisting.Except(fileNames);
+			var deleted = knownExisting.Except(fileNames).ToList();
+			var added = fileNames.Except(knownExisting).ToList();
 
-			foreach (var file in deleted)
+			var total = added.Count + deleted.Count;
+			if (total > 0)
 			{
-				var fileToDelete = pngFileDataSource.ReadPngFile(file);
-				fileToDelete.Exists = false;
-				pngFileDataSource.WritePngFile(fileToDelete);
-				logger.Info("Removing " + file);
-			}
+				var steps = total <= 100 ? 1 : (int)(total / 100);
+				var multiplier = (float)(total <= 100 ? (100.0 / total) : 1);
 
-			var newFiles = fileNames.Except(knownExisting).Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).ToList(); ;
-			foreach (var file in newFiles.Where(p => p.Exists == false))
-			{
-				file.Exists = true;
-				pngFileDataSource.WritePngFile(file);
-				logger.Info("Adding " + file.FileName);
+				int position = 0;
+
+				foreach (var file in deleted)
+				{
+					var fileToDelete = pngFileDataSource.ReadPngFile(file);
+					fileToDelete.Exists = false;
+					pngFileDataSource.WritePngFile(fileToDelete);
+					logger.Info("Removing " + file);
+					Notify(steps, multiplier, ++position);
+				}
+
+				foreach (var addedFile in added)
+				{
+					var file = pngFileLoader.GetPngFile(addedFile);
+					if (file != null && file.Exists == false)
+					{
+						file.Exists = true;
+						pngFileDataSource.WritePngFile(file);
+						logger.Info("Adding " + file.FileName);
+					}
+					Notify(steps, multiplier, ++position);
+				}
 			}
 			pngFileDataSource.CommitTransaction();
 			logger.Info("Rescan finished");
+		}
+
+		private void Notify(int steps, float multiplier, int position)
+		{
+			if (position % steps == 0)
+			{
+				ProgressNotification?.Invoke(this, multiplier * position / steps);
+			}
 		}
 	}
 }
