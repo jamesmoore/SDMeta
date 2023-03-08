@@ -62,7 +62,7 @@ else
 				</HxButton>
 			</div>
 			<div class="col-auto ms-auto">
-					@viewModel.FilteredFileCount items
+				@viewModel.FilteredFileCount items
 				<HxButton Outline="false" Icon="BootstrapIcon.Gear" Text="" Color="ThemeColor.Link" @onclick=@(() => NavigationManager.NavigateTo("/settings")) />
 			</div>
 		</div>
@@ -94,16 +94,18 @@ else
 			</Virtualize>
 		}
 	</div>
-	<HxOffcanvas @ref="offcanvasEnd" Placement="OffcanvasPlacement.End" ScrollingEnabled="true" Backdrop="OffcanvasBackdrop.False">
+	<HxOffcanvas @ref="offcanvasEnd" Placement="OffcanvasPlacement.End" ScrollingEnabled="true" Backdrop="OffcanvasBackdrop.False"
+			 OnClosed=@(() => offcanvasEndOpen = false)
+			 OnShown=@(() => offcanvasEndOpen = true)>
 		<BodyTemplate>
 			@if (viewModel.SelectedFile != null)
 			{
-				<FilePanel selectedFile="@viewModel.SelectedFile" onDelete="() => imageDelete()" onFullScreenView="(e) => fullScreenView.ShowAsync()" />
+				<FilePanel selectedFile=@viewModel.SelectedFile onDelete="() => imageDelete()" onFullScreenView="(e) => fullScreenView.ShowAsync()" />
 			}
 		</BodyTemplate>
 	</HxOffcanvas>
 
-	<FullScreenView @ref=@fullScreenView selectedFile=@viewModel.SelectedFile onLeft=@leftKey onRight=@rightKey />
+	<FullScreenView @ref=@fullScreenView selectedFile=@viewModel.SelectedFile onLeft=@leftKey onRight=@rightKey/>
 }
 @code {
 
@@ -114,6 +116,7 @@ else
 	private string FilterInput { get; set; }
 
 	private HxOffcanvas? offcanvasEnd;
+	private bool offcanvasEndOpen = false;
 	private FullScreenView? fullScreenView;
 
 	GalleryViewModel viewModel = null;
@@ -225,12 +228,18 @@ else
 	{
 		if (model == viewModel.SelectedFile)
 		{
-			await fullScreenView.ShowAsync();
+			if (fullScreenView.IsOpen == false)
+			{
+				await fullScreenView.ShowAsync();
+			}
 		}
 		else
 		{
 			this.viewModel.SelectedFile = model;
-			await offcanvasEnd.ShowAsync();
+			if (offcanvasEndOpen == false)
+			{
+				await offcanvasEnd.ShowAsync();
+			}
 		}
 	}
 

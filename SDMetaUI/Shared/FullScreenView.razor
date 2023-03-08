@@ -3,7 +3,9 @@
 <div @ref="containerRef" @onkeydown="KeyboardEventHandler">
 	@if (selectedFile != null)
 	{
-		<HxModal @ref="hxModal" Fullscreen="ModalFullscreen.Always" Backdrop="ModalBackdrop.False">
+		<HxModal @ref="hxModal" Fullscreen="ModalFullscreen.Always" Backdrop="ModalBackdrop.False"
+			OnClosed=@(() => IsOpen = false)
+			OnShown=@(() => IsOpen = true)>
 			<BodyTemplate>
 				<div @onclick="() => hxModal.HideAsync()" class="text-center img-container">
 					<img src="@selectedFile.ImageUrl" class="img-fit" />
@@ -22,6 +24,7 @@
 
 	private ElementReference containerRef;
 	private HxModal? hxModal;
+	public bool IsOpen { get; private set; }
 
 	public Task ShowAsync()
 	{

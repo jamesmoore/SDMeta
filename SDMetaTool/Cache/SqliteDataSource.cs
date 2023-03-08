@@ -11,8 +11,7 @@ namespace SDMetaTool.Cache
 	public class SqliteDataSource : IPngFileDataSource
 	{
 		const string TableName = "PngFiles";
-		private readonly SqliteConnection connection;
-		private SqliteTransaction transaction;
+ 		private SqliteTransaction transaction;
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
 		private readonly string[] columns = new string[]
@@ -57,15 +56,43 @@ namespace SDMetaTool.Cache
 
 		private readonly IEnumerable<(string Column, string Parameter, string DataType, bool IsPrimaryKey)> tabledef;
 		private readonly string insertSql;
+		private readonly IFileSystem fileSystem;
 
-		public SqliteDataSource(IFileSystem fileSystem)
+		private string GetConnectionString()
 		{
 			var path = new DbPath(fileSystem).GetPath();
+			logger.Info($"Using db at {path}");
+			var connectionString = $"Data Source={path}";
+			return connectionString;
+		}
 
-			logger.Debug($"Using db at {path}");
+		private readonly Lazy<string> ConnectionString;
 
-			connection = new SqliteConnection($"Data Source={path}");
+		private SqliteConnection GetConnection()
+		{
+			logger.Info($"Opening connection");
+			var connectionString = ConnectionString.Value;
+			var connection = new SqliteConnection(connectionString);
 			connection.Open();
+			return connection;
+		}
+
+		private T ExecuteOnConnection<T>(Func<SqliteConnection, T> func)
+		{
+			if (this.transaction != null)
+			{
+				return func(transaction.Connection);
+			}
+			else
+			{
+				using var connection = GetConnection();
+				return func(connection);
+			}
+		}
+		public SqliteDataSource(IFileSystem fileSystem)
+		{
+			this.fileSystem = fileSystem;
+			this.ConnectionString = new Lazy<string>(() => GetConnectionString());
 
 			tabledef = columns.Select(p => (
 				Column: p,
@@ -78,9 +105,9 @@ namespace SDMetaTool.Cache
 			";
 
 			// Setup table if absent https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/types
-			connection.Execute(@$"CREATE TABLE IF NOT EXISTS {TableName} (
+			ExecuteOnConnection(connection => connection.Execute(@$"CREATE TABLE IF NOT EXISTS {TableName} (
 				{tabledef.Select(p => p.Column + " " + p.DataType + (p.IsPrimaryKey ? " PRIMARY KEY" : "")).ToCommaSeparated()}
-				);");
+				);"));
 		}
 
 		private class DataRow
@@ -226,8 +253,8 @@ namespace SDMetaTool.Cache
 
 		public void Dispose()
 		{
+			logger.Info("Data source dispose");
 			this.CommitTransaction();
-			connection.Dispose();
 		}
 
 		public IEnumerable<PngFileSummary> Query(QueryParams queryParams)
@@ -244,9 +271,9 @@ namespace SDMetaTool.Cache
 				Sql += " AND ( FileName LIKE '%' || @filter || '%' OR Prompt LIKE '%' || @filter || '%' OR Seed = @filter)";
 			}
 
-			if(queryParams.ModelFilter != null)
+			if (queryParams.ModelFilter != null)
 			{
-				if(queryParams.ModelFilter.Model == null)
+				if (queryParams.ModelFilter.Model == null)
 				{
 					Sql += " AND Model IS NULL";
 				}
@@ -265,21 +292,22 @@ namespace SDMetaTool.Cache
 				}
 			}
 
-			var reader = connection.Query<PngFileSummary>(Sql, new { 
-				filter = queryParams.Filter, 
-				model = queryParams.ModelFilter?.Model, 
+			var reader = ExecuteOnConnection(connection => connection.Query<PngFileSummary>(Sql, new
+			{
+				filter = queryParams.Filter,
+				model = queryParams.ModelFilter?.Model,
 				modelHash = queryParams.ModelFilter?.ModelHash,
-			});
+			}));
 			return reader;
 		}
 
 		public PngFile ReadPngFile(string realFileName)
 		{
-			var reader = connection.QueryFirstOrDefault<DataRow>(
+			var reader = ExecuteOnConnection(connection => connection.QueryFirstOrDefault<DataRow>(
 			$@"SELECT *
 				FROM {TableName}
 				WHERE FileName = @FileName
-			", new { FileName = realFileName });
+			", new { FileName = realFileName }));
 
 			if (reader != null)
 			{
@@ -293,54 +321,57 @@ namespace SDMetaTool.Cache
 
 		public void WritePngFile(PngFile info)
 		{
-			connection.Execute(
+			ExecuteOnConnection(connection => connection.Execute(
 				insertSql,
 				DataRow.FromModel(info),
 				this.transaction
-			);
+			));
 		}
 
 		public void BeginTransaction()
 		{
-			this.transaction ??= this.connection.BeginTransaction();
+			this.transaction ??= GetConnection().BeginTransaction();
 		}
 
 		public void CommitTransaction()
 		{
 			if (this.transaction != null)
 			{
+				var connection = this.transaction.Connection;
 				this.transaction.Commit();
 				this.transaction.Dispose();
 				this.transaction = null;
+				connection.Close();
+				connection.Dispose();
 			}
 		}
 
 		public IEnumerable<ModelSummary> GetModelSummaryList()
 		{
-			var reader = connection.Query<ModelSummary>(
+			var reader = ExecuteOnConnection(connection => connection.Query<ModelSummary>(
 				$@"SELECT Model, ModelHash, Count(*) as Count
 				FROM {TableName}
 				GROUP BY Model, ModelHash
 				ORDER BY 3 DESC"
-				);
+				));
 
 			return reader;
 		}
 
 		public IEnumerable<string> GetAllFilenames()
 		{
-			var reader = connection.Query<string>(
+			var reader = ExecuteOnConnection(connection => connection.Query<string>(
 				$@"SELECT Filename
 				FROM {TableName}
 				WHERE [Exists] = 1"
-				);
+				));
 
 			return reader;
 		}
 
 		public void Truncate()
 		{
-			connection.Execute($"DELETE FROM {TableName}");
+			ExecuteOnConnection(connection => connection.Execute($"DELETE FROM {TableName}"));
 		}
 	}
 
