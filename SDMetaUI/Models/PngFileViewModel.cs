@@ -1,6 +1,4 @@
-﻿using SDMetaTool;
-
-namespace SDMetaUI.Models
+﻿namespace SDMetaUI.Models
 {
 	public class PngFileViewModel
 	{
@@ -8,6 +6,7 @@ namespace SDMetaUI.Models
 
 		public PngFileViewModel(Func<string,string> func) {
 			this.func = func;
+			this.EncodedFileName = new(() => Base32Encode(this.FileName));
 		}
 		public string FileName { get; set; }
 		public string ThumbnailUrl => $"/images/thumb/{EncodedFileName.Value}";
@@ -15,7 +14,7 @@ namespace SDMetaUI.Models
 		public string FullPromptHash { get; set; }
 		public IList<PngFileViewModel> SubItems { get; set; }
 
-		private Lazy<string> EncodedFileName => new(() => Base32Encode(this.FileName));
+		private readonly Lazy<string> EncodedFileName; 
 
 		private static string Base32Encode(string plainText)
 		{
