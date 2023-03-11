@@ -5,67 +5,43 @@
 @inject IHxMessengerService Messenger
 @inject IPngFileDataSource pngfileDataSource
 
-<HxMessenger Position="ToastContainerPosition.TopEnd" />
-@if (string.IsNullOrWhiteSpace(@selectedFileParams?.Prompt) == false)
-{
-	<table class="table">
-		<thead>
-			<tr>
-				<th scope="col">Prompt</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td scope="row">
-					<div class="scroll" style="max-height: 300px;">
-						<small>
-							<pre>@selectedFileParams?.Prompt</pre>
-							@if (string.IsNullOrWhiteSpace(@selectedFileParams?.NegativePrompt) == false)
-							{
-								<pre><strong>Negative prompt:</strong> @selectedFileParams?.NegativePrompt</pre>
-							}
-						</small>
-					</div>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-}
+<div class="main">
+	<div class="text-center">
+		<HxTooltip Text=@selectedFile.FileName Placement="TooltipPlacement.Auto">
+			<Thumbnail file=@selectedFile @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
+		</HxTooltip>
+	</div>
+	<div style="flex: 1">
+		<div class="main">
+			<div>
+				<div class="preformatted py-1">
+					@selectedFile.FileName
+				</div>
+				<div class="preformatted pb-1">
+					<span class="text-info fw-bold">Size:</span> @fileSize | <span class="text-info fw-bold">Date:</span> @lastUpdated
+				</div>
+			</div>
+			<div style="margin-left: auto">
+				<button type="button" class="btn-close mx-2" aria-label="Close" @onclick="(e)=> onClose.InvokeAsync(e)"></button>
+			</div>
+		</div>
 
-<table class="table">
-	<thead>
-		<tr>
-			<th scope="col">Param</th>
-			<th scope="col">Value</th>
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var paramitem in parameters)
+		@if (string.IsNullOrWhiteSpace(@selectedFileParams?.Prompt) == false)
 		{
-			<tr>
-				<th scope="row">@paramitem.key</th>
-				<td>@paramitem.value</td>
-			</tr>
+			<hr style="margin-top: 4px; margin-bottom: 4px;" />
+			@foreach (var x in promptLines)
+			{
+				<div class="preformatted">@((MarkupString)x)</div>
+			}
+			<hr style="margin-top: 4px; margin-bottom: 8px;" />
+			<HxButton Outline="false" Icon="BootstrapIcon.Clipboard" Size="ButtonSize.Small" Text="Copy" Color="ThemeColor.Primary" @onclick="CopyTextToClipboard" />
+			<textarea id="selectedFileParams-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@selectedFileParams?.GetFullPrompt()</textarea>
+			<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Size="ButtonSize.Small" Text="View" Color="ThemeColor.Primary" @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
+			<HxButton Outline="false" Icon="BootstrapIcon.Trash" Size="ButtonSize.Small" Text="Delete" Color="ThemeColor.Danger" @onclick="(e) => onDelete.InvokeAsync(e)" accesskey="x" CssClass="float-end mx-2" />
 		}
-	</tbody>
-</table>
-<table class="table">
-	<tbody>
-		<tr>
-			<td scope="row">
-				<HxButton Outline="false" Icon="BootstrapIcon.Clipboard" Text="Copy" Color="ThemeColor.Primary" @onclick="CopyTextToClipboard" />
-				<textarea id="selectedFileParams-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@selectedFileParams?.GetFullPrompt()</textarea>
-				<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Text="View" Color="ThemeColor.Primary" @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
-				<HxButton Outline="false" Icon="BootstrapIcon.Trash" Text="Delete" Color="ThemeColor.Danger" @onclick="(e) => onDelete.InvokeAsync(e)" accesskey="x" />
-			</td>
-		</tr>
-	</tbody>
-</table>
-<div class="text-center">
-	<HxTooltip Text=@selectedFile.FileName Placement="TooltipPlacement.Auto">
-		<Thumbnail file=@selectedFile @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
-	</HxTooltip>
+	</div>
 </div>
+
 @code {
 	[Parameter]
 	public PngFileViewModel selectedFile { get; set; }
@@ -74,28 +50,26 @@
 	public EventCallback<MouseEventArgs> onDelete { get; set; }
 
 	[Parameter]
+	public EventCallback<MouseEventArgs> onClose { get; set; }
+
+	[Parameter]
 	public EventCallback<MouseEventArgs> onFullScreenView { get; set; }
 
 	private GenerationParams? selectedFileParams;
 
-	private IEnumerable<(string key, string value)> parameters;
+	private string fileSize;
+	private string lastUpdated;
+
+	private IEnumerable<string> promptLines;
 
 	protected override Task OnParametersSetAsync()
 	{
 		var realFile = pngfileDataSource.ReadPngFile(selectedFile.FileName);
-
+		fileSize = realFile.Length.GetBytesReadable();
+		lastUpdated = realFile.LastUpdated.ToString();
 		selectedFileParams = realFile?.Parameters;
 
-		parameters = new List<(string key, string value)>
-		{
-			new ("Date", realFile.LastUpdated.ToString()),
-			new ("Size", realFile.Length.GetBytesReadable()),
-			new ("Model", selectedFileParams?.Model),
-			new ("Model hash", selectedFileParams?.ModelHash),
-			new ("Sampler", selectedFileParams?.Sampler),
-			new ("Cfg scale", selectedFileParams?.CFGScale),
-			new ("Steps", selectedFileParams?.Steps),
-		}.Where(p => string.IsNullOrWhiteSpace(p.value) == false);
+		this.promptLines = selectedFileParams?.GetFullPrompt().Split("\n").Select(p => p.Trim()).Select(p => p.FormatPromptLine()).ToList();
 
 		return base.OnParametersSetAsync();
 	}

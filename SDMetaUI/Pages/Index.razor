@@ -23,7 +23,7 @@
 @inject ImageDir imageDir
 
 <PageTitle>@("Gallery" + (string.IsNullOrWhiteSpace(this.Filter) ? "" : " - " + this.Filter))</PageTitle>
-	<HxMessenger Position="ToastContainerPosition.TopEnd" />
+	<HxMessenger Position="ToastContainerPosition.BottomCenter" />
 
 	@if (viewModel.HasData == false)
 {
@@ -49,8 +49,8 @@ else
 			<div class="col-auto d-flex align-items-center py-2 py-md-0">
 				<HxSwitch Text="Group by prompt" @bind-Value="@viewModel.IsGrouped" />
 			</div>
-			<div class="col-auto py-2 py-md-0">
-				<HxButton Outline="false" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" CssClass="position-relative">
+			<div class="col-auto py-2 py-md-1">
+				<HxButton Outline="false" Size="ButtonSize.Small" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" CssClass="position-relative">
 					@if (this.Added != 0)
 					{
 						<HxBadge Color="ThemeColor.Success" CssClass="position-absolute top-0 start-100 translate-middle">+@this.Added</HxBadge>
@@ -69,7 +69,7 @@ else
 			{
 				<div class="pt-2">
 					<HxProgress Height="2">
-						<HxProgressBar Value=@scanProgess />
+						<HxProgressBar Value=@scanProgess Color="ThemeColor.Info"/>
 					</HxProgress>
 				</div>
 			}
@@ -102,16 +102,12 @@ else
 			</Virtualize>
 		}
 	</div>
-	<HxOffcanvas @ref="offcanvasEnd" Placement="OffcanvasPlacement.End" ScrollingEnabled="true" Backdrop="OffcanvasBackdrop.False"
-			 OnClosed=@(() => offcanvasEndOpen = false)
-			 OnShown=@(() => offcanvasEndOpen = true)>
-		<BodyTemplate>
-			@if (viewModel.SelectedFile != null)
-			{
-				<FilePanel selectedFile=@viewModel.SelectedFile onDelete="() => imageDelete()" onFullScreenView="(e) => fullScreenView.ShowAsync()" />
-			}
-		</BodyTemplate>
-	</HxOffcanvas>
+	@if (viewModel.SelectedFile != null)
+	{
+		<div class="boffcanvas py-2">
+			<FilePanel selectedFile=@viewModel.SelectedFile onDelete="() => imageDelete()" onFullScreenView="(e) => fullScreenView.ShowAsync()"  onClose="(e) => viewModel.SelectedFile = null" />
+		</div>
+	}
 
 	<FullScreenView @ref=@fullScreenView selectedFile=@viewModel.SelectedFile onLeft=@leftKey onRight=@rightKey />
 }
@@ -255,10 +251,6 @@ else
 		else
 		{
 			this.viewModel.SelectedFile = model;
-			if (offcanvasEndOpen == false)
-			{
-				await offcanvasEnd.ShowAsync();
-			}
 		}
 	}
 

@@ -1,5 +1,5 @@
 ﻿.menu-bar {
-    background: rgba(225, 225, 225, 0.9);
+    background-color: var(--bs-body-bg);
     border-bottom-color: rgba(128, 128, 128, 0.75);
     border-bottom-width: 1px;
     border-bottom-style: solid;
@@ -26,4 +26,26 @@
 
 .expanded-bottom {
     padding-bottom: 8px;
+}
+
+
+.boffcanvas {
+    position: fixed;
+    bottom: 0;
+    /* z-index: var(--bs-offcanvas-zindex); */
+    display: flex;
+    flex-direction: column;
+    /* max-width: 100%; */
+    /* color: var(--bs-offcanvas-color); */
+    /* visibility: hidden; */
+    /*    background-color: rgba(225, 225, 225, 0.95);*/
+    /* background-clip: padding-box; */
+    /* outline: 0; */
+    /* transition: transform .3s ease-in-out; */
+
+    background-color: var(--bs-body-bg);
+    border-top-color: rgba(128, 128, 128, 0.75);
+    border-top-width: 1px;
+    border-top-style: solid;
+    width:100%;
 }

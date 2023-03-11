@@ -34,10 +34,12 @@
         }
 }
 
-td, th {
-    font-size: 12px;
+.main {
+    display: flex;
+    width: 100%;
 }
 
-pre {
-    white-space: pre-wrap;
+.preformatted {
+    font-size: 12px;
+    font-family: Consolas;
 }

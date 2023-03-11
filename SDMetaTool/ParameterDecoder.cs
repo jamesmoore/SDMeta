@@ -197,7 +197,7 @@ namespace SDMetaTool
 		[GeneratedRegex(SingleParameterRegexString)]
 		private static partial Regex SingleParameterRegex();
 		[GeneratedRegex(MultipleParameterRegexString)]
-		private static partial Regex MultipleParameterRegex();
+		public static partial Regex MultipleParameterRegex();
 		[GeneratedRegex(ImageSize)]
 		private static partial Regex ImageSizeRegex();
 		[GeneratedRegex(WildcardPrompt)]
