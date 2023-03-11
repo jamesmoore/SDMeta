@@ -119,8 +119,6 @@ else
 
 	private string FilterInput { get; set; }
 
-	private HxOffcanvas? offcanvasEnd;
-	private bool offcanvasEndOpen = false;
 	private FullScreenView? fullScreenView;
 
 	GalleryViewModel viewModel = null;
@@ -291,10 +289,6 @@ else
 				this.thumbnailService.Delete(filename);
 
 				this.viewModel.RemoveFile();
-				if (this.viewModel.SelectedFile == null)
-				{
-					await this.offcanvasEnd.HideAsync();
-				}
 				this.StateHasChanged();
 			}
 			catch (Exception ex)
