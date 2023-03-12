@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Components;
-using SDMetaTool;
-using System.Text;
+﻿using SDMetaTool;
 using System.Text.RegularExpressions;
 using System.Web;
 
 namespace SDMetaUI
 {
-	public static class ExtensionMethods
+	public static partial class ExtensionMethods
 	{
 		public static T GetNext<T>(this IList<T> items, T item)
 		{
@@ -35,9 +33,7 @@ namespace SDMetaUI
 
 				if (multipleParamsMatch.Success)
 				{
-					var singleParameterRegex = new Regex(@"\s*([\w ]+:)\s*(""(?:\\|\""|[^\""])+""|[^,]*)(?:,|$)");
-
-					var reformatted = singleParameterRegex.Replace(s, "<span class=\"text-info fw-bold\">$1</span> $2, ");
+					var reformatted = ParameterHeadingRegex().Replace(s, "<span class=\"text-info fw-bold\">$1</span> $2, ");
 					if (reformatted.EndsWith(", "))
 					{
 						reformatted = reformatted[..^2];
@@ -48,11 +44,11 @@ namespace SDMetaUI
 				{
 					var encoded = HttpUtility.HtmlEncode(s);
 
-					var loraRegex = new Regex("(&lt;lora:((?!&gt;).)*&gt;)");
+					var loraRegex = LoraHypernetRegex();
 					var loraMatches = loraRegex.Match(encoded);
 					if (loraMatches.Success)
 					{
-						var loraReplaced =  loraRegex.Replace(encoded, "<span class=\"text-success fw-bold\">$1</span>");
+						var loraReplaced =  loraRegex.Replace(encoded, "<span class=\"text-success fw-bold\">$1$2$4</span>");
 						return loraReplaced;
 					}
 					else
@@ -63,5 +59,10 @@ namespace SDMetaUI
 			}
 		}
 
+		[GeneratedRegex("\\s*([\\w ]+:)\\s*(\"(?:\\\\|\\\"|[^\\\"])+\"|[^,]*)(?:,|$)")]
+		private static partial Regex ParameterHeadingRegex();
+
+		[GeneratedRegex("(&lt;lora:|&lt;hypernet:)(((?!&gt;).)*)(&gt;)")]
+		private static partial Regex LoraHypernetRegex();
 	}
 }
