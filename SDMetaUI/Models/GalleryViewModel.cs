@@ -174,7 +174,7 @@ namespace SDMetaUI.Models
 			}
 		}
 
-		private int CountPerRow() => (width - 17) / (ThumbnailService.ThumbnailSize + 8 * 2);
+		private int CountPerRow() => Math.Max((width - 17) / (ThumbnailService.ThumbnailSize + 8 * 2), 1);
 
 		public void RemoveFile()
 		{
