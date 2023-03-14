@@ -5,46 +5,44 @@
 @inject IHxMessengerService Messenger
 @inject IPngFileDataSource pngfileDataSource
 
-<div class="main">
-	<div style="flex: 0">
-		<HxTooltip Text=@selectedFile.FileName Placement="TooltipPlacement.Auto">
-			<Thumbnail file=@selectedFile @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
-		</HxTooltip>
-	</div>
-	<div style="flex: 1 1 auto;">
-		<div style="display: flex;flex-direction: column; max-height:100%;">
-			<div class="main">
-				<div>
-					<div class="preformatted py-1">
-						@selectedFile.FileName
-					</div>
-					<div class="preformatted pb-1">
-						<span class="text-info fw-bold">Size:</span> @fileSize | <span class="text-info fw-bold">Date:</span> @lastUpdated
-					</div>
+<div style="flex: 0">
+	<HxTooltip Text=@selectedFile.FileName Placement="TooltipPlacement.Auto">
+		<Thumbnail file=@selectedFile @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
+	</HxTooltip>
+</div>
+<div style="flex: 1 1 auto;">
+	<div style="display: flex;flex-direction: column; max-height:100%;">
+		<div class="main">
+			<div>
+				<div class="preformatted py-1">
+					@selectedFile.FileName
 				</div>
-				<div style="margin-left: auto">
-					<button type="button" class="btn-close mx-2" aria-label="Close" @onclick="(e)=> onClose.InvokeAsync(e)"></button>
+				<div class="preformatted pb-1">
+					<span class="text-info fw-bold">Size:</span> @fileSize | <span class="text-info fw-bold">Date:</span> @lastUpdated
 				</div>
 			</div>
-
-			@if (string.IsNullOrWhiteSpace(@selectedFileParams?.Prompt) == false)
-			{
-				<hr style="margin-top: 4px; margin-bottom: 4px;" />
-				<div style="flex: 1 1 auto; overflow-y: auto;" class="scroll">
-					@foreach (var x in promptLines)
-					{
-						<div class="preformatted">@((MarkupString)x)</div>
-					}
-				</div>
-				<hr style="margin-top: 4px; margin-bottom: 8px;" />
-				<div style="flex: 1 1 auto">
-					<HxButton Outline="false" Icon="BootstrapIcon.Clipboard" Size="ButtonSize.Small" Text="Copy" Color="ThemeColor.Primary" @onclick="CopyTextToClipboard" />
-					<textarea id="selectedFileParams-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@selectedFileParams?.GetFullPrompt()</textarea>
-					<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Size="ButtonSize.Small" Text="View" Color="ThemeColor.Primary" @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
-					<HxButton Outline="false" Icon="BootstrapIcon.Trash" Size="ButtonSize.Small" Text="Delete" Color="ThemeColor.Danger" @onclick="(e) => onDelete.InvokeAsync(e)" accesskey="x" CssClass="float-end mx-2" />
-				</div>
-			}
+			<div style="margin-left: auto">
+				<button type="button" class="btn-close mx-2" aria-label="Close" @onclick="(e)=> onClose.InvokeAsync(e)"></button>
+			</div>
 		</div>
+
+		@if (string.IsNullOrWhiteSpace(@selectedFileParams?.Prompt) == false)
+		{
+			<hr style="margin-top: 4px; margin-bottom: 4px;" />
+			<div style="flex: 1 1 auto; overflow-y: auto;" class="scroll">
+				@foreach (var x in promptLines)
+				{
+					<div class="preformatted">@((MarkupString)x)</div>
+				}
+			</div>
+			<hr style="margin-top: 4px; margin-bottom: 8px;" />
+			<div style="flex: 1 1 auto">
+				<HxButton Outline="false" Icon="BootstrapIcon.Clipboard" Size="ButtonSize.Small" Text="Copy" Color="ThemeColor.Primary" @onclick="CopyTextToClipboard" />
+				<textarea id="selectedFileParams-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@selectedFileParams?.GetFullPrompt()</textarea>
+				<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Size="ButtonSize.Small" Text="View" Color="ThemeColor.Primary" @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
+				<HxButton Outline="false" Icon="BootstrapIcon.Trash" Size="ButtonSize.Small" Text="Delete" Color="ThemeColor.Danger" @onclick="(e) => onDelete.InvokeAsync(e)" accesskey="x" CssClass="float-end mx-2" />
+			</div>
+		}
 	</div>
 </div>
 
