@@ -1,8 +1,5 @@
 ﻿.menu-bar {
     background-color: var(--bs-body-bg);
-    border-bottom-color: rgba(128, 128, 128, 0.75);
-    border-bottom-width: 1px;
-    border-bottom-style: solid;
 }
 
 .thumbnail-background {
@@ -34,7 +31,7 @@
     bottom: 0;
     /* z-index: var(--bs-offcanvas-zindex); */
     display: flex;
-    flex-direction: column;
+/*    flex-direction: column;*/
     /* max-width: 100%; */
     /* color: var(--bs-offcanvas-color); */
     /* visibility: hidden; */
@@ -44,8 +41,6 @@
     /* transition: transform .3s ease-in-out; */
 
     background-color: var(--bs-body-bg);
-    border-top-color: rgba(128, 128, 128, 0.75);
-    border-top-width: 1px;
-    border-top-style: solid;
-    width:100%;
+    width: 100%;
+    max-height: 50%;
 }
