@@ -69,7 +69,7 @@ else
 			{
 				<div class="pt-2">
 					<HxProgress Height="2">
-						<HxProgressBar Value=@scanProgess Color="ThemeColor.Info"/>
+						<HxProgressBar Value=@scanProgess Color="ThemeColor.Info" />
 					</HxProgress>
 				</div>
 			}
@@ -105,7 +105,7 @@ else
 	@if (viewModel.SelectedFile != null)
 	{
 		<div class="boffcanvas py-2">
-			<FilePanel selectedFile=@viewModel.SelectedFile onDelete="() => imageDelete()" onFullScreenView="(e) => fullScreenView.ShowAsync()"  onClose="(e) => viewModel.SelectedFile = null" />
+			<FilePanel selectedFile=@viewModel.SelectedFile onDelete="() => imageDelete()" onFullScreenView="(e) => fullScreenView.ShowAsync()" onClose="(e) => viewModel.SelectedFile = null" />
 		</div>
 	}
 
@@ -147,15 +147,8 @@ else
 	{
 		base.OnInitialized();
 		this.viewModel = new GalleryViewModel(this.pngfileDataSource, pngFileViewModelBuilder);
-		this.modelsList = this.pngfileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel()
-			{
-				Id = (i + 1).ToString(),
-				Count = p.Count,
-				Model = p.Model,
-				ModelHash = p.ModelHash,
-				Text = (p.ModelHash ?? "<empty>") + " (" + (p.Model ?? "<no name>") + ") [" + p.Count + "]",
-			}).ToList();
-		modelsList.Insert(0, new ModelSummaryViewModel() { Id = "0", Text = "-- all models --" });
+		this.modelsList = this.pngfileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel(p, i + 1)).ToList();
+		modelsList.Insert(0, new ModelSummaryViewModel());
 		NavigationManager.LocationChanged += LocationChanged;
 		FileSystemObserver.FileSystemChanged += OnFileSystemChanged;
 		FileSystemObserver.Start();
@@ -227,9 +220,9 @@ else
 
 	void OnSelectModel(ChangeEventArgs e)
 	{
-		var selectedModelId = e.Value.ToString();
+		var selectedModelId = int.Parse(e.Value.ToString());
 		var model = modelsList.FirstOrDefault(p => p.Id == selectedModelId);
-		this.viewModel.ModelFilter = model.Id == "0" ? null : model;
+		this.viewModel.ModelFilter = model.Id == 0 ? null : model;
 	}
 
 	private void imageClickParent(PngFileViewModel model)
