@@ -14,11 +14,7 @@ namespace SDMetaUI.Models
 
 		public PngFileViewModel BuildModel(PngFileSummary p)
 		{
-			return new PngFileViewModel(fileSystem.Path.GetFileName)
-			{
-				FileName = p.FileName,
-				FullPromptHash = p.FullPromptHash,
-			};
+			return new PngFileViewModel(p.FileName, p.FullPromptHash, fileSystem.Path.GetFileName);
 		}
 	}
 }
