@@ -112,19 +112,7 @@ namespace SDMetaUI.Models
 				var next = this.groupList.GetNext(this.SelectedFile);
 				if (next == this.SelectedFile) next = null;
 				filteredList.FilteredFiles.Remove(this.SelectedFile);
-				if (this.SelectedFile == this.ExpandedFile && this.ExpandedFile.SubItems?.Count > 1)
-				{
-					this.ExpandedFile.SubItems.Remove(SelectedFile);
-					var replacement = this.ExpandedFile.SubItems.First();
-					replacement.SubItems = this.ExpandedFile.SubItems;
-					groupList.Replace(this.ExpandedFile, replacement);
-					this.ExpandedFile = replacement;
-				}
-				else
-				{
-					this.groupList.Remove(this.SelectedFile);
-					this.ExpandedFile?.SubItems?.Remove(this.SelectedFile);
-				}
+				this.groupList.Remove(this.SelectedFile);
 				this.Rows = groupList.GetChunks(this.CountPerRow());
 				this.SelectedFile = next;
 			}
@@ -146,18 +134,6 @@ namespace SDMetaUI.Models
 		{
 			this.ExpandedFile = model == this.ExpandedFile ? null : model;
 			this.Rows = groupList.GetChunks(this.CountPerRow());
-		}
-	}
-
-	public static class ListExtensions
-	{
-		public static void Replace<T>(this IList<T> list, T oldItem, T newItem)
-		{
-			var oldItemIndex = list.IndexOf(oldItem);
-			if (oldItemIndex >= 0)
-			{
-				list[oldItemIndex] = newItem;
-			}
 		}
 	}
 }

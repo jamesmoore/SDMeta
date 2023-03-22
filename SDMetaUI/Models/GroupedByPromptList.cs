@@ -61,11 +61,31 @@
 		}
 		public void Remove(PngFileViewModel current)
 		{
-			this.groupedFiles.Remove(current);
+			if (current == this.ExpandedFile && this.ExpandedFile.SubItems?.Count > 1)
+			{
+				this.ExpandedFile.SubItems.Remove(current);
+				var replacement = this.ExpandedFile.SubItems.First();
+				replacement.SubItems = this.ExpandedFile.SubItems;
+				this.groupedFiles.Replace(current, replacement);
+				this.ExpandedFile = replacement;
+			}
+			else
+			{
+				this.ExpandedFile?.SubItems?.Remove(current);
+				this.groupedFiles.Remove(current);
+			}
 		}
-		public void Replace(PngFileViewModel current, PngFileViewModel replacement)
+	}
+
+	public static class ListExtensions
+	{
+		public static void Replace<T>(this IList<T> list, T oldItem, T newItem)
 		{
-			this.groupedFiles.Replace(current, replacement);
+			var oldItemIndex = list.IndexOf(oldItem);
+			if (oldItemIndex >= 0)
+			{
+				list[oldItemIndex] = newItem;
+			}
 		}
 	}
 }

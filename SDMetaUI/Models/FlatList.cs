@@ -35,10 +35,5 @@
 		{
 			this.FilteredList.FilteredFiles.Remove(current);
 		}
-
-		public void Replace(PngFileViewModel current, PngFileViewModel replacement)
-		{
-			throw new NotImplementedException();
-		}
 	}
 }
