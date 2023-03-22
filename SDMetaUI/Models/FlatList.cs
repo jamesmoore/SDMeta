@@ -1,0 +1,42 @@
+﻿namespace SDMetaUI.Models
+{
+	public class FlatList : IGroupList
+	{
+		private readonly FilteredList FilteredList;
+
+		public FlatList(FilteredList filteredList)
+		{
+			FilteredList = filteredList;
+		}
+
+		public void RunGrouping()
+		{
+
+		}
+
+		public IList<GalleryRow> GetChunks(int countPerRow, PngFileViewModel expandedFile)
+		{
+			return FilteredList.FilteredFiles.Chunk(countPerRow).Select(p => new GalleryRow(p)).ToList();
+		}
+
+		public PngFileViewModel GetPrevious(PngFileViewModel current)
+		{
+			return this.FilteredList.FilteredFiles.GetPrevious(current);
+		}
+
+		public PngFileViewModel GetNext(PngFileViewModel current)
+		{
+			return this.FilteredList.FilteredFiles.GetNext(current);
+		}
+
+		public void Remove(PngFileViewModel current)
+		{
+			this.FilteredList.FilteredFiles.Remove(current);
+		}
+
+		public void Replace(PngFileViewModel current, PngFileViewModel replacement)
+		{
+			throw new NotImplementedException();
+		}
+	}
+}
