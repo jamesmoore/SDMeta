@@ -17,8 +17,11 @@ namespace SDMetaUI.Models
 		private readonly FilteredList filteredList;
 
 		public PngFileViewModel? SelectedFile { get; set; }
-		public PngFileViewModel? ExpandedFile { get; private set; }
-
+		public PngFileViewModel? ExpandedFile
+		{
+			get => this.groupList.ExpandedFile;
+			set => this.groupList.ExpandedFile = value;
+		}
 
 		public void Initialize()
 		{
@@ -58,16 +61,12 @@ namespace SDMetaUI.Models
 
 		private void PostFiltering()
 		{
-			if (this.ExpandedFile != null)
-			{
-				this.ExpandedFile = this.filteredList.Get(ExpandedFile.FileName);
-			}
 			if (SelectedFile != null)
 			{
 				this.SelectedFile = filteredList.Get(SelectedFile.FileName);
 			}
 			this.groupList.RunGrouping();
-			this.Rows = this.groupList.GetChunks(CountPerRow(), ExpandedFile);
+			this.Rows = this.groupList.GetChunks(CountPerRow());
 		}
 
 		private bool isGrouped;
@@ -84,12 +83,8 @@ namespace SDMetaUI.Models
 				{
 					isGrouped = value;
 					this.groupList = isGrouped ? new GroupedByPromptList(filteredList) : new FlatList(filteredList);
-					if (isGrouped == false)
-					{
-						this.ExpandedFile = null;
-					}
 					this.groupList.RunGrouping();
-					this.Rows = groupList.GetChunks(this.CountPerRow(), this.ExpandedFile);
+					this.Rows = groupList.GetChunks(this.CountPerRow());
 				}
 			}
 		}
@@ -103,7 +98,7 @@ namespace SDMetaUI.Models
 				width = value;
 				if (this.HasData)
 				{
-					this.Rows = groupList.GetChunks(this.CountPerRow(), this.ExpandedFile);
+					this.Rows = groupList.GetChunks(this.CountPerRow());
 				}
 			}
 		}
@@ -130,7 +125,7 @@ namespace SDMetaUI.Models
 					this.groupList.Remove(this.SelectedFile);
 					this.ExpandedFile?.SubItems?.Remove(this.SelectedFile);
 				}
-				this.Rows = groupList.GetChunks(this.CountPerRow(), this.ExpandedFile);
+				this.Rows = groupList.GetChunks(this.CountPerRow());
 				this.SelectedFile = next;
 			}
 		}
@@ -150,7 +145,7 @@ namespace SDMetaUI.Models
 		public void ToggleExpandedState(PngFileViewModel model)
 		{
 			this.ExpandedFile = model == this.ExpandedFile ? null : model;
-			this.Rows = groupList.GetChunks(this.CountPerRow(), this.ExpandedFile);
+			this.Rows = groupList.GetChunks(this.CountPerRow());
 		}
 	}
 

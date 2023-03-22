@@ -4,6 +4,8 @@
 	{
 		private readonly FilteredList FilteredList;
 
+		public PngFileViewModel? ExpandedFile { get => null; set { } }
+
 		public FlatList(FilteredList filteredList)
 		{
 			FilteredList = filteredList;
@@ -14,7 +16,7 @@
 
 		}
 
-		public IList<GalleryRow> GetChunks(int countPerRow, PngFileViewModel expandedFile)
+		public IList<GalleryRow> GetChunks(int countPerRow)
 		{
 			return FilteredList.FilteredFiles.Chunk(countPerRow).Select(p => new GalleryRow(p)).ToList();
 		}
