@@ -9,131 +9,67 @@ namespace SDMetaUI.Models
 			IPngFileDataSource pngFileDataSource,
 			PngFileViewModelBuilder pngFileViewModelBuilder)
 		{
-			this.pngFileDataSource = pngFileDataSource;
-			this.pngFileViewModelBuilder = pngFileViewModelBuilder;
+			this.filteredList = new FilteredList(pngFileDataSource, pngFileViewModelBuilder, PostFiltering);
+			this.groupList = new FlatList(filteredList, PostGrouping);
 		}
 
-		private readonly IPngFileDataSource pngFileDataSource;
-		private readonly PngFileViewModelBuilder pngFileViewModelBuilder;
-		private IList<PngFileViewModel> filteredFiles = null;
-		private IList<PngFileViewModel> groupedFiles = null;
-		public PngFileViewModel SelectedFile { get; set; }
-		public PngFileViewModel ExpandedFile { get; private set; }
-		private ModelSummaryViewModel modelFilter;
-
-		private IDictionary<string, List<PngFileViewModel>> promptGroups = null;
-
-		public ModelSummaryViewModel ModelFilter
+		private void PostGrouping()
 		{
-			get
-			{
-				return modelFilter;
-			}
-			set
-			{
-				if (modelFilter != value)
-				{
-					modelFilter = value;
-					RunFilter();
-				}
-			}
+			this.Rows = groupList.GetChunks();
 		}
+
+		private IGroupList groupList;
+		private readonly FilteredList filteredList;
+
+		public PngFileViewModel? SelectedFile { get; set; }
+		public PngFileViewModel? ExpandedFile => (this.groupList as IExpandable)?.ExpandedFile;
 
 		public void Initialize()
 		{
-			RunFilter();
-			if (SelectedFile != null)
-			{
-				this.SelectedFile = filteredFiles.FirstOrDefault(p => p.FileName == SelectedFile.FileName);
-			}
-			if (ExpandedFile != null)
-			{
-				this.ExpandedFile = filteredFiles.FirstOrDefault(p => p.FileName == ExpandedFile.FileName);
-			}
+			filteredList.RunFilter();
 		}
 
-		public bool HasData => filteredFiles != null;
+		public bool HasData => filteredList.Any();
 
-		public int FilteredFileCount => filteredFiles.Count;
+		public int FilteredFileCount => filteredList.Count;
 
-		private string filter;
+		public ModelSummaryViewModel ModelFilter
+		{
+			get => filteredList.ModelFilter;
+			set => filteredList.ModelFilter = value;
+		}
 
 		public string Filter
 		{
-			get
-			{
-				return filter;
-			}
-			set
-			{
-				if (filter != value)
-				{
-					filter = value;
-					RunFilter();
-				}
-			}
+			get => filteredList.Filter;
+			set => filteredList.Filter = value;
 		}
 
-		private void RunFilter()
+		private void PostFiltering()
 		{
-			var queryParams = new QueryParams()
+			if (SelectedFile != null)
 			{
-				Filter = this.filter,
-				ModelFilter = this.modelFilter == null ? null : new ModelFilter()
-				{
-					Model = this.modelFilter.Model,
-					ModelHash = this.modelFilter.ModelHash,
-				}
-			};
-			filteredFiles = pngFileDataSource.Query(queryParams).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
-
-			if (this.ExpandedFile != null)
-			{
-				ExpandedFile = this.filteredFiles.FirstOrDefault(p => p.FileName == ExpandedFile.FileName);
+				this.SelectedFile = filteredList.Get(SelectedFile.FileName);
 			}
-
-			this.promptGroups = filteredFiles.GroupBy(p => p.FullPromptHash).ToDictionary(p => p.Key, p => p.ToList());
-
-			RunGrouping();
+			this.groupList.RunGrouping();
 		}
-
-		private bool isGrouped;
 
 		public bool IsGrouped
 		{
 			get
 			{
-				return isGrouped;
+				return this.groupList is IExpandable;
 			}
 			set
 			{
+				var isGrouped = this.IsGrouped;
 				if (isGrouped != value)
 				{
-					isGrouped = value;
-					if (isGrouped == false)
-					{
-						this.ExpandedFile = null;
-					}
-					RunGrouping();
+					var chunks = this.groupList.ItemsPerRow;
+					this.groupList = isGrouped == false ? new GroupedByPromptList(filteredList, PostGrouping) : new FlatList(filteredList, PostGrouping);
+					this.groupList.ItemsPerRow = chunks;
 				}
 			}
-		}
-
-		private void RunGrouping()
-		{
-			if (isGrouped)
-			{
-				groupedFiles = this.promptGroups.Select(p => p.Value.First()).ToList();
-				foreach (var file in groupedFiles)
-				{
-					file.SubItems = this.promptGroups[file.FullPromptHash];
-				}
-			}
-			else
-			{
-				groupedFiles = filteredFiles;
-			}
-			RunChunking();
 		}
 
 		private int width;
@@ -143,34 +79,7 @@ namespace SDMetaUI.Models
 			set
 			{
 				width = value;
-				RunChunking();
-			}
-		}
-
-		private void RunChunking()
-		{
-			if (width > 0 && groupedFiles != null)
-			{
-				var countPerRow = CountPerRow();
-
-				if (this.IsGrouped && (this.ExpandedFile?.SubItems?.Any() ?? false))
-				{
-					var position = this.groupedFiles.TakeWhile(p => p != this.ExpandedFile).Count() + 1;
-					var modulo = position % countPerRow;
-					if (modulo > 0)
-					{
-						position += (countPerRow - modulo);
-					}
-					var before = this.groupedFiles.Take(position).Chunk(countPerRow).Select(p => new GalleryRow(p));
-					var expandedChunks = this.ExpandedFile.SubItems.Chunk(countPerRow).ToList();
-					var middle = expandedChunks.Select((p, i) => new GalleryRow(p, true, i == 0, i == expandedChunks.Count - 1));
-					var after = this.groupedFiles.Skip(position).Chunk(countPerRow).Select(p => new GalleryRow(p));
-					this.Rows = before.Concat(middle).Concat(after).ToList();
-				}
-				else
-				{
-					this.Rows = groupedFiles.Chunk(countPerRow).Select(p => new GalleryRow(p)).ToList();
-				}
+				groupList.ItemsPerRow = this.CountPerRow();
 			}
 		}
 
@@ -180,68 +89,29 @@ namespace SDMetaUI.Models
 		{
 			if (this.SelectedFile != null)
 			{
-				var next = this.GetNext();
+				var next = this.groupList.GetNext(this.SelectedFile);
 				if (next == this.SelectedFile) next = null;
-				if (this.SelectedFile == this.ExpandedFile && this.ExpandedFile.SubItems?.Count > 1)
-				{
-					this.ExpandedFile.SubItems.Remove(SelectedFile);
-					var replacement = this.ExpandedFile.SubItems.First();
-					replacement.SubItems = this.ExpandedFile.SubItems;
-					filteredFiles.Replace(this.ExpandedFile, replacement);
-					groupedFiles.Replace(this.ExpandedFile, replacement);
-					this.ExpandedFile = replacement;
-				}
-				else
-				{
-					filteredFiles.Remove(this.SelectedFile);
-					groupedFiles.Remove(this.SelectedFile);
-					this.ExpandedFile?.SubItems?.Remove(this.SelectedFile);
-				}
-				RunChunking();
+				filteredList.Remove(this.SelectedFile);
+				this.groupList.Remove(this.SelectedFile);
 				this.SelectedFile = next;
 			}
 		}
 
 		public void MovePrevious()
 		{
-			this.SelectedFile = GetPrevious();
-		}
-
-		private PngFileViewModel GetPrevious()
-		{
-			var sourceList = this.isGrouped ? this.promptGroups[this.SelectedFile.FullPromptHash] : filteredFiles;
-			return sourceList.GetPrevious(this.SelectedFile);
+			this.SelectedFile = this.groupList.GetPrevious(this.SelectedFile);
 		}
 
 		public void MoveNext()
 		{
-			this.SelectedFile = GetNext();
-		}
-
-		private PngFileViewModel GetNext()
-		{
-			var sourceList = this.IsGrouped ? this.promptGroups[this.SelectedFile.FullPromptHash] : filteredFiles;
-			return sourceList.GetNext(this.SelectedFile);
+			this.SelectedFile = this.groupList.GetNext(this.SelectedFile);
 		}
 
 		public IList<GalleryRow> Rows { get; private set; }
 
 		public void ToggleExpandedState(PngFileViewModel model)
 		{
-			this.ExpandedFile = model == this.ExpandedFile ? null : model;
-			RunChunking();
-		}
-	}
-
-	public static class ListExtensions
-	{
-		public static void Replace<T>(this IList<T> list, T oldItem, T newItem)
-		{
-			var oldItemIndex = list.IndexOf(oldItem);
-			if (oldItemIndex >= 0)
-			{
-				list[oldItemIndex] = newItem;
-			}
+			(groupList as IExpandable)?.ToggleExpandedState(model);
 		}
 	}
 }
