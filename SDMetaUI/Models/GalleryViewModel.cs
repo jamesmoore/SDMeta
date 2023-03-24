@@ -9,54 +9,40 @@ namespace SDMetaUI.Models
 			IPngFileDataSource pngFileDataSource,
 			PngFileViewModelBuilder pngFileViewModelBuilder)
 		{
-			this.filteredList = new FilteredList(pngFileDataSource, pngFileViewModelBuilder);
-			this.groupList = new FlatList(filteredList);
+			this.filteredList = new FilteredList(pngFileDataSource, pngFileViewModelBuilder, PostFiltering);
+			this.groupList = new FlatList(filteredList, PostGrouping);
+		}
+
+		private void PostGrouping()
+		{
+			this.Rows = groupList.GetChunks();
 		}
 
 		private IGroupList groupList;
 		private readonly FilteredList filteredList;
 
 		public PngFileViewModel? SelectedFile { get; set; }
-		public PngFileViewModel? ExpandedFile
-		{
-			get => this.groupList.ExpandedFile;
-			set => this.groupList.ExpandedFile = value;
-		}
+		public PngFileViewModel? ExpandedFile => (this.groupList as IExpandable)?.ExpandedFile;
 
 		public void Initialize()
 		{
 			filteredList.RunFilter();
-			PostFiltering();
 		}
 
-		public bool HasData => filteredList.FilteredFiles != null;
+		public bool HasData => filteredList.Any();
 
-		public int FilteredFileCount => filteredList.FilteredFiles.Count;
+		public int FilteredFileCount => filteredList.Count;
 
 		public ModelSummaryViewModel ModelFilter
 		{
-			get
-			{
-				return filteredList.ModelFilter;
-			}
-			set
-			{
-				filteredList.ModelFilter = value;
-				PostFiltering();
-			}
+			get => filteredList.ModelFilter;
+			set => filteredList.ModelFilter = value;
 		}
 
 		public string Filter
 		{
-			get
-			{
-				return filteredList.Filter;
-			}
-			set
-			{
-				filteredList.Filter = value;
-				PostFiltering();
-			}
+			get => filteredList.Filter;
+			set => filteredList.Filter = value;
 		}
 
 		private void PostFiltering()
@@ -66,25 +52,22 @@ namespace SDMetaUI.Models
 				this.SelectedFile = filteredList.Get(SelectedFile.FileName);
 			}
 			this.groupList.RunGrouping();
-			this.Rows = this.groupList.GetChunks(CountPerRow());
 		}
-
-		private bool isGrouped;
 
 		public bool IsGrouped
 		{
 			get
 			{
-				return isGrouped;
+				return this.groupList is IExpandable;
 			}
 			set
 			{
+				var isGrouped = this.IsGrouped;
 				if (isGrouped != value)
 				{
-					isGrouped = value;
-					this.groupList = isGrouped ? new GroupedByPromptList(filteredList) : new FlatList(filteredList);
-					this.groupList.RunGrouping();
-					this.Rows = groupList.GetChunks(this.CountPerRow());
+					var chunks = this.groupList.ItemsPerRow;
+					this.groupList = isGrouped == false ? new GroupedByPromptList(filteredList, PostGrouping) : new FlatList(filteredList, PostGrouping);
+					this.groupList.ItemsPerRow = chunks;
 				}
 			}
 		}
@@ -96,10 +79,7 @@ namespace SDMetaUI.Models
 			set
 			{
 				width = value;
-				if (this.HasData)
-				{
-					this.Rows = groupList.GetChunks(this.CountPerRow());
-				}
+				groupList.ItemsPerRow = this.CountPerRow();
 			}
 		}
 
@@ -111,9 +91,8 @@ namespace SDMetaUI.Models
 			{
 				var next = this.groupList.GetNext(this.SelectedFile);
 				if (next == this.SelectedFile) next = null;
-				filteredList.FilteredFiles.Remove(this.SelectedFile);
+				filteredList.Remove(this.SelectedFile);
 				this.groupList.Remove(this.SelectedFile);
-				this.Rows = groupList.GetChunks(this.CountPerRow());
 				this.SelectedFile = next;
 			}
 		}
@@ -132,8 +111,7 @@ namespace SDMetaUI.Models
 
 		public void ToggleExpandedState(PngFileViewModel model)
 		{
-			this.ExpandedFile = model == this.ExpandedFile ? null : model;
-			this.Rows = groupList.GetChunks(this.CountPerRow());
+			(groupList as IExpandable)?.ToggleExpandedState(model);
 		}
 	}
 }

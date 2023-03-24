@@ -1,34 +1,55 @@
 ﻿namespace SDMetaUI.Models
 {
-	public class GroupedByPromptList : IGroupList
+	public class GroupedByPromptList : IGroupList, IExpandable
 	{
 		private IList<PngFileViewModel>? groupedFiles = null;
 		private IDictionary<string, List<PngFileViewModel>>? promptGroups = null;
-		private readonly FilteredList FilteredList;
-		public PngFileViewModel? ExpandedFile { get; set; }
+		private readonly FilteredList filteredList;
+		private readonly Action postGroupingAction;
 
-		public GroupedByPromptList(FilteredList filteredList)
+		public PngFileViewModel? ExpandedFile { get; private set; }
+
+		private int countPerRow = 1;
+		public int ItemsPerRow
 		{
-			FilteredList = filteredList;
+			get => countPerRow;
+			set
+			{
+				if (countPerRow != value)
+				{
+					countPerRow = value;
+					postGroupingAction();
+				}
+			}
+		}
+
+		public GroupedByPromptList(
+			FilteredList filteredList,
+			Action postGroupingAction)
+		{
+			this.filteredList = filteredList;
+			this.postGroupingAction = postGroupingAction;
+			this.RunGrouping();
 		}
 
 		public void RunGrouping()
 		{
 			if (this.ExpandedFile != null)
 			{
-				this.ExpandedFile = this.FilteredList.Get(ExpandedFile.FileName);
+				this.ExpandedFile = this.filteredList.Get(ExpandedFile.FileName);
 			}
-			
-			this.promptGroups = this.FilteredList.FilteredFiles.GroupBy(p => p.FullPromptHash).ToDictionary(p => p.Key, p => p.ToList());
+
+			this.promptGroups = this.filteredList.GroupBy(p => p.FullPromptHash).ToDictionary(p => p.Key, p => p.ToList());
 
 			groupedFiles = this.promptGroups.Select(p => p.Value.First()).ToList();
 			foreach (var file in groupedFiles)
 			{
 				file.SubItems = this.promptGroups[file.FullPromptHash];
 			}
+			postGroupingAction();
 		}
 
-		public IList<GalleryRow> GetChunks(int countPerRow)
+		public IList<GalleryRow> GetChunks()
 		{
 			if ((this.ExpandedFile?.SubItems?.Any() ?? false))
 			{
@@ -50,15 +71,10 @@
 			}
 		}
 
-		public PngFileViewModel GetPrevious(PngFileViewModel current)
-		{
-			return this.promptGroups[current.FullPromptHash].GetPrevious(current);
-		}
+		public PngFileViewModel GetPrevious(PngFileViewModel current) => this.promptGroups[current.FullPromptHash].GetPrevious(current);
 
-		public PngFileViewModel GetNext(PngFileViewModel current)
-		{
-			return this.promptGroups[current.FullPromptHash].GetNext(current);
-		}
+		public PngFileViewModel GetNext(PngFileViewModel current) => this.promptGroups[current.FullPromptHash].GetNext(current);
+
 		public void Remove(PngFileViewModel current)
 		{
 			if (current == this.ExpandedFile && this.ExpandedFile.SubItems?.Count > 1)
@@ -74,6 +90,13 @@
 				this.ExpandedFile?.SubItems?.Remove(current);
 				this.groupedFiles.Remove(current);
 			}
+			postGroupingAction();
+		}
+
+		public void ToggleExpandedState(PngFileViewModel model)
+		{
+			this.ExpandedFile = model == this.ExpandedFile ? null : model;
+			postGroupingAction();
 		}
 	}
 

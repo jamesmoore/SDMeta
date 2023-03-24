@@ -3,10 +3,10 @@
 	public interface IGroupList
 	{
 		void RunGrouping();
-		IList<GalleryRow> GetChunks(int countPerRow);
+		IList<GalleryRow> GetChunks();
 		PngFileViewModel GetPrevious(PngFileViewModel current);
 		PngFileViewModel GetNext(PngFileViewModel current);
-		public void Remove(PngFileViewModel current);
-		public PngFileViewModel? ExpandedFile { get; set; }
+		void Remove(PngFileViewModel current);
+		public int ItemsPerRow { get; set; }
 	}
 }
