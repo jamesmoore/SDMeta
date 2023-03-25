@@ -29,7 +29,7 @@ namespace SDMetaUI.Models
 			filteredList.RunFilter();
 		}
 
-		public bool HasData => filteredList.Any();
+		public bool HasData { get; private set; }
 
 		public int FilteredFileCount => filteredList.Count;
 
@@ -52,6 +52,7 @@ namespace SDMetaUI.Models
 				this.SelectedFile = filteredList.Get(SelectedFile.FileName);
 			}
 			this.groupList.RunGrouping();
+			this.HasData = true;
 		}
 
 		public bool IsGrouped
