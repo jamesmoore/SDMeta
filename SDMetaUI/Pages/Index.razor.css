@@ -3,16 +3,16 @@
 }
 
 .thumbnail-background {
-    background: #e0e0e0;
+    background: var(--bs-gray-600);
 }
 
 .expanded-background {
-    background-color: #606060;
+    background-color: var(--bs-gray-800);
 }
 
 .expanded-tab {
     display: inline-block;
-    background-color: #606060;
+    background-color: var(--bs-gray-800);
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
 }
