@@ -24,11 +24,36 @@ namespace SDMetaTool.Cache
 			"Prompt",
 			"NegativePrompt",
 			"Params",
+			"Warnings",
+			"Steps",
+			"Sampler",
+			"CFGScale",
+			"Seed",
+			"Size",
 			"ModelHash",
 			"Model",
+			"ClipSkip",
+			"DenoisingStrength",
+			"BatchSize",
+			"BatchPos",
+			"FaceRestoration",
+			"Eta",
+			"FirstPassSize",
+			"ENSD",
+			"Hypernet",
+			"HypernetHash",
+			"HypernetStrength",
+			"MaskBlur",
+			"VariationSeed",
+			"VariationSeedStrength",
+			"SeedResizeFrom",
+			"HiresResize",
+			"HiresUpscaler",
+			"HiresUpscale",
+			"HiresSteps",
 			"PromptHash",
 			"NegativePromptHash",
-			"Version"
+			"Version",
 		};
 
 		private readonly IEnumerable<(string Column, string Parameter, string DataType, bool IsPrimaryKey)> tabledef;
@@ -103,10 +128,35 @@ namespace SDMetaTool.Cache
 					Prompt = info.Parameters?.Prompt,
 					NegativePrompt = info.Parameters?.NegativePrompt,
 					Params = info.Parameters?.Params,
+					Warnings = info.Parameters?.Warnings,
+					Steps = info.Parameters?.Steps,
+					Sampler = info.Parameters?.Sampler,
+					CFGScale = info.Parameters?.CFGScale,
+					Seed = info.Parameters?.Seed,
+					Size = info.Parameters?.Size,
 					ModelHash = info.Parameters?.ModelHash,
 					Model = info.Parameters?.Model,
+					ClipSkip = info.Parameters?.ClipSkip,
+					DenoisingStrength = info.Parameters?.DenoisingStrength,
+					BatchSize = info.Parameters?.BatchSize,
+					BatchPos = info.Parameters?.BatchPos,
+					FaceRestoration = info.Parameters?.FaceRestoration,
+					Eta = info.Parameters?.Eta,
+					FirstPassSize = info.Parameters?.FirstPassSize,
+					ENSD = info.Parameters?.ENSD,
+					Hypernet = info.Parameters?.Hypernet,
+					HypernetHash = info.Parameters?.HypernetHash,
+					HypernetStrength = info.Parameters?.HypernetStrength,
+					MaskBlur = info.Parameters?.MaskBlur,
+					VariationSeed = info.Parameters?.VariationSeed,
+					VariationSeedStrength = info.Parameters?.VariationSeedStrength,
+					SeedResizeFrom = info.Parameters?.SeedResizeFrom,
+					HiresResize = info.Parameters?.HiresResize,
+					HiresUpscaler = info.Parameters?.HiresUpscaler,
 					PromptHash = info.Parameters?.PromptHash,
 					NegativePromptHash = info.Parameters?.NegativePromptHash,
+					HiresUpscale = info.Parameters?.HiresUpscale,
+					HiresSteps = info.Parameters?.HiresSteps
 				};
 			}
 
@@ -119,11 +169,37 @@ namespace SDMetaTool.Cache
 			public string NegativePrompt { get; set; }
 			public string Params { get; set; }
 
+			public string Warnings { get; set; }
+
+			public string Steps { get; set; }
+			public string Sampler { get; set; }
+			public string CFGScale { get; set; }
+			public string Seed { get; set; }
+			public string Size { get; set; }
 			public string ModelHash { get; set; }
 			public string Model { get; set; }
+			public string ClipSkip { get; set; }
+			public string DenoisingStrength { get; set; }
+			public string BatchSize { get; set; }
+			public string BatchPos { get; set; }
+			public string FaceRestoration { get; set; }
+			public string Eta { get; set; }
+			public string FirstPassSize { get; set; }
+			public string ENSD { get; set; }
+			public string Hypernet { get; set; }
+			public string HypernetHash { get; set; }
+			public string HypernetStrength { get; set; }
+			public string MaskBlur { get; set; }
+			public string VariationSeed { get; set; }
+			public string VariationSeedStrength { get; set; }
+			public string SeedResizeFrom { get; set; }
+			public string HiresResize { get; set; }
+			public string HiresUpscaler { get; set; }
 
 			public string PromptHash { get; set; }
 			public string NegativePromptHash { get; set; }
+			public string HiresUpscale { get; set; }
+			public string HiresSteps { get; set; }
 			public int Version { get; set; }
 
 			internal PngFile ToModel()
@@ -149,10 +225,35 @@ namespace SDMetaTool.Cache
 					Prompt = this.Prompt,
 					NegativePrompt = this.NegativePrompt,
 					Params = this.Params,
+					Warnings = this.Warnings,
+					Steps = this.Steps,
+					Sampler = this.Sampler,
+					CFGScale = this.CFGScale,
+					Seed = this.Seed,
+					Size = this.Size,
 					ModelHash = this.ModelHash,
 					Model = this.Model,
+					ClipSkip = this.ClipSkip,
+					DenoisingStrength = this.DenoisingStrength,
+					BatchSize = this.BatchSize,
+					BatchPos = this.BatchPos,
+					FaceRestoration = this.FaceRestoration,
+					Eta = this.Eta,
+					FirstPassSize = this.FirstPassSize,
+					ENSD = this.ENSD,
+					Hypernet = this.Hypernet,
+					HypernetHash = this.HypernetHash,
+					HypernetStrength = this.HypernetStrength,
+					MaskBlur = this.MaskBlur,
+					VariationSeed = this.VariationSeed,
+					VariationSeedStrength = this.VariationSeedStrength,
+					SeedResizeFrom = this.SeedResizeFrom,
+					HiresResize = this.HiresResize,
+					HiresUpscaler = this.HiresUpscaler,
 					PromptHash = this.PromptHash,
 					NegativePromptHash = this.NegativePromptHash,
+					HiresUpscale = this.HiresUpscale,
+					HiresSteps = this.HiresSteps,
 				};
 			}
 		}
