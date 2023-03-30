@@ -11,7 +11,8 @@ namespace SDMetaTool.Cache
 	public class SqliteDataSource : IPngFileDataSource
 	{
 		const string TableName = "PngFiles";
- 		private SqliteTransaction transaction;
+		private string FTSTableName = $"FTS5{TableName}";
+		private SqliteTransaction transaction;
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
 		private readonly string[] columns = new string[]
@@ -23,35 +24,11 @@ namespace SDMetaTool.Cache
 			"Prompt",
 			"NegativePrompt",
 			"Params",
-			"Warnings",
-			"Steps",
-			"Sampler",
-			"CFGScale",
-			"Seed",
-			"Size",
 			"ModelHash",
 			"Model",
-			"ClipSkip",
-			"DenoisingStrength",
-			"BatchSize",
-			"BatchPos",
-			"FaceRestoration",
-			"Eta",
-			"FirstPassSize",
-			"ENSD",
-			"Hypernet",
-			"HypernetHash",
-			"HypernetStrength",
-			"MaskBlur",
-			"VariationSeed",
-			"VariationSeedStrength",
-			"SeedResizeFrom",
-			"HiresResize",
-			"HiresUpscaler",
-			"HiresUpscale",
-			"HiresSteps",
 			"PromptHash",
 			"NegativePromptHash",
+			"Version"
 		};
 
 		private readonly IEnumerable<(string Column, string Parameter, string DataType, bool IsPrimaryKey)> tabledef;
@@ -97,17 +74,20 @@ namespace SDMetaTool.Cache
 			tabledef = columns.Select(p => (
 				Column: p,
 				Parameter: "@" + p.Replace("[", "").Replace("]", ""),
-				DataType: p == "Length" || p == "[Exists]" ? "INTEGER" : "TEXT",
+				DataType: p is "Length" or "[Exists]" or "Version" ? "INTEGER" : "TEXT",
 				IsPrimaryKey: p == "FileName"));
 
 			insertSql = $@"INSERT INTO {TableName}({columns.ToCommaSeparated()}) VALUES ( {tabledef.Select(p => p.Parameter).ToCommaSeparated()} )
-			ON CONFLICT(FileName) DO UPDATE SET {tabledef.Where(p => p.Column != "FileName").Select(p => p.Column + "=" + p.Parameter).ToCommaSeparated()};
+			ON CONFLICT(FileName) DO UPDATE SET {tabledef.Where(p => p.Column != "FileName").Select(p => p.Column + "=" + p.Parameter).ToCommaSeparated()}, Version=Version+1;
 			";
 
 			// Setup table if absent https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/types
 			ExecuteOnConnection(connection => connection.Execute(@$"CREATE TABLE IF NOT EXISTS {TableName} (
-				{tabledef.Select(p => p.Column + " " + p.DataType + (p.IsPrimaryKey ? " PRIMARY KEY" : "")).ToCommaSeparated()}
+				{tabledef.Select(p => $"{p.Column} {p.DataType}{(p.IsPrimaryKey ? " PRIMARY KEY" : "")}").ToCommaSeparated()}
 				);"));
+
+			ExecuteOnConnection(connection => connection.Execute(@$"CREATE VIRTUAL TABLE IF NOT EXISTS {FTSTableName} USING fts5(FileName,Prompt, NegativePrompt, Params, Version);"));
+
 		}
 
 		private class DataRow
@@ -123,35 +103,10 @@ namespace SDMetaTool.Cache
 					Prompt = info.Parameters?.Prompt,
 					NegativePrompt = info.Parameters?.NegativePrompt,
 					Params = info.Parameters?.Params,
-					Warnings = info.Parameters?.Warnings,
-					Steps = info.Parameters?.Steps,
-					Sampler = info.Parameters?.Sampler,
-					CFGScale = info.Parameters?.CFGScale,
-					Seed = info.Parameters?.Seed,
-					Size = info.Parameters?.Size,
 					ModelHash = info.Parameters?.ModelHash,
 					Model = info.Parameters?.Model,
-					ClipSkip = info.Parameters?.ClipSkip,
-					DenoisingStrength = info.Parameters?.DenoisingStrength,
-					BatchSize = info.Parameters?.BatchSize,
-					BatchPos = info.Parameters?.BatchPos,
-					FaceRestoration = info.Parameters?.FaceRestoration,
-					Eta = info.Parameters?.Eta,
-					FirstPassSize = info.Parameters?.FirstPassSize,
-					ENSD = info.Parameters?.ENSD,
-					Hypernet = info.Parameters?.Hypernet,
-					HypernetHash = info.Parameters?.HypernetHash,
-					HypernetStrength = info.Parameters?.HypernetStrength,
-					MaskBlur = info.Parameters?.MaskBlur,
-					VariationSeed = info.Parameters?.VariationSeed,
-					VariationSeedStrength = info.Parameters?.VariationSeedStrength,
-					SeedResizeFrom = info.Parameters?.SeedResizeFrom,
-					HiresResize = info.Parameters?.HiresResize,
-					HiresUpscaler = info.Parameters?.HiresUpscaler,
 					PromptHash = info.Parameters?.PromptHash,
 					NegativePromptHash = info.Parameters?.NegativePromptHash,
-					HiresUpscale = info.Parameters?.HiresUpscale,
-					HiresSteps = info.Parameters?.HiresSteps
 				};
 			}
 
@@ -163,37 +118,13 @@ namespace SDMetaTool.Cache
 			public string Prompt { get; set; }
 			public string NegativePrompt { get; set; }
 			public string Params { get; set; }
-			public string Warnings { get; set; }
 
-			public string Steps { get; set; }
-			public string Sampler { get; set; }
-			public string CFGScale { get; set; }
-			public string Seed { get; set; }
-			public string Size { get; set; }
 			public string ModelHash { get; set; }
 			public string Model { get; set; }
-			public string ClipSkip { get; set; }
-			public string DenoisingStrength { get; set; }
-			public string BatchSize { get; set; }
-			public string BatchPos { get; set; }
-			public string FaceRestoration { get; set; }
-			public string Eta { get; set; }
-			public string FirstPassSize { get; set; }
-			public string ENSD { get; set; }
-			public string Hypernet { get; set; }
-			public string HypernetHash { get; set; }
-			public string HypernetStrength { get; set; }
-			public string MaskBlur { get; set; }
-			public string VariationSeed { get; set; }
-			public string VariationSeedStrength { get; set; }
-			public string SeedResizeFrom { get; set; }
-			public string HiresResize { get; set; }
-			public string HiresUpscaler { get; set; }
 
 			public string PromptHash { get; set; }
 			public string NegativePromptHash { get; set; }
-			public string HiresUpscale { get; set; }
-			public string HiresSteps { get; set; }
+			public int Version { get; set; }
 
 			internal PngFile ToModel()
 			{
@@ -218,35 +149,10 @@ namespace SDMetaTool.Cache
 					Prompt = this.Prompt,
 					NegativePrompt = this.NegativePrompt,
 					Params = this.Params,
-					Warnings = this.Warnings,
-					Steps = this.Steps,
-					Sampler = this.Sampler,
-					CFGScale = this.CFGScale,
-					Seed = this.Seed,
-					Size = this.Size,
 					ModelHash = this.ModelHash,
 					Model = this.Model,
-					ClipSkip = this.ClipSkip,
-					DenoisingStrength = this.DenoisingStrength,
-					BatchSize = this.BatchSize,
-					BatchPos = this.BatchPos,
-					FaceRestoration = this.FaceRestoration,
-					Eta = this.Eta,
-					FirstPassSize = this.FirstPassSize,
-					ENSD = this.ENSD,
-					Hypernet = this.Hypernet,
-					HypernetHash = this.HypernetHash,
-					HypernetStrength = this.HypernetStrength,
-					MaskBlur = this.MaskBlur,
-					VariationSeed = this.VariationSeed,
-					VariationSeedStrength = this.VariationSeedStrength,
-					SeedResizeFrom = this.SeedResizeFrom,
-					HiresResize = this.HiresResize,
-					HiresUpscaler = this.HiresUpscaler,
 					PromptHash = this.PromptHash,
 					NegativePromptHash = this.NegativePromptHash,
-					HiresUpscale = this.HiresUpscale,
-					HiresSteps = this.HiresSteps,
 				};
 			}
 		}
@@ -259,38 +165,7 @@ namespace SDMetaTool.Cache
 
 		public IEnumerable<PngFileSummary> Query(QueryParams queryParams)
 		{
-			var Sql = $@"SELECT 
-					FileName,
-					LastUpdated,
-					IFNULL(PromptHash,"") + IFNULL(NegativePromptHash,"") as FullPromptHash
-				FROM {TableName}
-				WHERE [Exists] = 1";
-
-			if (string.IsNullOrWhiteSpace(queryParams.Filter) == false)
-			{
-				Sql += " AND ( FileName LIKE '%' || @filter || '%' OR Prompt LIKE '%' || @filter || '%' OR Seed = @filter)";
-			}
-
-			if (queryParams.ModelFilter != null)
-			{
-				if (queryParams.ModelFilter.Model == null)
-				{
-					Sql += " AND Model IS NULL";
-				}
-				else
-				{
-					Sql += " AND Model = @model";
-				}
-
-				if (queryParams.ModelFilter.ModelHash == null)
-				{
-					Sql += " AND ModelHash IS NULL";
-				}
-				else
-				{
-					Sql += " AND ModelHash = @modelHash";
-				}
-			}
+			var Sql = BuildQueryStringFTS(queryParams);
 
 			var reader = ExecuteOnConnection(connection => connection.Query<PngFileSummary>(Sql, new
 			{
@@ -299,6 +174,60 @@ namespace SDMetaTool.Cache
 				modelHash = queryParams.ModelFilter?.ModelHash,
 			}));
 			return reader;
+		}
+
+		private string BuildQueryStringFTS(QueryParams queryParams)
+		{
+			string sql;
+			if (string.IsNullOrWhiteSpace(queryParams.Filter) == false)
+			{
+				sql = $@"SELECT 
+					{TableName}.FileName,
+					LastUpdated,
+					IFNULL(PromptHash,"") + IFNULL(NegativePromptHash,"") as FullPromptHash
+				FROM {TableName}
+				join {FTSTableName} on {TableName}.FileName = {FTSTableName}.FileName
+				WHERE [Exists] = 1 and {FTSTableName} MATCH @filter";
+			}
+			else
+			{
+				sql = $@"SELECT 
+					FileName,
+					LastUpdated,
+					IFNULL(PromptHash,"") + IFNULL(NegativePromptHash,"") as FullPromptHash
+				FROM {TableName}
+				WHERE [Exists] = 1";
+			}
+
+			if (queryParams.ModelFilter != null)
+			{
+				sql += BuildModelWhereClause(queryParams.ModelFilter);
+			}
+
+			return sql;
+		}
+
+		private static string BuildModelWhereClause(ModelFilter modelFilter)
+		{
+			var Sql = string.Empty;
+			if (modelFilter.Model == null)
+			{
+				Sql += " AND Model IS NULL";
+			}
+			else
+			{
+				Sql += " AND Model = @model";
+			}
+
+			if (modelFilter.ModelHash == null)
+			{
+				Sql += " AND ModelHash IS NULL";
+			}
+			else
+			{
+				Sql += " AND ModelHash = @modelHash";
+			}
+			return Sql;
 		}
 
 		public PngFile ReadPngFile(string realFileName)
@@ -372,6 +301,28 @@ namespace SDMetaTool.Cache
 		public void Truncate()
 		{
 			ExecuteOnConnection(connection => connection.Execute($"DELETE FROM {TableName}"));
+			ExecuteOnConnection(connection => connection.Execute($"DELETE FROM {FTSTableName}"));
+		}
+
+		public void PostUpdateProcessing()
+		{
+			ExecuteOnConnection(connection =>
+				connection.Execute(
+					$@"INSERT INTO {FTSTableName} (FileName, Prompt, NegativePrompt, Params, Version) 
+					SELECT FileName, Prompt, NegativePrompt, Params, Version FROM {TableName}  
+					WHERE FileName NOT IN (SELECT FileName from {FTSTableName})",
+				this.transaction));
+
+			ExecuteOnConnection(connection =>
+				connection.Execute(
+					$@"UPDATE {FTSTableName} SET
+						Prompt = p.Prompt,
+						NegativePrompt = p.NegativePrompt,
+						Params = p.Params,
+						Version = p.Version
+					FROM {TableName} p
+					WHERE {FTSTableName}.FileName = p.FileName and {FTSTableName}.Version != p.Version",
+				this.transaction));
 		}
 	}
 

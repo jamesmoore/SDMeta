@@ -14,6 +14,7 @@ namespace SDMetaTool.Cache
 		void CommitTransaction();
         IEnumerable<ModelSummary> GetModelSummaryList();
 		void Truncate();
+		void PostUpdateProcessing();
 	}
 
 	public class QueryParams
