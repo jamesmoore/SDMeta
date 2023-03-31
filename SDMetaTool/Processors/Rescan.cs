@@ -64,6 +64,7 @@ namespace SDMetaTool.Processors
 				}
 			}
 			pngFileDataSource.CommitTransaction();
+			pngFileDataSource.PostUpdateProcessing();
 			logger.Info("Rescan finished");
 		}
 
@@ -72,6 +73,8 @@ namespace SDMetaTool.Processors
 			if (position % steps == 0)
 			{
 				ProgressNotification?.Invoke(this, multiplier * position / steps);
+				pngFileDataSource?.CommitTransaction();
+				pngFileDataSource?.BeginTransaction();
 			}
 		}
 	}

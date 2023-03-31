@@ -35,7 +35,7 @@ else
 		<div class="row py-2 menu-bar">
 			<div class="col-md-3 col-xs-12 py-2 py-md-0">
 				<label class="visually-hidden" for="filterInput">Filter</label>
-				<input type="search" @oninput="onInputDebounced" class="form-control" id="filterInput" placeholder="filter" @bind-value=@FilterInput>
+				<input type="search" @oninput="onInputDebounced" class="form-control @(viewModel.FilterError ? "is-invalid" : string.IsNullOrWhiteSpace(viewModel.Filter) ? "" : "is-valid" )" id="filterInput" placeholder="filter" @bind-value=@FilterInput>
 			</div>
 			<div class="col-md-3 col-xs-12 py-2 py-md-0">
 				<label class="visually-hidden" for="modelSelect">Models</label>

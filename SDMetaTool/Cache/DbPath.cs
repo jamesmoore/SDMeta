@@ -11,6 +11,6 @@ namespace SDMetaTool.Cache
 			this.fileSystem = fileSystem;
 		}
 
-		public string GetPath() => fileSystem.Path.Combine(new DataPath(fileSystem).GetPath(), "cache.db");
+		public string GetPath() => fileSystem.Path.Combine(new DataPath(fileSystem).GetPath(), "cacheFTS.db");
 	}
 }

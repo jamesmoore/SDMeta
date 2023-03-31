@@ -21,6 +21,8 @@ namespace SDMetaUI.Models
 		private readonly PngFileViewModelBuilder pngFileViewModelBuilder;
 		private IList<PngFileViewModel> filteredFiles;
 
+		public bool FilterError { get; private set; }
+
 		private ModelSummaryViewModel modelFilter;
 		public ModelSummaryViewModel ModelFilter
 		{
@@ -60,9 +62,10 @@ namespace SDMetaUI.Models
 
 		public bool IsReadOnly => throw new NotImplementedException();
 
-		public PngFileViewModel this[int index] { 
+		public PngFileViewModel this[int index]
+		{
 			get => this.filteredFiles[index];
-			set => throw new NotImplementedException(); 
+			set => throw new NotImplementedException();
 		}
 
 		public void RunFilter()
@@ -76,7 +79,22 @@ namespace SDMetaUI.Models
 					ModelHash = this.modelFilter.ModelHash,
 				}
 			};
-			filteredFiles = pngFileDataSource.Query(queryParams).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
+			try
+			{
+				filteredFiles = pngFileDataSource.Query(queryParams).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
+				this.FilterError = false;
+			}
+			catch (Exception ex)
+			{
+				if(ex.Message.Contains("fts5"))
+				{
+					this.FilterError = true;
+				}
+				else
+				{
+					throw;
+				}
+			}
 			postFilteringAction();
 		}
 

@@ -147,6 +147,10 @@ namespace SDMetaTool.Cache
 			this.cache.Clear();
 		}
 
+		public void PostUpdateProcessing()
+		{
+		}
+
 		internal class PngFileDTO
 		{
 			public string FileName { get; set; }

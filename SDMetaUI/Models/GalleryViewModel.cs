@@ -45,6 +45,8 @@ namespace SDMetaUI.Models
 			set => filteredList.Filter = value;
 		}
 
+		public bool FilterError => filteredList.FilterError;
+
 		private void PostFiltering()
 		{
 			if (SelectedFile != null)
