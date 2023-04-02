@@ -26,61 +26,29 @@
 			</div>
 		</div>
 
-		@if (string.IsNullOrWhiteSpace(@selectedFileParams?.Prompt) == false)
+		@if (this.HasPrompt)
 		{
 			<hr style="margin-top: 4px; margin-bottom: 4px;" />
 			<div style="flex: 1 1 auto; overflow-y: auto;" class="scroll">
 				@foreach (var x in promptLines)
 				{
-					<div class="preformatted">@((MarkupString)x)</div>
+					<div class="preformatted">
+						@(
+							(MarkupString)x
+							)
+					</div>
 				}
 			</div>
-			<hr style="margin-top: 4px; margin-bottom: 8px;" />
-			<div style="flex: 1 1 auto">
+		}
+		<hr style="margin-top: 4px; margin-bottom: 8px;" />
+		<div style="flex: 1 1 auto">
+			@if (this.HasPrompt)
+			{
 				<HxButton Outline="false" Icon="BootstrapIcon.Clipboard" Size="ButtonSize.Small" Text="Copy" Color="ThemeColor.Primary" @onclick="CopyTextToClipboard" />
 				<textarea id="selectedFileParams-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@selectedFileParams?.GetFullPrompt()</textarea>
-				<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Size="ButtonSize.Small" Text="View" Color="ThemeColor.Primary" @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
-				<HxButton Outline="false" Icon="BootstrapIcon.Trash" Size="ButtonSize.Small" Text="Delete" Color="ThemeColor.Danger" @onclick="(e) => onDelete.InvokeAsync(e)" accesskey="x" CssClass="float-end mx-2" />
-			</div>
-		}
+			}
+			<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Size="ButtonSize.Small" Text="View" Color="ThemeColor.Primary" @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
+			<HxButton Outline="false" Icon="BootstrapIcon.Trash" Size="ButtonSize.Small" Text="Delete" Color="ThemeColor.Danger" @onclick="(e) => onDelete.InvokeAsync(e)" accesskey="x" CssClass="float-end mx-2" />
+		</div>
 	</div>
 </div>
-
-@code {
-	[Parameter]
-	public PngFileViewModel selectedFile { get; set; }
-
-	[Parameter]
-	public EventCallback<MouseEventArgs> onDelete { get; set; }
-
-	[Parameter]
-	public EventCallback<MouseEventArgs> onClose { get; set; }
-
-	[Parameter]
-	public EventCallback<MouseEventArgs> onFullScreenView { get; set; }
-
-	private GenerationParams? selectedFileParams;
-
-	private string fileSize;
-	private string lastUpdated;
-
-	private IEnumerable<string> promptLines;
-
-	protected override Task OnParametersSetAsync()
-	{
-		var realFile = pngfileDataSource.ReadPngFile(selectedFile.FileName);
-		fileSize = realFile.Length.GetBytesReadable();
-		lastUpdated = realFile.LastUpdated.ToString();
-		selectedFileParams = realFile?.Parameters;
-
-		this.promptLines = selectedFileParams?.GetFullPrompt().Split("\n").Select(p => p.Trim()).Select(p => p.FormatPromptLine()).ToList();
-
-		return base.OnParametersSetAsync();
-	}
-
-	private async Task CopyTextToClipboard()
-	{
-		await JSRuntime.InvokeVoidAsync("copyClipboard", "selectedFileParams-textarea");
-		Messenger.AddInformation(title: "Prompt", message: "Copied to clipboard");
-	}
-}
