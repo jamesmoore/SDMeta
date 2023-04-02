@@ -23,6 +23,8 @@ namespace SDMetaUI.Pages
 		private int Added = 0;
 		private int Removed = 0;
 
+		public string PageTitle => "Gallery" + (string.IsNullOrWhiteSpace(this.Filter) ? "" : " - " + this.Filter);
+
 		/// <summary>
 		/// For when the back/forward navigation is clicked
 		/// </summary>
