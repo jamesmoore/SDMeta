@@ -30,7 +30,7 @@
     bottom: 0;
     /* z-index: var(--bs-offcanvas-zindex); */
     display: flex;
-/*    flex-direction: column;*/
+    /*    flex-direction: column;*/
     /* max-width: 100%; */
     /* color: var(--bs-offcanvas-color); */
     /* visibility: hidden; */
@@ -43,12 +43,7 @@
     max-height: 50%;
 }
 
-.container-fluid {
+.row > * {
     padding-left: 8px;
     padding-right: 8px;
-}
-
-.row {
-    margin-left: -8px;
-    margin-right: -8px;
 }
