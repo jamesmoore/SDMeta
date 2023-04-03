@@ -21,23 +21,21 @@ namespace SDMetaUI.Shared
 		[Parameter]
 		public EventCallback<MouseEventArgs> onFullScreenView { get; set; }
 
-		private GenerationParams? selectedFileParams;
-
 		private string fileSize;
 		private string lastUpdated;
 
 		private IEnumerable<string> promptLines;
+		private string fullPrompt;
 
-		private bool HasPrompt => string.IsNullOrWhiteSpace(@selectedFileParams?.Prompt) == false;
+		private bool HasPrompt => this.promptLines != null && this.promptLines.Any();
 
 		protected override Task OnParametersSetAsync()
 		{
 			var realFile = pngfileDataSource.ReadPngFile(selectedFile.FileName);
 			fileSize = realFile.Length.GetBytesReadable();
 			lastUpdated = realFile.LastUpdated.ToString();
-			selectedFileParams = realFile?.Parameters;
-
-			this.promptLines = selectedFileParams?.GetFullPrompt().Split("\n").Select(p => p.Trim()).Select(p => p.FormatPromptLine()).ToList();
+			this.fullPrompt = realFile?.Parameters?.GetFullPrompt();
+			this.promptLines = fullPrompt?.Split("\n").Select(p => p.Trim()).Select(p => p.FormatPromptLine()).ToList();
 
 			return base.OnParametersSetAsync();
 		}

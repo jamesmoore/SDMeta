@@ -25,7 +25,6 @@
     padding-bottom: 8px;
 }
 
-
 .boffcanvas {
     position: fixed;
     bottom: 0;
@@ -39,8 +38,12 @@
     /* background-clip: padding-box; */
     /* outline: 0; */
     /* transition: transform .3s ease-in-out; */
-
     background-color: var(--bs-body-bg);
     width: 100%;
     max-height: 50%;
+}
+
+.container-fluid {
+    padding-left: 8px;
+    padding-right: 8px;
 }

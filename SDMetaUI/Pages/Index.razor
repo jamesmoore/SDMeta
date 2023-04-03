@@ -24,86 +24,92 @@
 
 <PageTitle>@PageTitle</PageTitle>
 <HxMessenger Position="ToastContainerPosition.BottomCenter" />
-<HxProgressIndicator InProgress=@(viewModel.HasData==false)>
-	<div style="height: 100vh">
-		<div class="container-fluid sticky-top">
-			<div class="row py-2 menu-bar">
-				<div class="col-md-3 col-xs-12 py-2 py-md-0">
-					<label class="visually-hidden" for="filterInput">Filter</label>
-					<input type="search" @oninput="onInputDebounced" class="form-control @(viewModel.FilterError ? "is-invalid" : string.IsNullOrWhiteSpace(viewModel.Filter) ? "" : "is-valid" )" id="filterInput" placeholder="filter" @bind-value=@FilterInput>
-				</div>
-				<div class="col-md-3 col-xs-12 py-2 py-md-0">
-					<label class="visually-hidden" for="modelSelect">Models</label>
-					<select class="form-select" id="modelSelect" @onchange="OnSelectModel">
-						@foreach (var template in this.modelsList)
-						{
-							<option value=@template.Id>@(template.Text)</option>
-						}
-					</select>
-				</div>
-				<div class="col-auto d-flex align-items-center py-2 py-md-0">
-					<HxSwitch Text="Group by prompt" @bind-Value="@viewModel.IsGrouped" />
-				</div>
-				<div class="col-auto py-2 py-md-1">
-					<HxButton Outline="false" Size="ButtonSize.Small" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" CssClass="position-relative">
-						@if (this.Added != 0)
-						{
-							<HxBadge Color="ThemeColor.Success" CssClass="position-absolute top-0 start-100 translate-middle">+@this.Added</HxBadge>
-						}
-						@if (this.Removed != 0)
-						{
-							<HxBadge Color="ThemeColor.Danger" CssClass="position-absolute top-100 start-100 translate-middle">-@this.Removed</HxBadge>
-						}
-					</HxButton>
-				</div>
-				<div class="col-auto ms-auto">
-					@viewModel.FilteredFileCount items
-					<HxButton Outline="false" Icon="BootstrapIcon.Gear" Text="" Color="ThemeColor.Link" @onclick=@(() => NavigationManager.NavigateTo("/settings")) />
-				</div>
-				@if (scanProgess > 0)
-				{
-					<div class="pt-2">
-						<HxProgress Height="2">
-							<HxProgressBar Value=@scanProgess Color="ThemeColor.Info" />
-						</HxProgress>
-					</div>
-				}
+
+@if (viewModel.HasData)
+{
+	<div class="container-fluid sticky-top">
+		<div class="row py-2 menu-bar">
+			<div class="col-md-3 col-xs-12 py-2 py-md-0">
+				<label class="visually-hidden" for="filterInput">Filter</label>
+				<input type="search" @oninput="onInputDebounced" class="form-control @(viewModel.FilterError ? "is-invalid" : string.IsNullOrWhiteSpace(viewModel.Filter) ? "" : "is-valid" )" id="filterInput" placeholder="filter" @bind-value=@FilterInput>
 			</div>
-		</div>
-		<div class="thumbnail-background">
-			@if (viewModel.Rows != null)
+			<div class="col-md-3 col-xs-12 py-2 py-md-0">
+				<label class="visually-hidden" for="modelSelect">Models</label>
+				<select class="form-select" id="modelSelect" @onchange="OnSelectModel">
+					@foreach (var template in this.modelsList)
+					{
+						<option value=@template.Id>@(template.Text)</option>
+					}
+				</select>
+			</div>
+			<div class="col-auto d-flex align-items-center py-2 py-md-0">
+				<HxSwitch Text="Group by prompt" @bind-Value="@viewModel.IsGrouped" />
+			</div>
+			<div class="col-auto py-2 py-md-1">
+				<HxButton Outline="false" Size="ButtonSize.Small" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" CssClass="position-relative">
+					@if (this.Added != 0)
+					{
+						<HxBadge Color="ThemeColor.Success" CssClass="position-absolute top-0 start-100 translate-middle">+@this.Added</HxBadge>
+					}
+					@if (this.Removed != 0)
+					{
+						<HxBadge Color="ThemeColor.Danger" CssClass="position-absolute top-100 start-100 translate-middle">-@this.Removed</HxBadge>
+					}
+				</HxButton>
+			</div>
+			<div class="col-auto ms-auto">
+				@viewModel.FilteredFileCount items
+				<HxButton Outline="false" Icon="BootstrapIcon.Gear" Text="" Color="ThemeColor.Link" @onclick=@(() => NavigationManager.NavigateTo("/settings")) />
+			</div>
+			@if (scanProgess > 0)
 			{
-				<Virtualize Items=@viewModel.Rows Context="row" OverscanCount="5" ItemSize="@(ThumbnailService.ThumbnailSize + 8 * 2)">
-					<div class="@((row.IsSubGroup ? "expanded-background" : "") + (row.IsStartOfGroup ? " expanded-top" : "") + (row.IsEndOfGroup ? " expanded-bottom": "" ))">
-						@foreach (var file in row)
-						{
-							var selected = viewModel.SelectedFile == file;
-							@if (viewModel.IsGrouped == false || row.IsSubGroup)
-							{
-								<Thumbnail File=@file Selected=@selected Expanded=@row.IsSubGroup onclick="(e) => imageClick(file)" @key=@file Text="" />
-							}
-							else if (file == viewModel.ExpandedFile)
-							{
-								<div class="expanded-tab">
-									<Thumbnail File=@file Selected=false onclick="(e) => imageClickParent(file)" @key=@file Text=@(file?.SubItems?.Count.ToString()) />
-								</div>
-							}
-							else
-							{
-								<Thumbnail File=@file Selected=false onclick="(e) => imageClickParent(file)" @key=@file Text="@(file?.SubItems?.Count.ToString())" />
-							}
-						}
-					</div>
-				</Virtualize>
+				<div class="pt-2">
+					<HxProgress Height="2">
+						<HxProgressBar Value=@scanProgess Color="ThemeColor.Info" />
+					</HxProgress>
+				</div>
 			}
 		</div>
 	</div>
-</HxProgressIndicator>
-@if (viewModel.SelectedFile != null)
-{
-	<div class="boffcanvas py-2">
-		<FilePanel selectedFile=@viewModel.SelectedFile onDelete="() => imageDelete()" onFullScreenView="(e) => fullScreenView.ShowAsync()" onClose="(e) => viewModel.SelectedFile = null" />
+	<div class="thumbnail-background">
+		@if (viewModel.Rows != null)
+		{
+			<Virtualize Items=@viewModel.Rows Context="row" OverscanCount="5" ItemSize="@(ThumbnailService.ThumbnailSize + 8 * 2)">
+				<div class="@((row.IsSubGroup ? "expanded-background" : "") + (row.IsStartOfGroup ? " expanded-top" : "") + (row.IsEndOfGroup ? " expanded-bottom": "" ))">
+					@foreach (var file in row)
+					{
+						var selected = viewModel.SelectedFile == file;
+						@if (viewModel.IsGrouped == false || row.IsSubGroup)
+						{
+							<Thumbnail File=@file Selected=@selected Expanded=@row.IsSubGroup onclick="(e) => imageClick(file)" @key=@file Text="" />
+						}
+						else if (file == viewModel.ExpandedFile)
+						{
+							<div class="expanded-tab">
+								<Thumbnail File=@file Selected=false onclick="(e) => imageClickParent(file)" @key=@file Text=@(file?.SubItems?.Count.ToString()) />
+							</div>
+						}
+						else
+						{
+							<Thumbnail File=@file Selected=false onclick="(e) => imageClickParent(file)" @key=@file Text="@(file?.SubItems?.Count.ToString())" />
+						}
+					}
+				</div>
+			</Virtualize>
+		}
 	</div>
+	@if (viewModel.SelectedFile != null)
+	{
+		<div class="boffcanvas py-2">
+			<FilePanel selectedFile=@viewModel.SelectedFile onDelete="() => imageDelete()" onFullScreenView="(e) => fullScreenView.ShowAsync()" onClose="(e) => viewModel.SelectedFile = null" />
+		</div>
+		<FullScreenView @ref=@fullScreenView selectedFile=@viewModel.SelectedFile onLeft=@leftKey onRight=@rightKey />
+	}
 }
-
-<FullScreenView @ref=@fullScreenView selectedFile=@viewModel.SelectedFile onLeft=@leftKey onRight=@rightKey />
+else
+{
+	<HxProgressIndicator InProgress=true>
+		<div style="height: 100vh">
+		</div>
+	</HxProgressIndicator>
+}

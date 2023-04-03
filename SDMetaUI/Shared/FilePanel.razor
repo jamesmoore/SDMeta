@@ -45,7 +45,7 @@
 			@if (this.HasPrompt)
 			{
 				<HxButton Outline="false" Icon="BootstrapIcon.Clipboard" Size="ButtonSize.Small" Text="Copy" Color="ThemeColor.Primary" @onclick="CopyTextToClipboard" />
-				<textarea id="selectedFileParams-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@selectedFileParams?.GetFullPrompt()</textarea>
+				<textarea id="selectedFileParams-textarea" cols="40" rows="5" style="position: absolute; left: -10000px;">@fullPrompt</textarea>
 			}
 			<HxButton Outline="false" Icon="BootstrapIcon.Fullscreen" Size="ButtonSize.Small" Text="View" Color="ThemeColor.Primary" @onclick="(e) => onFullScreenView.InvokeAsync(e)" />
 			<HxButton Outline="false" Icon="BootstrapIcon.Trash" Size="ButtonSize.Small" Text="Delete" Color="ThemeColor.Danger" @onclick="(e) => onDelete.InvokeAsync(e)" accesskey="x" CssClass="float-end mx-2" />
