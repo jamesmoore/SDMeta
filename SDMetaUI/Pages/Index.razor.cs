@@ -16,7 +16,6 @@ namespace SDMetaUI.Pages
 
 		private FullScreenView? fullScreenView;
 
-		GalleryViewModel viewModel = null;
 		Action<ChangeEventArgs> onInputDebounced;
 
 		IList<ModelSummaryViewModel> modelsList;
@@ -42,7 +41,6 @@ namespace SDMetaUI.Pages
 
 		protected override Task OnParametersSetAsync()
 		{
-			this.viewModel = new GalleryViewModel(this.pngfileDataSource, pngFileViewModelBuilder);
 			this.modelsList = this.pngfileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel(p, i + 1)).ToList();
 			modelsList.Insert(0, new ModelSummaryViewModel());
 			NavigationManager.LocationChanged += LocationChanged;
@@ -172,12 +170,7 @@ namespace SDMetaUI.Pages
 				{
 					var filename = this.viewModel.SelectedFile.FileName;
 					this.FileSystemObserver.RegisterRemoval(filename);
-					File.Delete(filename);
-					var original = pngfileDataSource.ReadPngFile(filename);
-					original.Exists = false;
-					pngfileDataSource.WritePngFile(original);
 					this.thumbnailService.Delete(filename);
-
 					this.viewModel.RemoveFile();
 					this.StateHasChanged();
 				}
