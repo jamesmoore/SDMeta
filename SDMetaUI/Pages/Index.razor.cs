@@ -39,7 +39,7 @@ namespace SDMetaUI.Pages
 			}
 		}
 
-		protected override Task OnParametersSetAsync()
+		protected override void OnInitialized()
 		{
 			this.modelsList = this.pngfileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel(p, i + 1)).ToList();
 			modelsList.Insert(0, new ModelSummaryViewModel());
@@ -47,7 +47,6 @@ namespace SDMetaUI.Pages
 			FileSystemObserver.FileSystemChanged += OnFileSystemChanged;
 			FileSystemObserver.Start();
 			this.rescan.ProgressNotification += ProgressNotification;
-			return base.OnParametersSetAsync();
 		}
 
 		private float scanProgess = 0;
