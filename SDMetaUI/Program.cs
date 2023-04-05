@@ -75,6 +75,7 @@ static void AddCustomServices(WebApplicationBuilder builder)
 		x.GetRequiredService<IPngFileDataSource>()
 		));
 	builder.Services.AddScoped<Rescan>();
+	builder.Services.AddScoped<GalleryViewModel>();
 	builder.Services.AddSingleton<IThumbnailService, ThumbnailService>();
 	builder.Services.AddSingleton<PngFileViewModelBuilder>();
 	builder.Services.AddSingleton<FileSystemObserver>();

@@ -11,6 +11,7 @@ namespace SDMetaUI.Models
 		{
 			this.filteredList = new FilteredList(pngFileDataSource, pngFileViewModelBuilder, PostFiltering);
 			this.groupList = new FlatList(filteredList, PostGrouping);
+			this.pngFileDataSource = pngFileDataSource;
 		}
 
 		private void PostGrouping()
@@ -20,6 +21,7 @@ namespace SDMetaUI.Models
 
 		private IGroupList groupList;
 		private readonly FilteredList filteredList;
+		private readonly IPngFileDataSource pngFileDataSource;
 
 		public PngFileViewModel? SelectedFile { get; set; }
 		public PngFileViewModel? ExpandedFile => (this.groupList as IExpandable)?.ExpandedFile;
@@ -92,6 +94,12 @@ namespace SDMetaUI.Models
 		{
 			if (this.SelectedFile != null)
 			{
+				var filename = this.SelectedFile.FileName;
+				File.Delete(filename);
+				var original = pngFileDataSource.ReadPngFile(filename);
+				original.Exists = false;
+				pngFileDataSource.WritePngFile(original);
+
 				var next = this.groupList.GetNext(this.SelectedFile);
 				if (next == this.SelectedFile) next = null;
 				filteredList.Remove(this.SelectedFile);
@@ -115,6 +123,13 @@ namespace SDMetaUI.Models
 		public void ToggleExpandedState(PngFileViewModel model)
 		{
 			(groupList as IExpandable)?.ToggleExpandedState(model);
+		}
+
+		public IList<ModelSummaryViewModel> GetModelsList()
+		{
+			var modelsList = this.pngFileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel(p, i + 1)).ToList();
+			modelsList.Insert(0, new ModelSummaryViewModel());
+			return modelsList;
 		}
 	}
 }
