@@ -13,6 +13,8 @@
 	<link href="SDMetaUI.styles.css" rel="stylesheet" />
 	<link href="css/site.css" rel="stylesheet" />
 	<link rel="icon" type="image/png" href="favicon.png" />
+	<link href="manifest.json" rel="manifest" />
+	<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
 	<component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 
 	<!-- Standard Bootstrap CSS from CDN -->
@@ -53,6 +55,6 @@
 			document.execCommand("copy");
 		}
 	</script>
-
+	<script>navigator.serviceWorker.register('service-worker.js');</script>
 </body>
 </html>
