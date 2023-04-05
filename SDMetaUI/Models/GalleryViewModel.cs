@@ -124,5 +124,12 @@ namespace SDMetaUI.Models
 		{
 			(groupList as IExpandable)?.ToggleExpandedState(model);
 		}
+
+		public IList<ModelSummaryViewModel> GetModelsList()
+		{
+			var modelsList = this.pngFileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel(p, i + 1)).ToList();
+			modelsList.Insert(0, new ModelSummaryViewModel());
+			return modelsList;
+		}
 	}
 }

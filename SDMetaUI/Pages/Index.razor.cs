@@ -41,8 +41,7 @@ namespace SDMetaUI.Pages
 
 		protected override void OnInitialized()
 		{
-			this.modelsList = this.pngfileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel(p, i + 1)).ToList();
-			modelsList.Insert(0, new ModelSummaryViewModel());
+			this.modelsList = viewModel.GetModelsList();
 			NavigationManager.LocationChanged += LocationChanged;
 			FileSystemObserver.FileSystemChanged += OnFileSystemChanged;
 			FileSystemObserver.Start();
