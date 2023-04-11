@@ -162,7 +162,6 @@ namespace SDMetaUI.Pages
 				{
 					var filename = this.viewModel.SelectedFile.FileName;
 					this.FileSystemObserver.RegisterRemoval(filename);
-					this.thumbnailService.Delete(filename);
 					this.viewModel.RemoveFile();
 					this.StateHasChanged();
 				}

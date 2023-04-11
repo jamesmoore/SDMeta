@@ -7,11 +7,13 @@ namespace SDMetaUI.Models
 	{
 		public GalleryViewModel(
 			IPngFileDataSource pngFileDataSource,
-			PngFileViewModelBuilder pngFileViewModelBuilder)
+			PngFileViewModelBuilder pngFileViewModelBuilder,
+			IThumbnailService thumbnailService)
 		{
 			this.filteredList = new FilteredList(pngFileDataSource, pngFileViewModelBuilder, PostFiltering);
 			this.groupList = new FlatList(filteredList, PostGrouping);
 			this.pngFileDataSource = pngFileDataSource;
+			this.thumbnailService = thumbnailService;
 		}
 
 		private void PostGrouping()
@@ -22,6 +24,7 @@ namespace SDMetaUI.Models
 		private IGroupList groupList;
 		private readonly FilteredList filteredList;
 		private readonly IPngFileDataSource pngFileDataSource;
+		private readonly IThumbnailService thumbnailService;
 
 		public PngFileViewModel? SelectedFile { get; set; }
 		public PngFileViewModel? ExpandedFile => (this.groupList as IExpandable)?.ExpandedFile;
@@ -95,6 +98,7 @@ namespace SDMetaUI.Models
 			if (this.SelectedFile != null)
 			{
 				var filename = this.SelectedFile.FileName;
+				this.thumbnailService.Delete(filename);
 				File.Delete(filename);
 				var original = pngFileDataSource.ReadPngFile(filename);
 				original.Exists = false;
