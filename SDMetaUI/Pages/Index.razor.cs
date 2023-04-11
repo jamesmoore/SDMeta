@@ -19,8 +19,8 @@ namespace SDMetaUI.Pages
 		Action<ChangeEventArgs> onInputDebounced;
 
 		IList<ModelSummaryViewModel> modelsList;
-		private int Added = 0;
-		private int Removed = 0;
+		private int Added => this.FileSystemObserver.Added;
+		private int Removed => this.FileSystemObserver.Removed;
 
 		public string PageTitle => "Gallery" + (string.IsNullOrWhiteSpace(this.Filter) ? "" : " - " + this.Filter);
 
@@ -44,7 +44,6 @@ namespace SDMetaUI.Pages
 			this.modelsList = viewModel.GetModelsList();
 			NavigationManager.LocationChanged += LocationChanged;
 			FileSystemObserver.FileSystemChanged += OnFileSystemChanged;
-			FileSystemObserver.Start();
 			this.rescan.ProgressNotification += ProgressNotification;
 		}
 
@@ -61,11 +60,8 @@ namespace SDMetaUI.Pages
 
 		private void OnFileSystemChanged(object sender, FileSystemEventArgs e)
 		{
-			logger.LogInformation("Filesystem change: " + e.ChangeType + " " + e.FullPath);
 			this.InvokeAsync(() =>
 			{
-				this.Added = this.FileSystemObserver.Added;
-				this.Removed = this.FileSystemObserver.Removed;
 				this.StateHasChanged();
 			});
 		}
@@ -143,8 +139,6 @@ namespace SDMetaUI.Pages
 			await Task.Run(() =>
 			{
 				this.FileSystemObserver.Reset();
-				this.Added = 0;
-				this.Removed = 0;
 				var directory = imageDir.GetPath();
 				this.rescan.ProcessPngFiles(directory);
 				logger.LogInformation("Rescan done");

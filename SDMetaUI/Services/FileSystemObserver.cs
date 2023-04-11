@@ -7,6 +7,7 @@
 		public FileSystemObserver(ImageDir configuration)
 		{
 			this.configuration = configuration;
+			this.Start();
 		}
 
 		public event FileSystemEventHandler FileSystemChanged;
@@ -15,7 +16,7 @@
 		private readonly IList<string> removedInAdvanced = new List<string>();
 		private FileSystemWatcher watcher;
 
-		public void Start()
+		private void Start()
 		{
 			if (watcher == null)
 			{
@@ -89,6 +90,7 @@
 		{
 			this.added.Clear();
 			this.removed.Clear();
+			if (this.FileSystemChanged != null) { this.FileSystemChanged(this, null); }
 		}
 	}
 }
