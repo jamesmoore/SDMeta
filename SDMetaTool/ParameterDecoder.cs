@@ -14,7 +14,7 @@ namespace SDMetaTool
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
 		private const string NegativePromptPrefix = "Negative prompt:";
-		private const string SingleParameterRegexString = @"\s*([\w ]+):\s*(""(?:\\|\""|[^\""])+""|[^,]*)(?:,|$)";
+		private const string SingleParameterRegexString = """\s*([\w\/ ]+):\s*("(?:\\"[^,]|\\"|\\|[^\"])+"|[^,]*)(?:,|$)""";
 		private const string MultipleParameterRegexString = "^(?:" + SingleParameterRegexString + "){3,}$";
 		private const string ImageSize = @"^(\d+)x(\d+)$";
 		private const string WildcardPrompt = @",?\s?Wildcard prompt: ""[\S\s]*""";
