@@ -14,7 +14,7 @@
 		<PackageReference Include="PhotoSauce.MagicScaler" Version="0.13.2" />
 		<PackageReference Include="PhotoSauce.NativeCodecs.Libjpeg" Version="2.1.4-preview1" />
 		<PackageReference Include="PhotoSauce.NativeCodecs.Libpng" Version="1.6.37-preview1" />
-		<PackageReference Include="TestableIO.System.IO.Abstractions" Version="19.2.61" />
+		<PackageReference Include="TestableIO.System.IO.Abstractions" Version="19.2.64" />
 	</ItemGroup>
 
 	<ItemGroup>
