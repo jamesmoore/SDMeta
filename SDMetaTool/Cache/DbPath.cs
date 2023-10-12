@@ -18,6 +18,7 @@ namespace SDMetaTool.Cache
 
 		internal void CreateIfMissing()
 		{
+			dataPath.CreateIfMissing();
 		}
 	}
 }

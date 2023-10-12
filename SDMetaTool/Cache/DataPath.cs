@@ -16,5 +16,14 @@ namespace SDMetaTool.Cache
 		public string GetPath() => (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) ? 
 			"/var/lib/" + Application.ApplicationName.ToLower()
 			: fileSystem.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ApplicationName);
+
+		internal void CreateIfMissing()
+		{
+			var path = GetPath();
+			if(fileSystem.Directory.Exists(path) == false)
+			{
+				fileSystem.Directory.CreateDirectory(path);
+			}
+		}
 	}
 }
