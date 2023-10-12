@@ -67,6 +67,8 @@ static void AddCustomServices(WebApplicationBuilder builder)
 	builder.Services.AddResizeListener();
 
 	builder.Services.AddSingleton<IFileSystem, FileSystem>();
+	builder.Services.AddSingleton<DataPath>();
+	builder.Services.AddSingleton<DbPath>();
 	builder.Services.AddScoped<IPngFileDataSource, SqliteDataSource>();
 	builder.Services.AddSingleton<IFileLister, FileLister>();
 	builder.Services.AddScoped<IPngFileLoader>(x => 

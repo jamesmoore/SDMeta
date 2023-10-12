@@ -58,11 +58,11 @@ namespace SDMetaTool.Cache
 
 		private readonly IEnumerable<(string Column, string Parameter, string DataType, bool IsPrimaryKey)> tabledef;
 		private readonly string insertSql;
-		private readonly IFileSystem fileSystem;
+        private readonly DbPath dbPath;
 
-		private string GetConnectionString()
+        private string GetConnectionString()
 		{
-			var path = new DbPath(fileSystem).GetPath();
+			var path = dbPath.GetPath();
 			logger.Info($"Using db at {path}");
 			var connectionString = $"Data Source={path}";
 			return connectionString;
@@ -91,10 +91,13 @@ namespace SDMetaTool.Cache
 				return func(connection);
 			}
 		}
-		public SqliteDataSource(IFileSystem fileSystem)
+		public SqliteDataSource(DbPath dbPath)
 		{
-			this.fileSystem = fileSystem;
-			this.ConnectionString = new Lazy<string>(() => GetConnectionString());
+            this.dbPath = dbPath;
+            this.ConnectionString = new Lazy<string>(() => GetConnectionString());
+
+			dbPath.CreateIfMissing();
+
 
 			tabledef = columns.Select(p => (
 				Column: p,

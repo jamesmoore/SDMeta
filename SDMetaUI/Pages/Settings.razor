@@ -70,7 +70,7 @@
 
 	protected override void OnInitialized()
 	{
-		this.dbPath = new DbPath(fileSystem).GetPath();
+		this.dbPath = new DbPath(fileSystem, new DataPath(fileSystem)).GetPath();
 		SetDbSize();
 	}
 

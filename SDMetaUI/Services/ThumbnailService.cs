@@ -11,10 +11,12 @@ namespace SDMetaUI.Services
 		public const int ThumbnailSize = 175;
 
 		private readonly IFileSystem fileSystem;
+		private readonly DataPath dataPath;
 
-		public ThumbnailService(IFileSystem fileSystem)
+		public ThumbnailService(IFileSystem fileSystem, DataPath dataPath)
 		{
 			this.fileSystem = fileSystem;
+			this.dataPath = dataPath;
 		}
 
 		public string GetOrGenerateThumbnail(string fullName)
@@ -23,7 +25,7 @@ namespace SDMetaUI.Services
 
 			if (fileSystem.File.Exists(thumbnailFullName) == false)
 			{
-				MagicImageProcessor.ProcessImage(fullName, thumbnailFullName, new ProcessImageSettings { Height = ThumbnailSize, Width = ThumbnailSize });
+				var result = MagicImageProcessor.ProcessImage(fullName, thumbnailFullName, new ProcessImageSettings { Height = ThumbnailSize, Width = ThumbnailSize });
 			}
 
 			return thumbnailFullName;
@@ -75,7 +77,7 @@ namespace SDMetaUI.Services
 		public string GetThumbnailDirectory()
 		{
 			return fileSystem.Path.Combine(
-				new DataPath(fileSystem).GetPath(),
+				dataPath.GetPath(),
 				"cache",
 				"thumbs"
 				);

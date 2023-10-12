@@ -11,20 +11,19 @@ namespace SDMetaTool
     {
         static async Task<int> Main(string[] args)
         {
-			var fileSystem = new FileSystem();
-			using var sqliteDataSource = new SqliteDataSource(fileSystem);
-            var datasource = sqliteDataSource;
-			var loader = new CachedPngFileLoader(fileSystem, new PngFileLoader(fileSystem), datasource);
-			var fileLister = new FileLister(fileSystem);
-			return await Main(args, fileLister, datasource, loader);
-		}
+            var fileSystem = new FileSystem();
+            using var sqliteDataSource = new SqliteDataSource(new DbPath(fileSystem, new DataPath(fileSystem)));
+            var loader = new CachedPngFileLoader(fileSystem, new PngFileLoader(fileSystem), sqliteDataSource);
+            var fileLister = new FileLister(fileSystem);
+            return await Main(args, fileLister, sqliteDataSource, loader);
+        }
 
         public static async Task<int> Main(
-            string[] args, 
-            IFileLister fileLister, 
+            string[] args,
+            IFileLister fileLister,
             IPngFileDataSource pngFileDataSource,
-			IPngFileLoader loader
-			)
+            IPngFileLoader loader
+            )
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
@@ -43,16 +42,16 @@ namespace SDMetaTool
             infoCommand.AddOption(outfileOption);
             infoCommand.SetHandler((string path, string outfile) => new SummaryInfo(fileLister, loader).ProcessPngFiles(path), pathArgument, outfileOption);
 
-			var rescanCommand = new Command("rescan", "Rescan dir. No output.");
-			rescanCommand.AddArgument(pathArgument);
-			rescanCommand.SetHandler((string path) => new Rescan(fileLister, pngFileDataSource, loader).ProcessPngFiles(path), pathArgument);
+            var rescanCommand = new Command("rescan", "Rescan dir. No output.");
+            rescanCommand.AddArgument(pathArgument);
+            rescanCommand.SetHandler((string path) => new Rescan(fileLister, pngFileDataSource, loader).ProcessPngFiles(path), pathArgument);
 
-			var parent = new RootCommand()
+            var parent = new RootCommand()
             {
                listCommand,
                infoCommand,
-			   rescanCommand,
-			};
+               rescanCommand,
+            };
 
             var result = await parent.InvokeAsync(args);
             return result;
