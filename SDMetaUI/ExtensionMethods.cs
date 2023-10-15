@@ -29,7 +29,7 @@ namespace SDMetaUI
 			}
 			else
 			{
-				var multipleParamsMatch = ParameterDecoder.MultipleParameterRegex().Match(s);
+				var multipleParamsMatch = Auto1111ParameterDecoder.MultipleParameterRegex().Match(s);
 
 				if (multipleParamsMatch.Success)
 				{

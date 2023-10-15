@@ -12,7 +12,6 @@ namespace SDMetaTool
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private readonly IFileSystem fileSystem;
-        private readonly ParameterDecoder decoder = new();
 
         public PngFileLoader(IFileSystem fileSystem)
         {
@@ -54,13 +53,20 @@ namespace SDMetaTool
                 {
                     foreach (var tag in tags.Where(t => t is not null && t.HasValue))
                     {
-                        if (tag.TryGetValue(out var metadataValue) && metadataValue is not null)
+                        if (tag.TryGetValue(out var metadataValue) && metadataValue is not null && metadataValue.Value is PngText)
                         {
-                            if (metadataValue.TagName == "parameters" && metadataValue.Value is PngText)
+							var rawParameters = (metadataValue.Value as PngText).TextValue;
+							if (metadataValue.TagName == "parameters")
                             {
-                                var rawParameters = (metadataValue.Value as PngText).TextValue;
-                                pngfile.Parameters = decoder.GetParameters(rawParameters);
+                                pngfile.Prompt = rawParameters;
+                                pngfile.PromptFormat = PromptFormat.Auto1111;
                             }
+                            else if (metadataValue.TagName == "prompt")
+                            {
+                                var prompt = rawParameters;
+								pngfile.Prompt = rawParameters;
+								pngfile.PromptFormat = PromptFormat.Comfy;
+							}
                         }
                     }
                 }

@@ -28,7 +28,6 @@ namespace SDMetaTool.Cache
 				string.IsNullOrWhiteSpace(f) ||
 				p.FileName.Contains(f) ||
 				p.Parameters != null && (
-					(p.Parameters.Seed == f) ||
 					(p.Parameters.Prompt.Contains(f))
 				)).
 			Select(p => new PngFileSummary()
@@ -48,7 +47,7 @@ namespace SDMetaTool.Cache
 				logger.Debug($"Reading cache at {path}");
 				var cacheJson = fileSystem.File.ReadAllText(path);
 				var deserialised = JsonSerializer.Deserialize<List<PngFileDTO>>(cacheJson);
-				var dictionary = deserialised.Select(PngFileDTOToPngFile).ToList();
+				var dictionary = deserialised.Select(p => p.ToPngFile()).ToList();
 				return dictionary;
 			}
 			else
@@ -62,7 +61,7 @@ namespace SDMetaTool.Cache
 			var path = cachePath.GetPath();
 
 			logger.Debug($"Flushing cache to {path}");
-			var serialized = JsonSerializer.Serialize(cache.Select(PngFileToPngFileDTO), new JsonSerializerOptions()
+			var serialized = JsonSerializer.Serialize(cache.Select(p => new PngFileDTO(p)), new JsonSerializerOptions()
 			{
 				WriteIndented = true,
 				DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
@@ -100,30 +99,6 @@ namespace SDMetaTool.Cache
 			this.WriteCache(cache.Values);
 		}
 
-		private static PngFile PngFileDTOToPngFile(PngFileDTO trackDTO)
-		{
-			return new PngFile()
-			{
-				FileName = trackDTO.FileName,
-				LastUpdated = trackDTO.LastUpdated,
-				Parameters = trackDTO.Parameters,
-				Length = trackDTO.Length,
-				Exists = trackDTO.Exists,
-			};
-		}
-
-		private static PngFileDTO PngFileToPngFileDTO(PngFile track)
-		{
-			return new PngFileDTO()
-			{
-				FileName = track.FileName,
-				LastUpdated = track.LastUpdated,
-				Parameters = track.Parameters,
-				Length = track.Length,
-				Exists = track.Exists,
-			};
-		}
-
 		public void BeginTransaction()
 		{
 		}
@@ -153,11 +128,35 @@ namespace SDMetaTool.Cache
 
 		internal class PngFileDTO
 		{
+			public PngFileDTO(PngFile track)
+			{
+				FileName = track.FileName;
+				LastUpdated = track.LastUpdated;
+				Prompt = track.Prompt;
+				PromptFormat = track.PromptFormat;
+				Length = track.Length;
+				Exists = track.Exists;
+			}
+
 			public string FileName { get; set; }
 			public DateTime LastUpdated { get; set; }
 			public long Length { get; set; }
-			public GenerationParams Parameters { get; set; }
+			public string Prompt { get; set; }
+			public PromptFormat PromptFormat { get; set; }
 			public bool Exists { get; set; }
+
+			public PngFile ToPngFile()
+			{
+				return new PngFile()
+				{
+					FileName = this.FileName,
+					LastUpdated = this.LastUpdated,
+					Prompt = this.Prompt,
+					PromptFormat = this.PromptFormat,
+					Length = this.Length,
+					Exists = this.Exists,
+				};
+			}
 		}
 	}
 }

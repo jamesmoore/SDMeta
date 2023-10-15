@@ -23,6 +23,7 @@ namespace SDMetaUI.Shared
 
 		private string fileSize;
 		private string lastUpdated;
+		private string promptFormat;
 
 		private IEnumerable<string> promptLines;
 		private string fullPrompt;
@@ -34,9 +35,9 @@ namespace SDMetaUI.Shared
 			var realFile = pngfileDataSource.ReadPngFile(selectedFile.FileName);
 			fileSize = realFile.Length.GetBytesReadable();
 			lastUpdated = realFile.LastUpdated.ToString();
-			this.fullPrompt = realFile?.Parameters?.GetFullPrompt();
+			this.fullPrompt = realFile?.Prompt;
 			this.promptLines = fullPrompt?.Split("\n").Select(p => p.Trim()).Select(p => p.FormatPromptLine()).ToList();
-
+			this.promptFormat = realFile.PromptFormat.ToString();
 			return base.OnParametersSetAsync();
 		}
 

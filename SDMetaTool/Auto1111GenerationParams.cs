@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace SDMetaTool
+﻿namespace SDMetaTool
 {
-    public partial class GenerationParams
-    {
-        public string Prompt { get; set; }
-        public string NegativePrompt { get; set; }
-        public string Params { get; set; }
-        public string Warnings { get; set; }
+	public partial class Auto1111GenerationParams
+	{
+		public string Prompt { get; set; }
+		public string NegativePrompt { get; set; }
+		public string Params { get; set; }
+		public string Warnings { get; set; }
 
 		public string Steps { get; set; }
 		public string Sampler { get; set; }
@@ -39,18 +36,5 @@ namespace SDMetaTool
 		public string NegativePromptHash { get; set; }
 		public string HiresUpscale { get; set; }
 		public string HiresSteps { get; set; }
-
-		public string GetFullPrompt()
-        {
-            var prompts = new List<string>()
-            {
-                this.Prompt,
-                string.IsNullOrWhiteSpace(this.NegativePrompt) ? string.Empty : "Negative prompt: " + this.NegativePrompt,
-                this.Params
-            };
-
-            var combined = string.Join("\r\n", prompts.Where(p => string.IsNullOrWhiteSpace(p) == false).ToArray());
-            return combined;
-        }
 	}
 }

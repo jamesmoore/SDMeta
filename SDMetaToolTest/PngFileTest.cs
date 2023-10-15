@@ -9,7 +9,7 @@ namespace SDMetaToolTest
         [TestMethod]
         public void PngFile_GetParameters_Null_Test()
         {
-            var sut = new ParameterDecoder();
+            var sut = new Auto1111ParameterDecoder();
             var parameters = sut.GetParameters(null);
             Assert.IsNotNull(parameters);
             Assert.AreEqual(null, parameters.Prompt);
@@ -26,7 +26,7 @@ by Katsushika Hokusai and Kitagawa Utamaro, Ukiyo-e, traditional media, woodbloc
 Negative prompt: lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts,signature, watermark, username, blurry, artist name
 Steps: 30, Sampler: DPM++ 2M Karras, CFG scale: 11, Seed: 358940890, Size: 704x704, Model hash: 2700c435, Model: Anything-V3.0-pruned, Clip skip: 2";
 
-            var sut = new ParameterDecoder();
+            var sut = new Auto1111ParameterDecoder();
             var parameters = sut.GetParameters(testdata);
             Assert.IsNotNull(parameters);
             StringAssert.StartsWith(parameters.Prompt, "(cute");
@@ -47,7 +47,7 @@ Steps: 24, Sampler: Euler a, CFG scale: 8, Seed: 891571864, Face restoration: Co
 Warning: too many input tokens; some (30) have been truncated:
 woods leather foliage autumn snow sea _ anemone _ art _ by _ hiroshi _ yoshida ps 1 dreamcast n 6 4 low poly maya blender zbrush";
 
-            var sut = new ParameterDecoder();
+            var sut = new Auto1111ParameterDecoder();
             var parameters = sut.GetParameters(testData);
             Assert.IsNotNull(parameters);
             StringAssert.StartsWith(parameters.Prompt, "Art");
@@ -65,7 +65,7 @@ woods leather foliage autumn snow sea _ anemone _ art _ by _ hiroshi _ yoshida p
         public void PngFile_GetParameters_Positive_Only_Test()
         {
             const string testData = @"cute cat";
-            var sut = new ParameterDecoder();
+            var sut = new Auto1111ParameterDecoder();
             var parameters = sut.GetParameters(testData);
             Assert.IsNotNull(parameters);
             Assert.AreEqual("cute cat", parameters.Prompt);
@@ -76,7 +76,7 @@ woods leather foliage autumn snow sea _ anemone _ art _ by _ hiroshi _ yoshida p
         public void PngFile_GetParameters_Negative_Only_Test()
         {
             const string testData = "Negative prompt: lowres";
-            var sut = new ParameterDecoder();
+            var sut = new Auto1111ParameterDecoder();
             var parameters = sut.GetParameters(testData);
             Assert.IsNotNull(parameters);
             Assert.AreEqual(string.Empty, parameters.Prompt);

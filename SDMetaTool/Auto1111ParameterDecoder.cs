@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace SDMetaTool
 {
-	public partial class ParameterDecoder
+	public partial class Auto1111ParameterDecoder
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -75,11 +75,11 @@ namespace SDMetaTool
 			ParamHiresSteps,
 		};
 
-		public GenerationParams GetParameters(string _parameters)
+		public Auto1111GenerationParams GetParameters(string _parameters)
 		{
 			if (string.IsNullOrWhiteSpace(_parameters))
 			{
-				return new GenerationParams();
+				return new Auto1111GenerationParams();
 			}
 
 			var re_imagesize = ImageSizeRegex();
@@ -118,7 +118,7 @@ namespace SDMetaTool
 
 			(string positive, string negative) = SplitPrompts(lines);
 
-			return new GenerationParams()
+			return new Auto1111GenerationParams()
 			{
 				Prompt = positive,
 				NegativePrompt = negative,

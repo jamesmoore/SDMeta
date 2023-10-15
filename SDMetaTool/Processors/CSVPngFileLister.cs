@@ -53,7 +53,7 @@ namespace SDMetaTool.Processors
 
 		private static CSVEntry ToCSV(PngFile p, int count)
 		{
-			var generationParams = p.Parameters ?? new GenerationParams();
+			var generationParams = p.Parameters ?? new Auto1111GenerationParams();
 			return new CSVEntry()
 			{
 				FileName = p.FileName,
