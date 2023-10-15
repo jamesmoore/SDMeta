@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace SDMetaTool.Cache
 {
-	public class SqliteDataSource : IPngFileDataSource
+	public partial class SqliteDataSource : IPngFileDataSource
 	{
 		const string TableName = "PngFilesv2";
 		private string FTSTableName = $"FTS5{TableName}";
@@ -30,7 +30,6 @@ namespace SDMetaTool.Cache
 			"Version",
 		};
 
-
 		private readonly string[] ftscolumns = new string[]
 		{
 			"FileName",
@@ -40,7 +39,6 @@ namespace SDMetaTool.Cache
 			"Version"
 		};
 
-		private readonly IEnumerable<(string Column, string Parameter, string DataType, bool IsPrimaryKey)> tabledef;
 		private readonly string insertSql;
 		private readonly DbPath dbPath;
 
@@ -82,8 +80,7 @@ namespace SDMetaTool.Cache
 
 			dbPath.CreateIfMissing();
 
-
-			tabledef = columns.Select(p => (
+			var tabledef = columns.Select(p => (
 				Column: p,
 				Parameter: "@" + p.Replace("[", "").Replace("]", ""),
 				DataType: p is "Length" or "[Exists]" or "Version" ? "INTEGER" : "TEXT",
@@ -100,55 +97,6 @@ namespace SDMetaTool.Cache
 
 			ExecuteOnConnection(connection => connection.Execute(@$"CREATE VIRTUAL TABLE IF NOT EXISTS {FTSTableName} USING fts5({ftscolumns.ToCommaSeparated()});"));
 
-		}
-
-		private class DataRow
-		{
-			public static DataRow FromModel(PngFile info)
-			{
-				var parameters = info.Parameters;
-				return new DataRow()
-				{
-					FileName = info.FileName,
-					LastUpdated = info.LastUpdated,
-					Length = info.Length,
-					Exists = info.Exists,
-					Prompt = info.Prompt,
-					PromptFormat = info.PromptFormat.ToString(),
-					ModelHash = parameters?.ModelHash,
-					Model = parameters?.Model,
-					PromptHash = parameters?.PromptHash,
-					NegativePromptHash = parameters?.NegativePromptHash,
-				};
-			}
-
-			public string FileName { get; set; }
-			public DateTime LastUpdated { get; set; }
-			public long Length { get; set; }
-			public bool Exists { get; set; }
-
-			public string Prompt { get; set; }
-			public string PromptFormat { get; set; }
-
-			public string ModelHash { get; set; }
-			public string Model { get; set; }
-
-			public string PromptHash { get; set; }
-			public string NegativePromptHash { get; set; }
-			public int Version { get; set; }
-
-			internal PngFile ToModel()
-			{
-				return new PngFile()
-				{
-					FileName = this.FileName,
-					LastUpdated = this.LastUpdated,
-					Length = this.Length,
-					Exists = this.Exists,
-					Prompt = this.Prompt,
-					PromptFormat = Enum.Parse<PromptFormat>(this.PromptFormat),
-				};
-			}
 		}
 
 		public void Dispose()

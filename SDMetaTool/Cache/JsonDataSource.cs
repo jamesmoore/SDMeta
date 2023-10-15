@@ -28,6 +28,7 @@ namespace SDMetaTool.Cache
 				string.IsNullOrWhiteSpace(f) ||
 				p.FileName.Contains(f) ||
 				p.Parameters != null && (
+					(p.Parameters.Seed == f) ||
 					(p.Parameters.Prompt.Contains(f))
 				)).
 			Select(p => new PngFileSummary()
@@ -145,18 +146,15 @@ namespace SDMetaTool.Cache
 			public PromptFormat PromptFormat { get; set; }
 			public bool Exists { get; set; }
 
-			public PngFile ToPngFile()
+			public PngFile ToPngFile() => new PngFile()
 			{
-				return new PngFile()
-				{
-					FileName = this.FileName,
-					LastUpdated = this.LastUpdated,
-					Prompt = this.Prompt,
-					PromptFormat = this.PromptFormat,
-					Length = this.Length,
-					Exists = this.Exists,
-				};
-			}
+				FileName = this.FileName,
+				LastUpdated = this.LastUpdated,
+				Prompt = this.Prompt,
+				PromptFormat = this.PromptFormat,
+				Length = this.Length,
+				Exists = this.Exists,
+			};
 		}
 	}
 }
