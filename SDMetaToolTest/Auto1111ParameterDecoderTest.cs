@@ -1,9 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDMeta.Auto1111;
 using SDMetaTool.Auto1111;
 
 namespace SDMetaToolTest
 {
-    [TestClass]
+	[TestClass]
     public class Auto1111ParameterDecoderTest
 	{
         [TestMethod]

@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using SDMetaTool;
 using SDMetaUI.Models;
+using SDMeta;
 
 namespace SDMetaUI.Shared
 {

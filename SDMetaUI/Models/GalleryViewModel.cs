@@ -1,4 +1,4 @@
-﻿using SDMetaTool.Cache;
+﻿using SDMeta.Cache;
 using SDMetaUI.Services;
 
 namespace SDMetaUI.Models

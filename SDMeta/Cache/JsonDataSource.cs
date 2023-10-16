@@ -5,7 +5,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
 
-namespace SDMetaTool.Cache
+namespace SDMeta.Cache
 {
 	public class JsonDataSource : IPngFileDataSource
 	{
@@ -17,8 +17,8 @@ namespace SDMetaTool.Cache
 		public JsonDataSource(IFileSystem fileSystem)
 		{
 			this.fileSystem = fileSystem;
-			this.cachePath = new CachePath(fileSystem);
-			cache = this.InitialQuery().ToDictionary(p => p.FileName, p => p);
+			cachePath = new CachePath(fileSystem);
+			cache = InitialQuery().ToDictionary(p => p.FileName, p => p);
 		}
 
 		public IEnumerable<PngFileSummary> Query(QueryParams queryParams)
@@ -95,7 +95,7 @@ namespace SDMetaTool.Cache
 
 		public void Flush()
 		{
-			this.WriteCache(cache.Values);
+			WriteCache(cache.Values);
 		}
 
 		public void BeginTransaction()
@@ -118,7 +118,7 @@ namespace SDMetaTool.Cache
 
 		public void Truncate()
 		{
-			this.cache.Clear();
+			cache.Clear();
 		}
 
 		public void PostUpdateProcessing()
@@ -146,12 +146,12 @@ namespace SDMetaTool.Cache
 
 			public PngFile ToPngFile() => new PngFile()
 			{
-				FileName = this.FileName,
-				LastUpdated = this.LastUpdated,
-				Prompt = this.Prompt,
-				PromptFormat = this.PromptFormat,
-				Length = this.Length,
-				Exists = this.Exists,
+				FileName = FileName,
+				LastUpdated = LastUpdated,
+				Prompt = Prompt,
+				PromptFormat = PromptFormat,
+				Length = Length,
+				Exists = Exists,
 			};
 		}
 	}

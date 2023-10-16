@@ -1,4 +1,7 @@
-﻿using SDMetaTool.Cache;
+﻿using SDMeta;
+using SDMeta.Cache;
+using SDMeta.Processors;
+using SDMetaTool.Cache;
 using SDMetaTool.Processors;
 using System;
 using System.CommandLine;
@@ -7,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SDMetaTool
 {
-    public class Program
+	public class Program
     {
         static async Task<int> Main(string[] args)
         {

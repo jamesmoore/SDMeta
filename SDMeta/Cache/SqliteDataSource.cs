@@ -1,6 +1,8 @@
 ﻿using Dapper;
 using Microsoft.Data.Sqlite;
 using NLog;
+using SDMeta;
+using SDMeta.Cache;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;

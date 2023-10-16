@@ -1,7 +1,7 @@
-﻿using SDMetaTool.Cache;
+﻿using SDMeta.Cache;
 using System.IO.Abstractions;
 
-namespace SDMetaTool
+namespace SDMeta
 {
 	public class CachedPngFileLoader : IPngFileLoader
 	{

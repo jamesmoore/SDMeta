@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SDMetaTool.Cache
+namespace SDMeta.Cache
 {
-    public interface IPngFileDataSource : IDisposable
-    {
-        IEnumerable<PngFileSummary> Query(QueryParams queryParams);
+	public interface IPngFileDataSource : IDisposable
+	{
+		IEnumerable<PngFileSummary> Query(QueryParams queryParams);
 		IEnumerable<string> GetAllFilenames();
 
 		PngFile ReadPngFile(string realFileName);
-        void WritePngFile(PngFile info);
+		void WritePngFile(PngFile info);
 		void BeginTransaction();
 		void CommitTransaction();
-        IEnumerable<ModelSummary> GetModelSummaryList();
+		IEnumerable<ModelSummary> GetModelSummaryList();
 		void Truncate();
 		void PostUpdateProcessing();
 	}

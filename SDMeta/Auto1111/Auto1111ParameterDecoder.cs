@@ -1,4 +1,6 @@
 ﻿using NLog;
+using SDMeta;
+using SDMeta.Auto1111;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;

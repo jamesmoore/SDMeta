@@ -1,18 +1,18 @@
 ﻿using System;
 using System.IO.Abstractions;
 
-namespace SDMetaTool.Cache
+namespace SDMeta.Cache
 {
 	public class DbPath
 	{
 		private readonly IFileSystem fileSystem;
-        private readonly DataPath dataPath;
+		private readonly DataPath dataPath;
 
-        public DbPath(IFileSystem fileSystem, DataPath dataPath)
+		public DbPath(IFileSystem fileSystem, DataPath dataPath)
 		{
 			this.fileSystem = fileSystem;
-            this.dataPath = dataPath;
-        }
+			this.dataPath = dataPath;
+		}
 
 		public string GetPath() => fileSystem.Path.Combine(dataPath.GetPath(), "cacheFTS.db");
 

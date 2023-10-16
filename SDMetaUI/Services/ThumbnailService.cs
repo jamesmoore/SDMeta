@@ -1,5 +1,5 @@
 ﻿using PhotoSauce.MagicScaler;
-using SDMetaTool.Cache;
+using SDMeta.Cache;
 using System.IO.Abstractions;
 using System.Security.Cryptography;
 using System.Text;

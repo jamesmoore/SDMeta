@@ -1,7 +1,5 @@
 using Havit.Blazor.Components.Web;
-using SDMetaTool;
 using SDMetaTool.Cache;
-using SDMetaTool.Processors;
 using System.IO.Abstractions;
 using PhotoSauce.NativeCodecs.Libpng;
 using PhotoSauce.NativeCodecs.Libjpeg;
@@ -13,6 +11,9 @@ using SDMetaUI.Models;
 using Havit.Blazor.Components.Web.Bootstrap;
 using Microsoft.Extensions.FileProviders;
 using SDMetaUI;
+using SDMeta.Cache;
+using SDMeta;
+using SDMeta.Processors;
 
 CodecManager.Configure(codecs => {
 	codecs.UseLibpng();

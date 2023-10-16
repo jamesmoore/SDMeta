@@ -20,8 +20,9 @@
 		</PackageReference>
 		<PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="19.2.69" />
 	</ItemGroup>
+
 	<ItemGroup>
-		<ProjectReference Include="..\SDMetaTool\SDMetaTool.csproj" />
+	  <ProjectReference Include="..\SDMeta\SDMeta.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

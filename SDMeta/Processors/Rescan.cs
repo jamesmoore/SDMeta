@@ -1,9 +1,9 @@
 ﻿using NLog;
-using SDMetaTool.Cache;
+using SDMeta.Cache;
 using System;
 using System.Linq;
 
-namespace SDMetaTool.Processors
+namespace SDMeta.Processors
 {
 	public class Rescan : IPngFileListProcessor
 	{
@@ -37,8 +37,8 @@ namespace SDMetaTool.Processors
 			var total = added.Count + deleted.Count;
 			if (total > 0)
 			{
-				var steps = total <= 100 ? 1 : (int)(total / 100);
-				var multiplier = (float)(total <= 100 ? (100.0 / total) : 1);
+				var steps = total <= 100 ? 1 : total / 100;
+				var multiplier = (float)(total <= 100 ? 100.0 / total : 1);
 
 				int position = 0;
 
