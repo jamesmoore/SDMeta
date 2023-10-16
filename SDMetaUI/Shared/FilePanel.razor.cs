@@ -33,11 +33,14 @@ namespace SDMetaUI.Shared
 		protected override Task OnParametersSetAsync()
 		{
 			var realFile = pngfileDataSource.ReadPngFile(selectedFile.FileName);
-			fileSize = realFile.Length.GetBytesReadable();
-			lastUpdated = realFile.LastUpdated.ToString();
-			this.fullPrompt = realFile?.Prompt;
-			this.promptLines = fullPrompt?.Split("\n").Select(p => p.Trim()).Select(p => p.FormatPromptLine()).ToList();
-			this.promptFormat = realFile.PromptFormat.ToString();
+			if (realFile != null)
+			{
+				fileSize = realFile.Length.GetBytesReadable();
+				lastUpdated = realFile.LastUpdated.ToString();
+				this.fullPrompt = realFile?.Prompt;
+				this.promptLines = fullPrompt?.Split("\n").Select(p => p.Trim()).Select(p => p.FormatPromptLine()).ToList();
+				this.promptFormat = realFile.PromptFormat.ToString();
+			}
 			return base.OnParametersSetAsync();
 		}
 
