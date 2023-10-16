@@ -35,43 +35,49 @@ namespace SDMetaTool
         }
 
         public PngFile ReadPngFile(IFileSystem fileSystem, string filename)
-        {
-            var fileInfo = fileSystem.FileInfo.New(filename);
+		{
+			var fileInfo = fileSystem.FileInfo.New(filename);
 
-            var pngfile = new PngFile()
-            {
-                LastUpdated = fileInfo.LastWriteTime,
-                FileName = fileInfo.FullName,
-                Length = fileInfo.Length,
-            };
+			var prompt = ExtractPromptFromPngText(fileSystem, filename);
 
-            using (var stream = fileSystem.File.OpenRead(filename))
-            {
-                var imageInfo = ImageInfo.Get(stream);
+			var pngfile = new PngFile()
+			{
+				LastUpdated = fileInfo.LastWriteTime,
+				FileName = fileInfo.FullName,
+				Length = fileInfo.Length,
+			    PromptFormat = prompt.promptFormat,
+				Prompt = prompt.prompt,
+			};
 
-                if (imageInfo.Metadata?.TryGetValue(MetadataProfileType.PngText, out var tags) ?? false && tags is not null)
-                {
-                    foreach (var tag in tags.Where(t => t is not null && t.HasValue))
-                    {
-                        if (tag.TryGetValue(out var metadataValue) && metadataValue is not null && metadataValue.Value is PngText)
-                        {
+			return pngfile;
+		}
+
+		private static (PromptFormat promptFormat, string prompt) ExtractPromptFromPngText(IFileSystem fileSystem, string filename)
+		{
+			using (var stream = fileSystem.File.OpenRead(filename))
+			{
+				var imageInfo = ImageInfo.Get(stream);
+
+				if (imageInfo.Metadata?.TryGetValue(MetadataProfileType.PngText, out var tags) ?? false && tags is not null)
+				{
+					foreach (var tag in tags.Where(t => t is not null && t.HasValue))
+					{
+						if (tag.TryGetValue(out var metadataValue) && metadataValue is not null && metadataValue.Value is PngText)
+						{
 							var rawParameters = (metadataValue.Value as PngText).TextValue;
 							if (metadataValue.TagName == "parameters")
-                            {
-                                pngfile.Prompt = rawParameters;
-                                pngfile.PromptFormat = PromptFormat.Auto1111;
-                            }
-                            else if (metadataValue.TagName == "prompt")
-                            {
-                                var prompt = rawParameters;
-								pngfile.Prompt = rawParameters;
-								pngfile.PromptFormat = PromptFormat.Comfy;
+							{
+								return (PromptFormat.Auto1111, rawParameters);
 							}
-                        }
-                    }
-                }
-            }
-            return pngfile;
-        }
-    }
+							else if (metadataValue.TagName == "prompt")
+							{
+								return (PromptFormat.ComfyUI, rawParameters);
+							}
+						}
+					}
+				}
+			}
+			return (PromptFormat.None, null);
+		}
+	}
 }

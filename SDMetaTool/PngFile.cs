@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SDMetaTool.Auto1111;
+using System;
 
 namespace SDMetaTool
 {
@@ -6,27 +7,28 @@ namespace SDMetaTool
 	{
 		public PngFile()
 		{
-
+			generationParams = new Lazy<GenerationParams>(GetParams);
 		}
-
 
 		public string FileName { get; set; }
 		public DateTime LastUpdated { get; set; }
 		public long Length { get; set; }
-		public Auto1111GenerationParams Parameters
+		public GenerationParams Parameters => generationParams.Value;
+
+		private Lazy<GenerationParams> generationParams;
+
+		private GenerationParams GetParams()
 		{
-			get
+			if (PromptFormat == PromptFormat.Auto1111)
 			{
-				if (PromptFormat == PromptFormat.Auto1111)
-				{
-					return new Auto1111ParameterDecoder().GetParameters(Prompt);
-				}
-				else
-				{
-					return null;
-				}
+				return new Auto1111ParameterDecoder().GetParameters(Prompt);
+			}
+			else
+			{
+				return null;
 			}
 		}
+
 		public string Prompt { get; set; }
 		public PromptFormat PromptFormat { get; set; }
 		/// <summary>
@@ -39,6 +41,6 @@ namespace SDMetaTool
 	{
 		None,
 		Auto1111,
-		Comfy,
+		ComfyUI,
 	}
 }

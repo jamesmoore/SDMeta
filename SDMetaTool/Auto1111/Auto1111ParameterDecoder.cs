@@ -1,15 +1,13 @@
 ﻿using NLog;
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace SDMetaTool
+namespace SDMetaTool.Auto1111
 {
-	public partial class Auto1111ParameterDecoder
+	public partial class Auto1111ParameterDecoder : IParameterDecoder
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -75,7 +73,7 @@ namespace SDMetaTool
 			ParamHiresSteps,
 		};
 
-		public Auto1111GenerationParams GetParameters(string _parameters)
+		public GenerationParams GetParameters(string _parameters)
 		{
 			if (string.IsNullOrWhiteSpace(_parameters))
 			{

@@ -27,10 +27,8 @@ namespace SDMetaTool.Cache
 			return cache.Values.Where(p =>
 				string.IsNullOrWhiteSpace(f) ||
 				p.FileName.Contains(f) ||
-				p.Parameters != null && (
-					(p.Parameters.Seed == f) ||
-					(p.Parameters.Prompt.Contains(f))
-				)).
+				p.Prompt != null && p.Prompt.Contains(f)
+				).
 			Select(p => new PngFileSummary()
 			{
 				FileName = p.FileName,

@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SDMetaTool;
+using SDMetaTool.Auto1111;
 
 namespace SDMetaToolTest
 {
     [TestClass]
-    public class PngFileTest
-    {
+    public class Auto1111ParameterDecoderTest
+	{
         [TestMethod]
         public void PngFile_GetParameters_Null_Test()
         {
@@ -48,7 +48,7 @@ Warning: too many input tokens; some (30) have been truncated:
 woods leather foliage autumn snow sea _ anemone _ art _ by _ hiroshi _ yoshida ps 1 dreamcast n 6 4 low poly maya blender zbrush";
 
             var sut = new Auto1111ParameterDecoder();
-            var parameters = sut.GetParameters(testData);
+            var parameters = sut.GetParameters(testData) as Auto1111GenerationParams;
             Assert.IsNotNull(parameters);
             StringAssert.StartsWith(parameters.Prompt, "Art");
             StringAssert.EndsWith(parameters.Prompt, "zbrush");
