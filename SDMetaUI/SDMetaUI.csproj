@@ -18,16 +18,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\SDMetaTool\SDMetaTool.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Folder Include="Data\" />
 		<Folder Include="wwwroot\" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="wwwroot\**\*" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\SDMeta\SDMeta.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

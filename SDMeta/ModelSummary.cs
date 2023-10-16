@@ -1,4 +1,4 @@
-﻿namespace SDMetaTool
+﻿namespace SDMeta
 {
 	public class ModelSummary
 	{

@@ -6,35 +6,35 @@ using System;
 using System.IO.Abstractions;
 using System.Linq;
 
-namespace SDMetaTool
+namespace SDMeta
 {
-    public class PngFileLoader : IPngFileLoader
-    {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        private readonly IFileSystem fileSystem;
+	public class PngFileLoader : IPngFileLoader
+	{
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly IFileSystem fileSystem;
 
-        public PngFileLoader(IFileSystem fileSystem)
-        {
-            this.fileSystem = fileSystem;
-            
-        }
+		public PngFileLoader(IFileSystem fileSystem)
+		{
+			this.fileSystem = fileSystem;
 
-        public PngFile GetPngFile(string filename)
-        {
-            logger.Info($"Indexing: {filename}");
+		}
 
-            try
-            {
-                return ReadPngFile(fileSystem, filename);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, $"Exception reading file {filename}");
-                return null;
-            }
-        }
+		public PngFile GetPngFile(string filename)
+		{
+			logger.Info($"Indexing: {filename}");
 
-        public PngFile ReadPngFile(IFileSystem fileSystem, string filename)
+			try
+			{
+				return ReadPngFile(fileSystem, filename);
+			}
+			catch (Exception ex)
+			{
+				logger.Error(ex, $"Exception reading file {filename}");
+				return null;
+			}
+		}
+
+		public PngFile ReadPngFile(IFileSystem fileSystem, string filename)
 		{
 			var fileInfo = fileSystem.FileInfo.New(filename);
 
@@ -45,7 +45,7 @@ namespace SDMetaTool
 				LastUpdated = fileInfo.LastWriteTime,
 				FileName = fileInfo.FullName,
 				Length = fileInfo.Length,
-			    PromptFormat = prompt.promptFormat,
+				PromptFormat = prompt.promptFormat,
 				Prompt = prompt.prompt,
 			};
 

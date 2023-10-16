@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SDMeta;
+using System;
 
 namespace SDMetaTool.Cache
 {

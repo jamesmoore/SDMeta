@@ -1,4 +1,4 @@
-﻿using SDMetaTool;
+﻿using SDMeta;
 
 namespace SDMetaUI.Models
 {

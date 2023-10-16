@@ -1,5 +1,6 @@
 ﻿using CsvHelper;
-using SDMetaTool.Auto1111;
+using SDMeta;
+using SDMeta.Auto1111;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,7 +9,7 @@ using System.Linq;
 
 namespace SDMetaTool.Processors
 {
-    class CSVPngFileLister : IPngFileListProcessor
+	class CSVPngFileLister : IPngFileListProcessor
 	{
 		private readonly IFileLister fileLister;
 		private readonly IPngFileLoader pngFileLoader;

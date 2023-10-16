@@ -1,7 +1,7 @@
 ﻿using SDMetaTool.Auto1111;
 using System;
 
-namespace SDMetaTool
+namespace SDMeta
 {
 	public partial class PngFile
 	{

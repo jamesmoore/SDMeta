@@ -1,4 +1,4 @@
-﻿using SDMetaTool;
+﻿using SDMeta;
 using System.IO.Abstractions;
 
 namespace SDMetaUI.Models

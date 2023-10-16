@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SDMetaTool
+namespace SDMeta
 {
 	public class PngFileSummary
 	{

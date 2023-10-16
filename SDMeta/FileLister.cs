@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 
-namespace SDMetaTool
+namespace SDMeta
 {
 	public class FileLister : IFileLister
 	{

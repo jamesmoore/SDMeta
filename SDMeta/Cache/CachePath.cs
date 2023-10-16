@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO.Abstractions;
 
-namespace SDMetaTool.Cache
+namespace SDMeta.Cache
 {
 	public class CachePath
 	{
 		private readonly IFileSystem fileSystem;
 
-		public CachePath(IFileSystem fileSystem) {
+		public CachePath(IFileSystem fileSystem)
+		{
 			this.fileSystem = fileSystem;
 		}
 
