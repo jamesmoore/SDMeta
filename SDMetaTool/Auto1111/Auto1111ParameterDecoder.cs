@@ -1,15 +1,13 @@
 ﻿using NLog;
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace SDMetaTool
+namespace SDMetaTool.Auto1111
 {
-	public partial class ParameterDecoder
+	public partial class Auto1111ParameterDecoder : IParameterDecoder
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -79,7 +77,7 @@ namespace SDMetaTool
 		{
 			if (string.IsNullOrWhiteSpace(_parameters))
 			{
-				return new GenerationParams();
+				return new Auto1111GenerationParams();
 			}
 
 			var re_imagesize = ImageSizeRegex();
@@ -118,7 +116,7 @@ namespace SDMetaTool
 
 			(string positive, string negative) = SplitPrompts(lines);
 
-			return new GenerationParams()
+			return new Auto1111GenerationParams()
 			{
 				Prompt = positive,
 				NegativePrompt = negative,

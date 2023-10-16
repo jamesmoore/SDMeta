@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using SDMetaTool.Auto1111;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -7,7 +8,7 @@ using System.Linq;
 
 namespace SDMetaTool.Processors
 {
-	class CSVPngFileLister : IPngFileListProcessor
+    class CSVPngFileLister : IPngFileListProcessor
 	{
 		private readonly IFileLister fileLister;
 		private readonly IPngFileLoader pngFileLoader;
@@ -53,7 +54,49 @@ namespace SDMetaTool.Processors
 
 		private static CSVEntry ToCSV(PngFile p, int count)
 		{
-			var generationParams = p.Parameters ?? new GenerationParams();
+			var generationParams = p.Parameters;
+			if(generationParams is Auto1111GenerationParams)
+			{
+				return Auto1111ToCSV(p, count, generationParams as Auto1111GenerationParams);
+			}
+			else if (generationParams is GenerationParams)
+			{
+				return GeneralParamsToCSV(p, count, generationParams as GenerationParams);
+			}
+			else
+			{
+				return NoParams(p, count);
+			}
+		}
+
+		private static CSVEntry NoParams(PngFile p, int count)
+		{
+			return new CSVEntry()
+			{
+				FileName = p.FileName,
+				LastUpdated = p.LastUpdated,
+				Length = p.Length,
+				Count = count,
+			};
+		}
+
+		private static CSVEntry GeneralParamsToCSV(PngFile p, int count, GenerationParams generationParams)
+		{
+			return new CSVEntry()
+			{
+				FileName = p.FileName,
+				LastUpdated = p.LastUpdated,
+				Length = p.Length,
+				Prompt = generationParams.Prompt,
+				NegativePrompt = generationParams.NegativePrompt,
+				Count = count,
+				ModelHash = generationParams.ModelHash,
+				Model = generationParams.Model,
+			};
+		}
+
+		private static CSVEntry Auto1111ToCSV(PngFile p, int count, Auto1111GenerationParams generationParams)
+		{
 			return new CSVEntry()
 			{
 				FileName = p.FileName,
