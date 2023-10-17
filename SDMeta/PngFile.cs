@@ -5,14 +5,25 @@ namespace SDMeta
 {
 	public partial class PngFile
 	{
-		public PngFile()
+		public PngFile(string fileName,
+			DateTime lastUpdated,
+			long length,
+			PromptFormat promptFormat,
+			string prompt,
+			bool exists)
 		{
+			FileName = fileName;
+			LastUpdated = lastUpdated;
+			Length = length;
+			PromptFormat = promptFormat;
+			Prompt = prompt;
+			Exists = exists;
 			generationParams = new Lazy<GenerationParams>(GetParams);
 		}
 
-		public string FileName { get; set; }
-		public DateTime LastUpdated { get; set; }
-		public long Length { get; set; }
+		public string FileName { get; }
+		public DateTime LastUpdated { get; }
+		public long Length { get; }
 		public GenerationParams Parameters => generationParams.Value;
 
 		private Lazy<GenerationParams> generationParams;
@@ -29,8 +40,8 @@ namespace SDMeta
 			}
 		}
 
-		public string Prompt { get; set; }
-		public PromptFormat PromptFormat { get; set; }
+		public string Prompt { get; }
+		public PromptFormat PromptFormat { get; }
 		/// <summary>
 		/// Whether the file exists on the most recent scan
 		/// </summary>

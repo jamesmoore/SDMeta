@@ -1,11 +1,12 @@
 ﻿using BetterConsoleTables;
 using SDMeta;
+using SDMeta.Processors;
 using System;
 using System.Linq;
 
 namespace SDMetaTool.Processors
 {
-	internal class SummaryInfo : IPngFileListProcessor
+    internal class SummaryInfo : IPngFileListProcessor
 	{
 		private readonly IFileLister fileLister;
 		private readonly IPngFileLoader pngFileLoader;

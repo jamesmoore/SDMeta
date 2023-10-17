@@ -144,15 +144,14 @@ namespace SDMeta.Cache
 			public PromptFormat PromptFormat { get; set; }
 			public bool Exists { get; set; }
 
-			public PngFile ToPngFile() => new PngFile()
-			{
-				FileName = FileName,
-				LastUpdated = LastUpdated,
-				Prompt = Prompt,
-				PromptFormat = PromptFormat,
-				Length = Length,
-				Exists = Exists,
-			};
+			public PngFile ToPngFile() => new PngFile(
+				FileName,
+				LastUpdated,
+				Length,
+				PromptFormat,
+				Prompt,
+				Exists
+			);
 		}
 	}
 }

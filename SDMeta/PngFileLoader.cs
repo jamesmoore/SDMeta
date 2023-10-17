@@ -34,20 +34,20 @@ namespace SDMeta
 			}
 		}
 
-		public PngFile ReadPngFile(IFileSystem fileSystem, string filename)
+		private PngFile ReadPngFile(IFileSystem fileSystem, string filename)
 		{
 			var fileInfo = fileSystem.FileInfo.New(filename);
 
 			var prompt = ExtractPromptFromPngText(fileSystem, filename);
 
-			var pngfile = new PngFile()
-			{
-				LastUpdated = fileInfo.LastWriteTime,
-				FileName = fileInfo.FullName,
-				Length = fileInfo.Length,
-				PromptFormat = prompt.promptFormat,
-				Prompt = prompt.prompt,
-			};
+			var pngfile = new PngFile(
+				fileInfo.FullName,
+				fileInfo.LastWriteTime,
+				fileInfo.Length,
+				prompt.promptFormat,
+				prompt.prompt,
+				true
+			);
 
 			return pngfile;
 		}

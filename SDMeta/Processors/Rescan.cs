@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace SDMeta.Processors
 {
-	public class Rescan : IPngFileListProcessor
+    public class Rescan : IPngFileListProcessor
 	{
 		private readonly IPngFileDataSource pngFileDataSource;
 		private readonly IFileLister fileLister;

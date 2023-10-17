@@ -40,18 +40,14 @@ namespace SDMetaTool.Cache
 			public string NegativePromptHash { get; set; }
 			public int Version { get; set; }
 
-			internal PngFile ToModel()
-			{
-				return new PngFile()
-				{
-					FileName = this.FileName,
-					LastUpdated = this.LastUpdated,
-					Length = this.Length,
-					Exists = this.Exists,
-					Prompt = this.Prompt,
-					PromptFormat = Enum.Parse<PromptFormat>(this.PromptFormat),
-				};
-			}
+			internal PngFile ToModel() => new PngFile(
+				this.FileName,
+				this.LastUpdated,
+				this.Length,
+				Enum.Parse<PromptFormat>(this.PromptFormat),
+				this.Prompt,
+				this.Exists
+			);
 		}
 	}
 }
