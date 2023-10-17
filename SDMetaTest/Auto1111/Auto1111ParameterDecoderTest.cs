@@ -1,12 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SDMeta.Auto1111;
+﻿using SDMeta.Auto1111;
 using SDMetaTool.Auto1111;
 
-namespace SDMetaToolTest
+namespace SDMetaTest.Auto1111
 {
-	[TestClass]
+    [TestClass]
     public class Auto1111ParameterDecoderTest
-	{
+    {
         [TestMethod]
         public void PngFile_GetParameters_Null_Test()
         {
@@ -53,7 +52,7 @@ woods leather foliage autumn snow sea _ anemone _ art _ by _ hiroshi _ yoshida p
             Assert.IsNotNull(parameters);
             StringAssert.StartsWith(parameters.Prompt, "Art");
             StringAssert.EndsWith(parameters.Prompt, "zbrush");
-            
+
             Assert.AreEqual(string.Empty, parameters.NegativePrompt);
 
             Assert.AreEqual("Steps: 24, Sampler: Euler a, CFG scale: 8, Seed: 891571864, Face restoration: CodeFormer, Size: 512x704, Model hash: 7460a6fa", parameters.Params);
