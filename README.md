@@ -59,6 +59,7 @@ docker run \
 -v /mnt/storage/sd/:/sd \
 -v sdmetatool_data:/var/lib/sdmetatool \
 -e ImageDir='/sd' \
+-p 80:80 \
 --entrypoint dotnet \
 --restart always \
 --log-opt max-size=1m \
@@ -66,7 +67,7 @@ ghcr.io/jamesmoore/sdmetatool:main \
 SDMetaUI.dll
 ```
 
-The ```ImageDir``` env variable points to the folder containing the generated images.
+The ```ImageDir``` env variable points to the folder containing the generated images. The web server runs on port 80, but you can reassign it using the `-p` parameter and/or route it through a reverse proxy likc Caddy.
 
 ## Data Volumes
 There are two directories required - one for the database of metadata and one for the image files. 
