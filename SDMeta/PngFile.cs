@@ -1,4 +1,5 @@
-﻿using SDMetaTool.Auto1111;
+﻿using SDMeta.Comfy;
+using SDMetaTool.Auto1111;
 using System;
 
 namespace SDMeta
@@ -30,14 +31,12 @@ namespace SDMeta
 
 		private GenerationParams GetParams()
 		{
-			if (PromptFormat == PromptFormat.Auto1111)
+			return PromptFormat switch
 			{
-				return new Auto1111ParameterDecoder().GetParameters(Prompt);
-			}
-			else
-			{
-				return null;
-			}
+				PromptFormat.Auto1111 => new Auto1111ParameterDecoder().GetParameters(Prompt),
+				PromptFormat.ComfyUI => new ComfyUIParameterDecoder().GetParameters(Prompt),
+				_ => null
+			};
 		}
 
 		public string Prompt { get; }
