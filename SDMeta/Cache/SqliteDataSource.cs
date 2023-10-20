@@ -5,7 +5,6 @@ using SDMeta;
 using SDMeta.Cache;
 using System;
 using System.Collections.Generic;
-using System.IO.Abstractions;
 using System.Linq;
 
 namespace SDMetaTool.Cache
@@ -37,7 +36,6 @@ namespace SDMetaTool.Cache
 			"FileName",
 			"PromptFormat",
 			"Prompt",
-			"Params",
 			"Version"
 		};
 
