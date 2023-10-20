@@ -1,9 +1,4 @@
 ﻿using SDMeta.Comfy;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SDMetaTest.ComfyUI
 {
@@ -15,6 +10,8 @@ namespace SDMetaTest.ComfyUI
 		{
 			var comfyParams = new ComfyUIParameterDecoder().GetParameters(testJson);
 			Assert.AreEqual("breakdomain_M2000.safetensors", comfyParams.Model);
+			Assert.AreEqual("close up, verdant, flowers, tropical, absurdres, best quality", comfyParams.Prompt);
+			Assert.AreEqual("(worst quality, low quality:1.2), (text, signature, logo, watermark)", comfyParams.NegativePrompt);
 		}
 
 		const string testJson = """
