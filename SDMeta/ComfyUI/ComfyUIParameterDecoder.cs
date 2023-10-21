@@ -15,17 +15,20 @@ namespace SDMeta.Comfy
 
 			var modelNode = typedNodes.OfType<CheckpointLoaderSimpleInputs>().FirstOrDefault();
 
-			var samplerNode = typedNodes.OfType<KSamplerBase>().FirstOrDefault();
+			var samplerNode = typedNodes.OfType<KSamplerBase>().ToList();
 
 			var clipText = typedNodes.OfType<CLIPTextEncodeInputs>().ToList();
 
-			var posNeg = samplerNode?.GetClips(clipText);
+			var posNeg = samplerNode.Select(p => p.GetClips(clipText)).Distinct().ToList();
+
+			var positive = posNeg.Select(p => p.positive?.Trim()).OrderBy(p => p).Aggregate((p, q) => p + " " + q);
+			var negative = posNeg.Select(p => p.negative?.Trim()).OrderBy(p => p).Aggregate((p, q) => p + " " + q);
 
 			return new GenerationParams()
 			{
 				Model = modelNode?.ckpt_name,
-				Prompt = posNeg?.positive,
-				NegativePrompt = posNeg?.negative,
+				Prompt = positive,
+				NegativePrompt = negative,
 			};
 		}
 	}
@@ -80,8 +83,8 @@ namespace SDMeta.Comfy
 
 		public (string? positive, string? negative) GetClips(IEnumerable<CLIPTextEncodeInputs> clips)
 		{
-			var positiveNodeId = positive.FirstOrDefault()?.ToString();
-			var negativeNodeId = negative.FirstOrDefault()?.ToString();
+			var positiveNodeId = positive?.FirstOrDefault()?.ToString();
+			var negativeNodeId = negative?.FirstOrDefault()?.ToString();
 
 			return (
 				clips.FirstOrDefault(p => p.NodeId == positiveNodeId)?.text,

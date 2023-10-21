@@ -40,7 +40,7 @@ namespace SDMetaTool.Cache
 			public string NegativePromptHash { get; set; }
 			public int Version { get; set; }
 
-			internal PngFile ToModel() => new PngFile(
+			internal PngFile ToModel() => new(
 				this.FileName,
 				this.LastUpdated,
 				this.Length,

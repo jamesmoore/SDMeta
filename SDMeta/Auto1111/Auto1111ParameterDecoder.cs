@@ -150,8 +150,6 @@ namespace SDMetaTool.Auto1111
 				HiresUpscaler = parametersLookup[ParamHiresUpscaler]?.FirstOrDefault(),
 				HiresUpscale = parametersLookup[ParamHiresUpscale]?.FirstOrDefault(),
 				HiresSteps = parametersLookup[ParamHiresSteps]?.FirstOrDefault(),
-				PromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(positive, " ").ToLower()),
-				NegativePromptHash = ComputeSha256Hash(WhitespaceRegex().Replace(negative, " ").ToLower()),
 			};
 		}
 
@@ -202,22 +200,6 @@ namespace SDMetaTool.Auto1111
 		private static partial Regex ImageSizeRegex();
 		[GeneratedRegex(WildcardPrompt)]
 		private static partial Regex WildcardPromptRegex();
-		[GeneratedRegex(@"\s+")]
-		private static partial Regex WhitespaceRegex();
 
-		static string ComputeSha256Hash(string rawData)
-		{
-			// Create a SHA256   
-			// ComputeHash - returns byte array  
-			var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(rawData));
-
-			// Convert byte array to a string   
-			StringBuilder builder = new();
-			for (int i = 0; i < bytes.Length; i++)
-			{
-				builder.Append(bytes[i].ToString("x2"));
-			}
-			return builder.ToString();
-		}
 	}
 }

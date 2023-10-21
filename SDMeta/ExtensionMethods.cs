@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace SDMeta
 {
-	public static class ExtensionMethods
+	public static partial class ExtensionMethods
 	{
 		// Returns the human-readable file size for an arbitrary, 64-bit file size 
 		// The default format is "0.### XB", e.g. "4.2 KB" or "1.434 GB"
@@ -57,5 +55,24 @@ namespace SDMeta
 			return readable.ToString("0.## ") + suffix;
 		}
 
+		public static string ComputeSHA256Hash(this string rawData)
+		{
+			var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(rawData));
+
+			StringBuilder builder = new();
+			for (int i = 0; i < bytes.Length; i++)
+			{
+				builder.Append(bytes[i].ToString("x2"));
+			}
+			return builder.ToString();
+		}
+
+		[GeneratedRegex(@"\s+")]
+		private static partial Regex WhitespaceRegex();
+
+		public static string NormalizeString(this string stringToNormalize)
+		{
+			return WhitespaceRegex().Replace(stringToNormalize, " ").Trim().ToLower();
+		}
 	}
 }
