@@ -13,7 +13,7 @@ namespace SDMeta.Comfy
 
 			var typedNodes = nodes.Select(p => p.Value.GetInputs(p.Key)).ToList();
 
-			var modelNode = typedNodes.OfType<CheckpointLoaderSimpleInputs>().FirstOrDefault();
+			var modelNode = typedNodes.OfType<CheckpointLoaderSimpleInputs>().OrderBy(p => p.ckpt_name.ToLower().Contains("refiner")).FirstOrDefault();
 
 			var samplerNode = typedNodes.OfType<KSamplerBase>().ToList();
 
