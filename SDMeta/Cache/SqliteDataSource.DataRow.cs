@@ -1,7 +1,7 @@
 ﻿using SDMeta;
 using System;
 
-namespace SDMetaTool.Cache
+namespace SDMeta.Cache
 {
 	public partial class SqliteDataSource
 	{

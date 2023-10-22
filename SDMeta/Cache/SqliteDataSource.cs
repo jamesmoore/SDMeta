@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SDMetaTool.Cache
+namespace SDMeta.Cache
 {
 	public partial class SqliteDataSource : IPngFileDataSource
 	{

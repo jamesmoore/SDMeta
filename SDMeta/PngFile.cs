@@ -1,5 +1,5 @@
 ﻿using SDMeta.Comfy;
-using SDMetaTool.Auto1111;
+using SDMeta.Auto1111;
 using System;
 
 namespace SDMeta

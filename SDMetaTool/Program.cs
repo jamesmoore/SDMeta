@@ -1,7 +1,6 @@
 ﻿using SDMeta;
 using SDMeta.Cache;
 using SDMeta.Processors;
-using SDMetaTool.Cache;
 using SDMetaTool.Processors;
 using System;
 using System.CommandLine;

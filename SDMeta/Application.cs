@@ -2,6 +2,6 @@
 {
 	public static class Application
 	{
-		public const string ApplicationName = "SDMetaTool";
+		public const string ApplicationName = "SDMeta";
 	}
 }

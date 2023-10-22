@@ -1,5 +1,4 @@
-﻿using SDMetaTool;
-using SDMetaTool.Auto1111;
+﻿using SDMeta.Auto1111;
 using System.Text.RegularExpressions;
 using System.Web;
 

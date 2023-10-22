@@ -1,5 +1,4 @@
 ﻿using SDMeta.Auto1111;
-using SDMetaTool.Auto1111;
 
 namespace SDMetaTest.Auto1111
 {

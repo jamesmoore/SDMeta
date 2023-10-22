@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace SDMetaTool.Auto1111
+namespace SDMeta.Auto1111
 {
 	public partial class Auto1111ParameterDecoder : IParameterDecoder
 	{
