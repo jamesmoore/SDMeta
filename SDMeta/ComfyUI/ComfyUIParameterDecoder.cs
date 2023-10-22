@@ -13,11 +13,11 @@ namespace SDMeta.Comfy
 
 			var typedNodes = nodes.Select(p => p.Value.GetInputs(p.Key)).ToList();
 
-			var modelNode = typedNodes.OfType<CheckpointLoaderSimpleInputs>().OrderBy(p => p.ckpt_name.ToLower().Contains("refiner")).FirstOrDefault();
+			var modelNode = typedNodes.OfType<CheckpointLoaderSimpleInputs>().OrderBy(p => p.IsRefiner()).FirstOrDefault();
 
 			var samplerNode = typedNodes.OfType<KSamplerBase>().ToList();
 
-			var clipText = typedNodes.OfType<CLIPTextEncodeInputs>().ToList();
+			var clipText = typedNodes.OfType<BaseCLIPTestEncodeInputs>().ToList();
 
 			var posNeg = samplerNode.Select(p => p.GetClips(clipText)).Distinct().ToList();
 
@@ -26,7 +26,7 @@ namespace SDMeta.Comfy
 
 			return new GenerationParams()
 			{
-				Model = modelNode?.ckpt_name?.Replace(".safetensors",""),
+				Model = modelNode?.GetCheckpointName(),
 				Prompt = positive,
 				NegativePrompt = negative,
 			};
@@ -54,6 +54,8 @@ namespace SDMeta.Comfy
 			"CLIPTextEncode" => inputs.Deserialize<CLIPTextEncodeInputs>(),
 			"KSampler" => inputs.Deserialize<KSamplerInputs>(),
 			"KSamplerAdvanced" => inputs.Deserialize<KSamplerAdvancedInputs>(),
+			"CLIPTextEncodeSDXL" => inputs.Deserialize<CLIPTextEncodeSDXL>(),
+			"CLIPTextEncodeSDXLRefiner" => inputs.Deserialize<CLIPTextEncodeSDXLRefiner>(),
 			_ => null
 		};
 	}
@@ -66,12 +68,23 @@ namespace SDMeta.Comfy
 	public class CheckpointLoaderSimpleInputs : BaseInputs
 	{
 		public string ckpt_name { get; set; }
+
+		public string? GetCheckpointName() => ckpt_name?.Replace(".safetensors", "");
+
+		public bool IsRefiner() => ckpt_name.ToLower().Contains("refiner");
 	}
 
-	public class CLIPTextEncodeInputs : BaseInputs
+	public abstract class BaseCLIPTestEncodeInputs : BaseInputs
+	{
+		public JsonArray clip { get; set; }
+		public abstract string GetText();
+	}
+
+	public class CLIPTextEncodeInputs : BaseCLIPTestEncodeInputs
 	{
 		public string text { get; set; }
-		public JsonArray clip { get; set; }
+
+		public override string GetText() => text;
 	}
 
 	public class KSamplerBase : BaseInputs
@@ -81,14 +94,14 @@ namespace SDMeta.Comfy
 		public JsonArray negative { get; set; }
 		public JsonArray latent_image { get; set; }
 
-		public (string? positive, string? negative) GetClips(IEnumerable<CLIPTextEncodeInputs> clips)
+		public (string? positive, string? negative) GetClips(IEnumerable<BaseCLIPTestEncodeInputs> clips)
 		{
 			var positiveNodeId = positive?.FirstOrDefault()?.ToString();
 			var negativeNodeId = negative?.FirstOrDefault()?.ToString();
 
 			return (
-				clips.FirstOrDefault(p => p.NodeId == positiveNodeId)?.text,
-				clips.FirstOrDefault(p => p.NodeId == negativeNodeId)?.text
+				clips.FirstOrDefault(p => p.NodeId == positiveNodeId)?.GetText(),
+				clips.FirstOrDefault(p => p.NodeId == negativeNodeId)?.GetText()
 				);
 		}
 	}
@@ -114,5 +127,27 @@ namespace SDMeta.Comfy
 		public int start_at_step { get; set; }
 		public int end_at_step { get; set; }
 		public string return_with_leftover_noise { get; set; }
+	}
+
+	public class CLIPTextEncodeSDXL : BaseCLIPTestEncodeInputs
+	{
+		public int width { get; set; }
+		public int height { get; set; }
+		public int crop_w { get; set; }
+		public int crop_h { get; set; }
+		public int target_width { get; set; }
+		public int target_height { get; set; }
+		public string text_g { get; set; }
+		public string text_l { get; set; }
+		public override string GetText() => (text_g + " " + text_l).Trim();
+	}
+
+	public class CLIPTextEncodeSDXLRefiner : BaseCLIPTestEncodeInputs
+	{
+		public float ascore { get; set; }
+		public int width { get; set; }
+		public int height { get; set; }
+		public string text { get; set; }
+		public override string GetText() => text;
 	}
 }
