@@ -26,7 +26,7 @@ namespace SDMeta.Comfy
 
 			return new GenerationParams()
 			{
-				Model = modelNode?.ckpt_name,
+				Model = modelNode?.ckpt_name?.Replace(".safetensors",""),
 				Prompt = positive,
 				NegativePrompt = negative,
 			};
