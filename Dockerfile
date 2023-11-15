@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:latest AS build-env
 WORKDIR /app
 
 # Copy everything
@@ -10,7 +10,7 @@ RUN dotnet restore
 RUN dotnet publish ./SDMetaUI -c Release -o out
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet
+FROM mcr.microsoft.com/dotnet/aspnet:latest
 
 WORKDIR /app
 COPY --from=build-env /app/out .
