@@ -1,30 +1,21 @@
 ﻿namespace SDMetaUI.Models
 {
-	public class FlatList : IGroupList
+	public class FlatList(
+		FilteredList filteredList,
+		Action postGroupingAction
+			) : IGroupList
 	{
-		private readonly FilteredList filteredList;
-		private readonly Action postGroupingAction;
-
-		public FlatList(
-			FilteredList filteredList,
-			Action postGroupingAction
-			)
-		{
-			this.filteredList = filteredList;
-			this.postGroupingAction = postGroupingAction;
-		}
-
 		public void RunGrouping() => postGroupingAction();
 
 		public IList<GalleryRow> GetChunks() => filteredList.Chunk(countPerRow).Select(p => new GalleryRow(p)).ToList();
 
-		public PngFileViewModel GetPrevious(PngFileViewModel current) => this.filteredList.GetPrevious(current);
+		public PngFileViewModel GetPrevious(PngFileViewModel current) => filteredList.GetPrevious(current);
 
-		public PngFileViewModel GetNext(PngFileViewModel current) => this.filteredList.GetNext(current);
+		public PngFileViewModel GetNext(PngFileViewModel current) => filteredList.GetNext(current);
 
 		public void Remove(PngFileViewModel current)
 		{
-			this.filteredList.Remove(current);
+			filteredList.Remove(current);
 			postGroupingAction();
 		}
 

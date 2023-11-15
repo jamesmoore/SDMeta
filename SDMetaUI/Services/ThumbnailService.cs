@@ -6,18 +6,9 @@ using System.Text;
 
 namespace SDMetaUI.Services
 {
-	public class ThumbnailService : IThumbnailService
+	public class ThumbnailService(IFileSystem fileSystem, DataPath dataPath) : IThumbnailService
 	{
 		public const int ThumbnailSize = 175;
-
-		private readonly IFileSystem fileSystem;
-		private readonly DataPath dataPath;
-
-		public ThumbnailService(IFileSystem fileSystem, DataPath dataPath)
-		{
-			this.fileSystem = fileSystem;
-			this.dataPath = dataPath;
-		}
 
 		public string GetOrGenerateThumbnail(string fullName)
 		{
@@ -37,7 +28,7 @@ namespace SDMetaUI.Services
 
 			if (fileSystem.File.Exists(thumbnailFullName))
 			{
-				this.fileSystem.File.Delete(thumbnailFullName);
+				fileSystem.File.Delete(thumbnailFullName);
 			}
 		}
 

@@ -3,22 +3,11 @@ using System.IO.Abstractions;
 
 namespace SDMeta
 {
-	public class CachedPngFileLoader : IPngFileLoader
+	public class CachedPngFileLoader(
+		IFileSystem fileSystem,
+		IPngFileLoader inner,
+		IPngFileDataSource pngFileDataSource) : IPngFileLoader
 	{
-		private readonly IPngFileLoader inner;
-		private readonly IPngFileDataSource pngFileDataSource;
-		private readonly IFileSystem fileSystem;
-
-		public CachedPngFileLoader(
-			IFileSystem fileSystem,
-			IPngFileLoader inner,
-			IPngFileDataSource pngFileDataSource)
-		{
-			this.inner = inner;
-			this.pngFileDataSource = pngFileDataSource;
-			this.fileSystem = fileSystem;
-		}
-
 		public PngFile GetPngFile(string filename)
 		{
 			var fileInfo = fileSystem.FileInfo.New(filename);

@@ -10,21 +10,8 @@ using System.Linq;
 
 namespace SDMetaTool.Processors
 {
-    class CSVPngFileLister : IPngFileListProcessor
+    class CSVPngFileLister(IFileLister fileLister, IPngFileLoader pngFileLoader, string outfile, bool distinct) : IPngFileListProcessor
 	{
-		private readonly IFileLister fileLister;
-		private readonly IPngFileLoader pngFileLoader;
-		private readonly string outfile;
-		private readonly bool distinct;
-
-		public CSVPngFileLister(IFileLister fileLister, IPngFileLoader pngFileLoader, string outfile, bool distinct)
-		{
-			this.fileLister = fileLister;
-			this.pngFileLoader = pngFileLoader;
-			this.outfile = outfile;
-			this.distinct = distinct;
-		}
-
 		public void ProcessPngFiles(string root)
 		{
 			using var writer = new StreamWriter(outfile);

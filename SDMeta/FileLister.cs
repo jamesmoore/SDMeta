@@ -5,15 +5,9 @@ using System.Linq;
 
 namespace SDMeta
 {
-	public class FileLister : IFileLister
+	public class FileLister(IFileSystem fileSystem) : IFileLister
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-		private readonly IFileSystem fileSystem;
-
-		public FileLister(IFileSystem fileSystem)
-		{
-			this.fileSystem = fileSystem;
-		}
 
 		public IEnumerable<string> GetList(string path)
 		{

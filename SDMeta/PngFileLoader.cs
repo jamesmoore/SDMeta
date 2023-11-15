@@ -8,16 +8,9 @@ using System.Linq;
 
 namespace SDMeta
 {
-	public class PngFileLoader : IPngFileLoader
+	public class PngFileLoader(IFileSystem fileSystem) : IPngFileLoader
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-		private readonly IFileSystem fileSystem;
-
-		public PngFileLoader(IFileSystem fileSystem)
-		{
-			this.fileSystem = fileSystem;
-
-		}
 
 		public PngFile GetPngFile(string filename)
 		{

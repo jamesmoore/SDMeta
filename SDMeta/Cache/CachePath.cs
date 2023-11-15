@@ -3,15 +3,8 @@ using System.IO.Abstractions;
 
 namespace SDMeta.Cache
 {
-	public class CachePath
+	public class CachePath(IFileSystem fileSystem)
 	{
-		private readonly IFileSystem fileSystem;
-
-		public CachePath(IFileSystem fileSystem)
-		{
-			this.fileSystem = fileSystem;
-		}
-
 		public string GetPath() => fileSystem.Path.Combine(new DataPath(fileSystem).GetPath(), "cache.json");
 	}
 }

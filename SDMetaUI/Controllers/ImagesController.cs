@@ -6,23 +6,12 @@ namespace SDMetaUI.Controllers
 {
 	[ApiController]
 	[Route("images")]
-	public class ImagesController : Controller
+	public class ImagesController(
+		IFileSystem fileSystem,
+		IThumbnailService thumbnailService,
+		ILogger<ImagesController> _logger
+		) : Controller
 	{
-		private readonly IFileSystem fileSystem;
-		private readonly IThumbnailService thumbnailService;
-		private readonly ILogger<ImagesController> _logger;
-
-		public ImagesController(
-			IFileSystem fileSystem, 
-			IThumbnailService thumbnailService,
-			ILogger<ImagesController> _logger
-		)
-		{
-			this.fileSystem = fileSystem;
-			this.thumbnailService = thumbnailService;
-			this._logger = _logger;
-		}
-
 		[Route("thumb/{path}")]
 		public IActionResult Thumb(string path)
 		{

@@ -59,7 +59,7 @@ docker run \
 -v /mnt/storage/sd/:/sd \
 -v sdmeta_data:/var/lib/sdmeta \
 -e ImageDir='/sd' \
--p 80:80 \
+-p 8080:8080 \
 --entrypoint dotnet \
 --restart always \
 --log-opt max-size=1m \

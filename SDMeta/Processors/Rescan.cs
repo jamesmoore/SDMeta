@@ -5,23 +5,13 @@ using System.Linq;
 
 namespace SDMeta.Processors
 {
-    public class Rescan : IPngFileListProcessor
-	{
-		private readonly IPngFileDataSource pngFileDataSource;
-		private readonly IFileLister fileLister;
-		private readonly IPngFileLoader pngFileLoader;
-		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-		public event EventHandler<float> ProgressNotification;
-
-		public Rescan(
+    public class Rescan(
 			IFileLister fileLister,
 			IPngFileDataSource pngFileDataSource,
-			IPngFileLoader pngFileLoader)
-		{
-			this.pngFileDataSource = pngFileDataSource;
-			this.fileLister = fileLister;
-			this.pngFileLoader = pngFileLoader;
-		}
+			IPngFileLoader pngFileLoader) : IPngFileListProcessor
+	{
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		public event EventHandler<float> ProgressNotification;
 
 		public void ProcessPngFiles(string root)
 		{

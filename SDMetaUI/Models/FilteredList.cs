@@ -3,23 +3,13 @@ using System.Collections;
 
 namespace SDMetaUI.Models
 {
-	public class FilteredList : IList<PngFileViewModel>
+	public class FilteredList(
+		IPngFileDataSource pngFileDataSource,
+		PngFileViewModelBuilder pngFileViewModelBuilder,
+		Action postFilteringAction
+			) : IList<PngFileViewModel>
 	{
-		public FilteredList(
-			IPngFileDataSource pngFileDataSource,
-			PngFileViewModelBuilder pngFileViewModelBuilder,
-			Action postFilteringAction
-			)
-		{
-			this.pngFileDataSource = pngFileDataSource;
-			this.pngFileViewModelBuilder = pngFileViewModelBuilder;
-			this.postFilteringAction = postFilteringAction;
-			this.filteredFiles = new List<PngFileViewModel>();
-		}
-		private readonly Action postFilteringAction;
-		private readonly IPngFileDataSource pngFileDataSource;
-		private readonly PngFileViewModelBuilder pngFileViewModelBuilder;
-		private IList<PngFileViewModel> filteredFiles;
+		private IList<PngFileViewModel> filteredFiles = new List<PngFileViewModel>();
 
 		public bool FilterError { get; private set; }
 

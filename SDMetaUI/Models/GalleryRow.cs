@@ -2,21 +2,11 @@
 
 namespace SDMetaUI.Models
 {
-	public class GalleryRow : IEnumerable<PngFileViewModel>
+	public class GalleryRow(IEnumerable<PngFileViewModel> list, bool isSubGroup = false, bool isStartOfGroup = false, bool isEndOfGroup = false) : IEnumerable<PngFileViewModel>
 	{
-		private IEnumerable<PngFileViewModel> list;
-
-		public GalleryRow(IEnumerable<PngFileViewModel> list, bool isSubGroup = false, bool isStartOfGroup = false, bool isEndOfGroup = false)
-		{
-			this.list = list;
-			IsSubGroup = isSubGroup;
-			IsStartOfGroup = isStartOfGroup;
-			IsEndOfGroup = isEndOfGroup;
-		}
-
-		public bool IsSubGroup { get; private set; }
-		public bool IsStartOfGroup { get; private set; }
-		public bool IsEndOfGroup { get; private set; }
+		public bool IsSubGroup { get; private set; } = isSubGroup;
+		public bool IsStartOfGroup { get; private set; } = isStartOfGroup;
+		public bool IsEndOfGroup { get; private set; } = isEndOfGroup;
 
 		public IEnumerator<PngFileViewModel> GetEnumerator()
 		{

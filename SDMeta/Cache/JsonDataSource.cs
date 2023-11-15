@@ -125,24 +125,14 @@ namespace SDMeta.Cache
 		{
 		}
 
-		internal class PngFileDTO
+		internal class PngFileDTO(PngFile track)
 		{
-			public PngFileDTO(PngFile track)
-			{
-				FileName = track.FileName;
-				LastUpdated = track.LastUpdated;
-				Prompt = track.Prompt;
-				PromptFormat = track.PromptFormat;
-				Length = track.Length;
-				Exists = track.Exists;
-			}
-
-			public string FileName { get; set; }
-			public DateTime LastUpdated { get; set; }
-			public long Length { get; set; }
-			public string Prompt { get; set; }
-			public PromptFormat PromptFormat { get; set; }
-			public bool Exists { get; set; }
+			public string FileName { get; set; } = track.FileName;
+			public DateTime LastUpdated { get; set; } = track.LastUpdated;
+			public long Length { get; set; } = track.Length;
+			public string Prompt { get; set; } = track.Prompt;
+			public PromptFormat PromptFormat { get; set; } = track.PromptFormat;
+			public bool Exists { get; set; } = track.Exists;
 
 			public PngFile ToPngFile() => new PngFile(
 				FileName,

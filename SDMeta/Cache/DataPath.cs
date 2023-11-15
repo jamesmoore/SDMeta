@@ -4,15 +4,8 @@ using System.Runtime.InteropServices;
 
 namespace SDMeta.Cache
 {
-	public class DataPath
+	public class DataPath(IFileSystem fileSystem)
 	{
-		private readonly IFileSystem fileSystem;
-
-		public DataPath(IFileSystem fileSystem)
-		{
-			this.fileSystem = fileSystem;
-		}
-
 		public string GetPath() => RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ?
 			"/var/lib/" + Application.ApplicationName.ToLower()
 			: fileSystem.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ApplicationName);

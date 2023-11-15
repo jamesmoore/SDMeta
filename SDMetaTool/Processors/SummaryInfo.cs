@@ -6,17 +6,8 @@ using System.Linq;
 
 namespace SDMetaTool.Processors
 {
-    internal class SummaryInfo : IPngFileListProcessor
+    internal class SummaryInfo(IFileLister fileLister, IPngFileLoader pngFileLoader) : IPngFileListProcessor
 	{
-		private readonly IFileLister fileLister;
-		private readonly IPngFileLoader pngFileLoader;
-
-		public SummaryInfo(IFileLister fileLister, IPngFileLoader pngFileLoader)
-		{
-			this.fileLister = fileLister;
-			this.pngFileLoader = pngFileLoader;
-		}
-
 		public void ProcessPngFiles(string root)
 		{
 			var fileNames = fileLister.GetList(root);

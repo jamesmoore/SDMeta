@@ -1,13 +1,8 @@
 ﻿namespace SDMetaUI
 {
-	public class ImageDir
+	public class ImageDir(IConfiguration configuration)
 	{
-		private readonly IConfiguration configuration;
-
-		public ImageDir(IConfiguration configuration)
-		{
-			this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-		}
+		private readonly IConfiguration configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
 		public string GetPath()
 		{
