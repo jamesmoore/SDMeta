@@ -104,11 +104,11 @@ namespace SDMeta.Auto1111
 
 			var parameters = string.Empty;
 
-			var paramsMatch = SingleParameterRegex().Match(lastLine);
+			var paramsMatch = SingleParameterRegex().Matches(lastLine);
 
 			var parametersLookup = Enumerable.Empty<string>().ToLookup(p => p, p => p);
 
-			if (paramsMatch.Success && paramsMatch.Groups.Count >= 3)
+			if (paramsMatch.Count >= 3)
 			{
 				parameters = lastLine;
 				lines = lines.Take(lines.Count - 1).ToList();
