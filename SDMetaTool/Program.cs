@@ -3,6 +3,7 @@ using SDMeta.Cache;
 using SDMeta.Processors;
 using SDMetaTool.Processors;
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
@@ -37,16 +38,16 @@ namespace SDMetaTool
             var distinctOption = new Option<bool>(new string[] { "--distinct", "-d" }, () => false, "List distinct prompts with earliest file.");
             listCommand.AddOption(outfileOption);
             listCommand.AddOption(distinctOption);
-            listCommand.SetHandler((string path, string outfile, bool distinct) => new CSVPngFileLister(fileLister, loader, outfile, distinct).ProcessPngFiles(path), pathArgument, outfileOption, distinctOption);
+            listCommand.SetHandler((string path, string outfile, bool distinct) => new CSVPngFileLister(new ImageDirs(path), fileLister, loader, outfile, distinct).ProcessPngFiles(), pathArgument, outfileOption, distinctOption);
 
             var infoCommand = new Command("info", "Info on files.");
             infoCommand.AddArgument(pathArgument);
             infoCommand.AddOption(outfileOption);
-            infoCommand.SetHandler((string path, string outfile) => new SummaryInfo(fileLister, loader).ProcessPngFiles(path), pathArgument, outfileOption);
+            infoCommand.SetHandler((string path, string outfile) => new SummaryInfo(new ImageDirs(path), fileLister, loader).ProcessPngFiles(), pathArgument, outfileOption);
 
             var rescanCommand = new Command("rescan", "Rescan dir. No output.");
             rescanCommand.AddArgument(pathArgument);
-            rescanCommand.SetHandler((string path) => new Rescan(fileLister, pngFileDataSource, loader).ProcessPngFiles(path), pathArgument);
+            rescanCommand.SetHandler((string path) => new Rescan(new ImageDirs(path), fileLister, pngFileDataSource, loader).ProcessPngFiles(), pathArgument);
 
             var parent = new RootCommand()
             {
@@ -59,4 +60,9 @@ namespace SDMetaTool
             return result;
         }
     }
+
+	public class ImageDirs(string path) : IImageDir
+	{
+		public IEnumerable<string> GetPath() => [path];
+	}
 }

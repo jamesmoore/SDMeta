@@ -1,10 +1,13 @@
-﻿namespace SDMetaUI.Services
+﻿using SDMeta;
+using System.IO.Abstractions;
+
+namespace SDMetaUI.Services
 {
 	public class FileSystemObserver : IDisposable
 	{
-		private readonly ImageDir configuration;
+		private readonly IImageDir configuration;
 
-		public FileSystemObserver(ImageDir configuration)
+		public FileSystemObserver(IImageDir configuration)
 		{
 			this.configuration = configuration;
 			this.Start();
@@ -14,23 +17,27 @@
 		private readonly IList<string> added = new List<string>();
 		private readonly IList<string> removed = new List<string>();
 		private readonly IList<string> removedInAdvanced = new List<string>();
-		private FileSystemWatcher watcher;
+		private IEnumerable<IFileSystemWatcher> watchers;
 
 		private void Start()
 		{
-			if (watcher == null)
+			if (watchers == null)
 			{
-				var directory = configuration.GetPath();
+				watchers = new List<IFileSystemWatcher>();
 
-				watcher = new FileSystemWatcher(directory);
+				var directoryList = configuration.GetPath();
+				foreach (var directory in directoryList)
+				{
+					var watcher = new FileSystemWatcher(directory);
 
-				watcher.Created += OnCreated;
-				watcher.Deleted += OnDeleted;
-				watcher.Renamed += OnCreated;
+					watcher.Created += OnCreated;
+					watcher.Deleted += OnDeleted;
+					watcher.Renamed += OnCreated;
 
-				// watcher.Filter = "*.png";
-				watcher.IncludeSubdirectories = true;
-				watcher.EnableRaisingEvents = true;
+					// watcher.Filter = "*.png";
+					watcher.IncludeSubdirectories = true;
+					watcher.EnableRaisingEvents = true;
+				}
 			}
 		}
 
@@ -80,7 +87,13 @@
 
 		public void Dispose()
 		{
-			watcher?.Dispose();
+			if (watchers != null)
+			{
+				foreach (var watcher in watchers)
+				{
+					watcher.Dispose();
+				}
+			}
 		}
 
 		public int Added => added.Count;

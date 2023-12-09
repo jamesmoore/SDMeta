@@ -81,6 +81,6 @@ static void AddCustomServices(WebApplicationBuilder builder)
 	builder.Services.AddSingleton<IThumbnailService, ThumbnailService>();
 	builder.Services.AddSingleton<PngFileViewModelBuilder>();
 	builder.Services.AddSingleton<FileSystemObserver>();
-	builder.Services.AddSingleton<ImageDir>();
+	builder.Services.AddSingleton<IImageDir, ImageDir>();
 	HxMessengerServiceExtensions.Defaults.InformationAutohideDelay = 1000;
 }

@@ -5,19 +5,20 @@ using System.Linq;
 
 namespace SDMeta.Processors
 {
-    public class Rescan(
-			IFileLister fileLister,
-			IPngFileDataSource pngFileDataSource,
-			IPngFileLoader pngFileLoader) : IPngFileListProcessor
+	public class Rescan(
+		IImageDir imageDir,
+		IFileLister fileLister,
+		IPngFileDataSource pngFileDataSource,
+		IPngFileLoader pngFileLoader) : IPngFileListProcessor
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		public event EventHandler<float> ProgressNotification;
 
-		public void ProcessPngFiles(string root)
+		public void ProcessPngFiles()
 		{
 			logger.Info("Rescan started");
 			pngFileDataSource.BeginTransaction();
-			var fileNames = fileLister.GetList(root);
+			var fileNames = imageDir.GetPath().Select(fileLister.GetList).SelectMany(p => p).Distinct().ToList();
 
 			var knownExisting = pngFileDataSource.GetAllFilenames();
 

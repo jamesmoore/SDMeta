@@ -2,6 +2,6 @@
 {
 	public interface IPngFileListProcessor
     {
-        void ProcessPngFiles(string root);
+        void ProcessPngFiles();
     }
 }

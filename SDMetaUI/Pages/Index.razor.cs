@@ -140,7 +140,7 @@ namespace SDMetaUI.Pages
 			{
 				this.FileSystemObserver.Reset();
 				var directory = imageDir.GetPath();
-				this.rescan.ProcessPngFiles(directory);
+				this.rescan.ProcessPngFiles();
 				logger.LogInformation("Rescan done");
 			});
 			this.scanProgess = 0;

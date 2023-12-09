@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using BlazorPro.BlazorSize;
+@using SDMeta
 @using SDMetaUI.Models;
 @using System.IO.Abstractions;
 @using System.Web;
@@ -15,7 +16,7 @@
 @inject IHxMessengerService Messenger
 @inject NavigationManager NavigationManager
 @inject FileSystemObserver FileSystemObserver
-@inject ImageDir imageDir
+@inject IImageDir imageDir
 @inject GalleryViewModel viewModel
 
 <PageTitle>@PageTitle</PageTitle>

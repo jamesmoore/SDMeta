@@ -6,11 +6,11 @@ using System.Linq;
 
 namespace SDMetaTool.Processors
 {
-    internal class SummaryInfo(IFileLister fileLister, IPngFileLoader pngFileLoader) : IPngFileListProcessor
+    internal class SummaryInfo(IImageDir imageDir, IFileLister fileLister, IPngFileLoader pngFileLoader) : IPngFileListProcessor
 	{
-		public void ProcessPngFiles(string root)
+		public void ProcessPngFiles()
 		{
-			var fileNames = fileLister.GetList(root);
+			var fileNames = imageDir.GetPath().Select(fileLister.GetList).SelectMany(p => p).Distinct().ToList();
 			var pngFiles = fileNames.Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).OrderBy(p => p.FileName).ToList();
 
 			var distinctPrompts = pngFiles.Select(p => p.Parameters?.PromptHash).Distinct().ToList();
