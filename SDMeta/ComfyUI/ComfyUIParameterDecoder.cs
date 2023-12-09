@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -21,8 +22,8 @@ namespace SDMeta.Comfy
 
 			var posNeg = samplerNode.Select(p => p.GetClips(clipText)).Distinct().ToList();
 
-			var positive = posNeg.Select(p => p.positive?.Trim()).OrderBy(p => p).Aggregate((p, q) => p + " " + q);
-			var negative = posNeg.Select(p => p.negative?.Trim()).OrderBy(p => p).Aggregate((p, q) => p + " " + q);
+			var positive = posNeg.Select(p => p.positive?.Trim()).DefaultIfEmpty("").OrderBy(p => p).Aggregate((p, q) => p + " " + q);
+			var negative = posNeg.Select(p => p.negative?.Trim()).DefaultIfEmpty("").OrderBy(p => p).Aggregate((p, q) => p + " " + q);
 
 			return new GenerationParams()
 			{
@@ -40,12 +41,22 @@ namespace SDMeta.Comfy
 
 		public BaseInputs? GetInputs(string nodeId)
 		{
-			var node = GetNode();
-			if (node != null)
+			try
 			{
-				node.NodeId = nodeId;
+				var node = GetNode();
+				if (node != null)
+				{
+					node.NodeId = nodeId;
+				}
+				return node;
 			}
-			return node;
+			catch (Exception ex)
+			{
+				return new BaseInputs()
+				{
+					NodeId = nodeId,
+				};
+			}
 		}
 
 		private BaseInputs? GetNode() => class_type switch

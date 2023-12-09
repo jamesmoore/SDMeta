@@ -14,8 +14,7 @@ namespace SDMeta.Auto1111
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
 		private const string NegativePromptPrefix = "Negative prompt:";
-		private const string SingleParameterRegexString = """\s*([\w\/ ]+):\s*("(?:\\"[^,]|\\"|\\|[^\"])+"|[^,]*)(?:,|$)""";
-		private const string MultipleParameterRegexString = "^(?:" + SingleParameterRegexString + "){3,}$";
+		private const string SingleParameterRegexString = """\s*([\w\/ ]+):\s*("(?:\\"[^,]|\\"|\\|[^\\"])+"|[^,]*)(?:,|$)""";
 		private const string ImageSize = @"^(\d+)x(\d+)$";
 		private const string WildcardPrompt = @",?\s?Wildcard prompt: ""[\S\s]*""";
 		private const string ParamModelHash = "Model hash";
@@ -105,11 +104,11 @@ namespace SDMeta.Auto1111
 
 			var parameters = string.Empty;
 
-			var paramsMatch = MultipleParameterRegex().Match(lastLine);
+			var paramsMatch = SingleParameterRegex().Match(lastLine);
 
 			var parametersLookup = Enumerable.Empty<string>().ToLookup(p => p, p => p);
 
-			if (paramsMatch.Success)
+			if (paramsMatch.Success && paramsMatch.Groups.Count >= 3)
 			{
 				parameters = lastLine;
 				lines = lines.Take(lines.Count - 1).ToList();
@@ -193,9 +192,7 @@ namespace SDMeta.Auto1111
 
 
 		[GeneratedRegex(SingleParameterRegexString)]
-		private static partial Regex SingleParameterRegex();
-		[GeneratedRegex(MultipleParameterRegexString)]
-		public static partial Regex MultipleParameterRegex();
+		public static partial Regex SingleParameterRegex();
 		[GeneratedRegex(ImageSize)]
 		private static partial Regex ImageSizeRegex();
 		[GeneratedRegex(WildcardPrompt)]

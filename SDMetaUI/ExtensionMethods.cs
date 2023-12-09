@@ -29,9 +29,9 @@ namespace SDMetaUI
 			}
 			else
 			{
-				var multipleParamsMatch = Auto1111ParameterDecoder.MultipleParameterRegex().Match(s);
+				var multipleParamsMatch = Auto1111ParameterDecoder.SingleParameterRegex().Match(s);
 
-				if (multipleParamsMatch.Success)
+				if (multipleParamsMatch.Success && multipleParamsMatch.Groups.Count >= 3)
 				{
 					var reformatted = ParameterHeadingRegex().Replace(s, "<span class=\"text-info fw-bold\">$1</span> $2, ");
 					if (reformatted.EndsWith(", "))
