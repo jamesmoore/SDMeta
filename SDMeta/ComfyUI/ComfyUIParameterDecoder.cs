@@ -10,27 +10,40 @@ namespace SDMeta.Comfy
 	{
 		public GenerationParams GetParameters(string _parameters)
 		{
-			var nodes = JsonSerializer.Deserialize<Dictionary<string, UntypedBaseNode>>(_parameters);
-
-			var typedNodes = nodes.Select(p => p.Value.GetInputs(p.Key)).ToList();
-
-			var modelNode = typedNodes.OfType<CheckpointLoaderSimpleInputs>().OrderBy(p => p.IsRefiner()).FirstOrDefault();
-
-			var samplerNode = typedNodes.OfType<KSamplerBase>().ToList();
-
-			var clipText = typedNodes.OfType<BaseCLIPTestEncodeInputs>().ToList();
-
-			var posNeg = samplerNode.Select(p => p.GetClips(clipText)).Distinct().ToList();
-
-			var positive = posNeg.Select(p => p.positive?.Trim()).DefaultIfEmpty("").OrderBy(p => p).Aggregate((p, q) => p + " " + q);
-			var negative = posNeg.Select(p => p.negative?.Trim()).DefaultIfEmpty("").OrderBy(p => p).Aggregate((p, q) => p + " " + q);
-
-			return new GenerationParams()
+			try
 			{
-				Model = modelNode?.GetCheckpointName(),
-				Prompt = positive,
-				NegativePrompt = negative,
-			};
+				var nodes = JsonSerializer.Deserialize<Dictionary<string, UntypedBaseNode>>(_parameters);
+
+				var typedNodes = nodes.Select(p => p.Value.GetInputs(p.Key)).ToList();
+
+				var modelNode = typedNodes.OfType<CheckpointLoaderSimpleInputs>().OrderBy(p => p.IsRefiner()).FirstOrDefault();
+
+				var samplerNode = typedNodes.OfType<KSamplerBase>().ToList();
+
+				var clipText = typedNodes.OfType<BaseCLIPTestEncodeInputs>().ToList();
+
+				var posNeg = samplerNode.Select(p => p.GetClips(clipText)).Distinct().ToList();
+
+				var positive = posNeg.Select(p => p.positive?.Trim()).DefaultIfEmpty("").OrderBy(p => p).Aggregate((p, q) => p + " " + q);
+				var negative = posNeg.Select(p => p.negative?.Trim()).DefaultIfEmpty("").OrderBy(p => p).Aggregate((p, q) => p + " " + q);
+
+				return new GenerationParams()
+				{
+					Model = modelNode?.GetCheckpointName(),
+					Prompt = positive,
+					NegativePrompt = negative,
+				};
+			}
+			catch(Exception ex)
+			{
+				const string errorMessage = "Unable to decode Comfy prompt";
+				return new GenerationParams()
+				{
+					Model = errorMessage,
+					Prompt = errorMessage,
+					NegativePrompt = errorMessage,
+				};
+			}
 		}
 	}
 
