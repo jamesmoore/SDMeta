@@ -29,9 +29,9 @@ namespace SDMetaUI
 			}
 			else
 			{
-				var multipleParamsMatch = Auto1111ParameterDecoder.SingleParameterRegex().Match(s);
+				var multipleParamsMatch = Auto1111ParameterDecoder.SingleParameterRegex().Matches(s);
 
-				if (multipleParamsMatch.Success && multipleParamsMatch.Groups.Count >= 3)
+				if (multipleParamsMatch.Count >= 3 && multipleParamsMatch.Any(p => p.Groups.Count == 3 && p.Groups[1].Value == "Model"))
 				{
 					var reformatted = ParameterHeadingRegex().Replace(s, "<span class=\"text-info fw-bold\">$1</span> $2, ");
 					if (reformatted.EndsWith(", "))
@@ -48,7 +48,7 @@ namespace SDMetaUI
 					var loraMatches = loraRegex.Match(encoded);
 					if (loraMatches.Success)
 					{
-						var loraReplaced =  loraRegex.Replace(encoded, "<span class=\"text-success fw-bold\">$1$2$4</span>");
+						var loraReplaced = loraRegex.Replace(encoded, "<span class=\"text-success fw-bold\">$1$2$4</span>");
 						return loraReplaced;
 					}
 					else
