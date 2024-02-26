@@ -8,7 +8,7 @@
 	<ItemGroup>
 		<PackageReference Include="Coderanger.ImageInfo" Version="0.3.4" />
 		<PackageReference Include="Dapper" Version="2.1.28" />
-		<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.2" />
 		<PackageReference Include="NLog" Version="5.2.8" />
 		<PackageReference Include="System.IO.Abstractions" Version="20.0.15" />
 	</ItemGroup>
