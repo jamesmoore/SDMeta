@@ -6,7 +6,6 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Coderanger.ImageInfo" Version="0.3.4" />
 		<PackageReference Include="Dapper" Version="2.1.35" />
 		<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.2" />
 		<PackageReference Include="NLog" Version="5.2.8" />
@@ -17,6 +16,10 @@
 		<Content Include="NLog.config">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Coderanger.ImageInfo\Coderanger.ImageInfo.csproj" />
 	</ItemGroup>
 
 </Project>

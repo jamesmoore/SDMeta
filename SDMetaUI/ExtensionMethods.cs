@@ -20,20 +20,20 @@ namespace SDMetaUI
 			return previous;
 		}
 
-		public static string FormatPromptLine(this string s)
+		public static string FormatPromptLine(this string promptLine)
 		{
 			const string negativePrompt = "Negative prompt:";
-			if (s.StartsWith(negativePrompt))
+			if (promptLine.StartsWith(negativePrompt))
 			{
-				return s.Replace(negativePrompt, $"<span class=\"text-info fw-bold\">{negativePrompt}</span>");
+				return promptLine.Replace(negativePrompt, $"<span class=\"text-info fw-bold\">{negativePrompt}</span>");
 			}
 			else
 			{
-				var multipleParamsMatch = Auto1111ParameterDecoder.SingleParameterRegex().Matches(s);
+				var multipleParamsMatch = Auto1111ParameterDecoder.SingleParameterRegex().Matches(promptLine);
 
 				if (multipleParamsMatch.Count >= 3 && multipleParamsMatch.Any(p => p.Groups.Count == 3 && p.Groups[1].Value == "Model"))
 				{
-					var reformatted = ParameterHeadingRegex().Replace(s, "<span class=\"text-info fw-bold\">$1</span> $2, ");
+					var reformatted = ParameterHeadingRegex().Replace(promptLine, "<span class=\"text-info fw-bold\">$1</span> $2, ");
 					if (reformatted.EndsWith(", "))
 					{
 						reformatted = reformatted[..^2];
@@ -42,7 +42,7 @@ namespace SDMetaUI
 				}
 				else
 				{
-					var encoded = HttpUtility.HtmlEncode(s);
+					var encoded = HttpUtility.HtmlEncode(promptLine);
 
 					var loraRegex = LoraHypernetRegex();
 					var loraMatches = loraRegex.Match(encoded);
