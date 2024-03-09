@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDMetaUI", "SDMetaUI\SDMeta
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDMeta", "SDMeta\SDMeta.csproj", "{6E2385EF-FC5A-4955-97D0-A86E5E436C72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDMetaTest", "SDMetaTest\SDMetaTest.csproj", "{92747F27-78CE-4A87-A7AE-B0F5DB8D842F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDMetaTest", "SDMetaTest\SDMetaTest.csproj", "{92747F27-78CE-4A87-A7AE-B0F5DB8D842F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Coderanger.ImageInfo", "Coderanger.ImageInfo\Coderanger.ImageInfo.csproj", "{3742CB5E-BDBE-4DF9-9242-E5208E346890}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{92747F27-78CE-4A87-A7AE-B0F5DB8D842F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92747F27-78CE-4A87-A7AE-B0F5DB8D842F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92747F27-78CE-4A87-A7AE-B0F5DB8D842F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3742CB5E-BDBE-4DF9-9242-E5208E346890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3742CB5E-BDBE-4DF9-9242-E5208E346890}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3742CB5E-BDBE-4DF9-9242-E5208E346890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3742CB5E-BDBE-4DF9-9242-E5208E346890}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
