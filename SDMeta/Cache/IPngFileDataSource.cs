@@ -17,15 +17,26 @@ namespace SDMeta.Cache
 		void PostUpdateProcessing();
 	}
 
-	public class QueryParams
-	{
-		public string Filter { get; set; }
-		public ModelFilter ModelFilter { get; set; }
-	}
+	public class QueryParams(string filter, ModelFilter modelFilter, QuerySortBy querySort)
+    {
+        public string Filter { get; } = filter;
+        public ModelFilter ModelFilter { get; } = modelFilter;
+		public QuerySortBy QuerySortBy { get; } = querySort;
+    }
 
-	public class ModelFilter
+	public class ModelFilter(string model, string modelHash)
+    {
+        public string Model { get; } = model;
+        public string ModelHash { get; } = modelHash;
+    }
+
+	public enum QuerySortBy
 	{
-		public string Model { get; set; }
-		public string ModelHash { get; set; }
+		Newest,
+		Oldest,
+		Largest,
+		Smallest,
+		AtoZ,
+		ZtoA,
 	}
 }

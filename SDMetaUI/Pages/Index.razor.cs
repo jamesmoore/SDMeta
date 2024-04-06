@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Components;
 using SDMetaUI.Models;
 using SDMetaUI.Shared;
+using SDMeta.Cache;
 
 namespace SDMetaUI.Pages
 {
@@ -201,5 +202,10 @@ namespace SDMetaUI.Pages
 				});
 			};
 		}
+        private void OnSelectSortBy(ChangeEventArgs e)
+        {
+            var newOrder = Enum.Parse<QuerySortBy>(e.Value.ToString());
+			viewModel.SortBy = newOrder;
+        }
 	}
 }

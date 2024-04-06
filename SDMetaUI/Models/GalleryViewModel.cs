@@ -50,7 +50,13 @@ namespace SDMetaUI.Models
 			set => filteredList.Filter = value;
 		}
 
-		public bool FilterError => filteredList.FilterError;
+        public QuerySortBy SortBy
+        {
+            get => filteredList.SortBy;
+            set => filteredList.SortBy = value;
+        }
+
+        public bool FilterError => filteredList.FilterError;
 
 		private void PostFiltering()
 		{

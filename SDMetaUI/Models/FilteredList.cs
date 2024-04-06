@@ -3,144 +3,158 @@ using System.Collections;
 
 namespace SDMetaUI.Models
 {
-	public class FilteredList(
-		IPngFileDataSource pngFileDataSource,
-		PngFileViewModelBuilder pngFileViewModelBuilder,
-		Action postFilteringAction
-			) : IList<PngFileViewModel>
-	{
-		private IList<PngFileViewModel> filteredFiles = new List<PngFileViewModel>();
+    public class FilteredList(
+        IPngFileDataSource pngFileDataSource,
+        PngFileViewModelBuilder pngFileViewModelBuilder,
+        Action postFilteringAction
+            ) : IList<PngFileViewModel>
+    {
+        private IList<PngFileViewModel> filteredFiles = new List<PngFileViewModel>();
 
-		public bool FilterError { get; private set; }
+        public bool FilterError { get; private set; }
 
-		private ModelSummaryViewModel modelFilter;
-		public ModelSummaryViewModel ModelFilter
-		{
-			get
-			{
-				return modelFilter;
-			}
-			set
-			{
-				if (modelFilter != value)
-				{
-					modelFilter = value;
-					RunFilter();
-				}
-			}
-		}
+        private ModelSummaryViewModel modelFilter;
+        public ModelSummaryViewModel ModelFilter
+        {
+            get
+            {
+                return modelFilter;
+            }
+            set
+            {
+                if (modelFilter != value)
+                {
+                    modelFilter = value;
+                    RunFilter();
+                }
+            }
+        }
 
-		private string filter;
+        private string filter;
 
-		public string Filter
-		{
-			get
-			{
-				return filter;
-			}
-			set
-			{
-				if (filter != value)
-				{
-					filter = value;
-					RunFilter();
-				}
-			}
-		}
+        public string Filter
+        {
+            get
+            {
+                return filter;
+            }
+            set
+            {
+                if (filter != value)
+                {
+                    filter = value;
+                    RunFilter();
+                }
+            }
+        }
 
-		public int Count => this.filteredFiles.Count;
+        private QuerySortBy sortBy = QuerySortBy.Newest;
 
-		public bool IsReadOnly => throw new NotImplementedException();
+        public QuerySortBy SortBy
+        {
+            get
+            {
+                return sortBy;
+            }
+            set
+            {
+                if (sortBy != value)
+                {
+                    sortBy = value;
+                    RunFilter();
+                }
+            }
+        }
 
-		public PngFileViewModel this[int index]
-		{
-			get => this.filteredFiles[index];
-			set => throw new NotImplementedException();
-		}
+        public int Count => this.filteredFiles.Count;
 
-		public void RunFilter()
-		{
-			var queryParams = new QueryParams()
-			{
-				Filter = this.filter,
-				ModelFilter = this.modelFilter == null ? null : new ModelFilter()
-				{
-					Model = this.modelFilter.Model,
-					ModelHash = this.modelFilter.ModelHash,
-				}
-			};
-			try
-			{
-				filteredFiles = pngFileDataSource.Query(queryParams).OrderByDescending(p => p.LastUpdated).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
-				this.FilterError = false;
-			}
-			catch (Exception ex)
-			{
-				if(ex.Message.Contains("fts5"))
-				{
-					this.FilterError = true;
-				}
-				else
-				{
-					throw;
-				}
-			}
-			postFilteringAction();
-		}
+        public bool IsReadOnly => throw new NotImplementedException();
 
-		public PngFileViewModel? Get(string path)
-		{
-			return filteredFiles.FirstOrDefault(p => p.FileName == path);
-		}
+        public PngFileViewModel this[int index]
+        {
+            get => this.filteredFiles[index];
+            set => throw new NotImplementedException();
+        }
 
-		public int IndexOf(PngFileViewModel item)
-		{
-			return filteredFiles.IndexOf(item);
-		}
+        public void RunFilter()
+        {
+            var queryParams = new QueryParams(
+                this.filter,
+                this.modelFilter == null ? null : new ModelFilter(this.modelFilter.Model,this.modelFilter.ModelHash),
+                sortBy
+            );
+            try
+            {
+                filteredFiles = pngFileDataSource.Query(queryParams).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
+                this.FilterError = false;
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("fts5"))
+                {
+                    this.FilterError = true;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            postFilteringAction();
+        }
 
-		public void Insert(int index, PngFileViewModel item)
-		{
-			throw new NotImplementedException();
-		}
+        public PngFileViewModel? Get(string path)
+        {
+            return filteredFiles.FirstOrDefault(p => p.FileName == path);
+        }
 
-		public void RemoveAt(int index)
-		{
-			throw new NotImplementedException();
-		}
+        public int IndexOf(PngFileViewModel item)
+        {
+            return filteredFiles.IndexOf(item);
+        }
 
-		public void Add(PngFileViewModel item)
-		{
-			throw new NotImplementedException();
-		}
+        public void Insert(int index, PngFileViewModel item)
+        {
+            throw new NotImplementedException();
+        }
 
-		public void Clear()
-		{
-			throw new NotImplementedException();
-		}
+        public void RemoveAt(int index)
+        {
+            throw new NotImplementedException();
+        }
 
-		public bool Contains(PngFileViewModel item)
-		{
-			throw new NotImplementedException();
-		}
+        public void Add(PngFileViewModel item)
+        {
+            throw new NotImplementedException();
+        }
 
-		public void CopyTo(PngFileViewModel[] array, int arrayIndex)
-		{
-			throw new NotImplementedException();
-		}
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
 
-		public bool Remove(PngFileViewModel item)
-		{
-			return this.filteredFiles.Remove(item);
-		}
+        public bool Contains(PngFileViewModel item)
+        {
+            throw new NotImplementedException();
+        }
 
-		public IEnumerator<PngFileViewModel> GetEnumerator()
-		{
-			return this.filteredFiles.GetEnumerator();
-		}
+        public void CopyTo(PngFileViewModel[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
 
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return this.filteredFiles.GetEnumerator();
-		}
-	}
+        public bool Remove(PngFileViewModel item)
+        {
+            return this.filteredFiles.Remove(item);
+        }
+
+        public IEnumerator<PngFileViewModel> GetEnumerator()
+        {
+            return this.filteredFiles.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.filteredFiles.GetEnumerator();
+        }
+    }
 }

@@ -1,8 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Data.Sqlite;
 using NLog;
-using SDMeta;
-using SDMeta.Cache;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,8 +14,8 @@ namespace SDMeta.Cache
 		private SqliteTransaction transaction;
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-		private readonly string[] columns = new string[]
-		{
+		private readonly string[] columns =
+		[
 			"FileName",
 			"LastUpdated",
 			"Length",
@@ -29,15 +27,15 @@ namespace SDMeta.Cache
 			"PromptHash",
 			"NegativePromptHash",
 			"Version",
-		};
+		];
 
-		private readonly string[] ftscolumns = new string[]
-		{
+		private readonly string[] ftscolumns =
+		[
 			"FileName",
 			"PromptFormat",
 			"Prompt",
 			"Version"
-		};
+		];
 
 		private readonly string insertSql;
 		private readonly DbPath dbPath;
@@ -146,6 +144,8 @@ namespace SDMeta.Cache
 				sql += BuildModelWhereClause(queryParams.ModelFilter);
 			}
 
+			sql += BuildOrderByClause(queryParams.QuerySortBy);
+
 			return sql;
 		}
 
@@ -172,7 +172,21 @@ namespace SDMeta.Cache
 			return Sql;
 		}
 
-		public PngFile ReadPngFile(string realFileName)
+		private static string BuildOrderByClause(QuerySortBy querySort)
+		{
+			return querySort switch
+			{
+				QuerySortBy.AtoZ => " ORDER BY FileName ASC",
+				QuerySortBy.ZtoA => " ORDER BY FileName DESC",
+				QuerySortBy.Largest => " ORDER BY Length DESC",
+				QuerySortBy.Smallest => " ORDER BY Length ASC",
+				QuerySortBy.Newest => " ORDER BY LastUpdated DESC",
+				QuerySortBy.Oldest => " ORDER BY LastUpdated ASC",
+				_ => String.Empty,
+			};
+		}
+
+        public PngFile ReadPngFile(string realFileName)
 		{
 			var reader = ExecuteOnConnection(connection => connection.QueryFirstOrDefault<DataRow>(
 			$@"SELECT *
@@ -265,9 +279,9 @@ namespace SDMeta.Cache
 					WHERE {FTSTableName}.FileName = p.FileName and {FTSTableName}.Version != p.Version",
 				this.transaction));
 		}
-	}
+    }
 
-	public static class ExtensionMethods
+    public static class ExtensionMethods
 	{
 		public static string ToCommaSeparated(this IEnumerable<string> list)
 		{

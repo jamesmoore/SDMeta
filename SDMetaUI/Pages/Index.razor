@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using BlazorPro.BlazorSize;
 @using SDMeta
+@using SDMeta.Cache
 @using SDMetaUI.Models;
 @using System.IO.Abstractions;
 @using System.Web;
@@ -39,6 +40,16 @@
 					}
 				</select>
 			</div>
+			<div class="col-md-2 col-xs-12 py-2 py-md-0">
+				<label class="visually-hidden" for="sortBySelect">Sort by</label>
+				<select class="form-select" id="sortBySelect" @onchange="OnSelectSortBy">
+					@foreach (var template in Enum.GetValues<QuerySortBy>())
+					{
+						<option value=@template>@(template.ToString())</option>
+					}
+				</select>
+			</div>
+
 			<div class="col-auto d-flex align-items-center py-2 py-md-0">
 				<HxSwitch Text="Group by prompt" @bind-Value="@viewModel.IsGrouped" />
 			</div>
