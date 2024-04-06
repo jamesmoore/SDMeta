@@ -38,5 +38,6 @@ namespace SDMeta.Cache
 		Smallest,
 		AtoZ,
 		ZtoA,
+		Random,
 	}
 }

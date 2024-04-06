@@ -180,6 +180,7 @@ namespace SDMeta.Cache
 				QuerySortBy.Smallest => " ORDER BY Length ASC",
 				QuerySortBy.Newest => " ORDER BY LastUpdated DESC",
 				QuerySortBy.Oldest => " ORDER BY LastUpdated ASC",
+				QuerySortBy.Random => " ORDER BY Random()",
 				_ => String.Empty,
 			};
 		}
