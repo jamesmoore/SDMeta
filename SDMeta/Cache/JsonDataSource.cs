@@ -33,7 +33,6 @@ namespace SDMeta.Cache
 			{
 				FileName = p.FileName,
 				FullPromptHash = p.Parameters?.PromptHash + p.Parameters?.NegativePromptHash,
-				LastUpdated = p.LastUpdated,
 			}
 			).ToList();
 		}

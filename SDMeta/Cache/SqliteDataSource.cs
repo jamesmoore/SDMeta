@@ -123,7 +123,6 @@ namespace SDMeta.Cache
 			{
 				sql = $@"SELECT 
 					{TableName}.FileName,
-					LastUpdated,
 					IFNULL(PromptHash,"") + IFNULL(NegativePromptHash,"") as FullPromptHash
 				FROM {TableName}
 				join {FTSTableName} on {TableName}.FileName = {FTSTableName}.FileName
@@ -133,7 +132,6 @@ namespace SDMeta.Cache
 			{
 				sql = $@"SELECT 
 					FileName,
-					LastUpdated,
 					IFNULL(PromptHash,"") + IFNULL(NegativePromptHash,"") as FullPromptHash
 				FROM {TableName}
 				WHERE [Exists] = 1";
