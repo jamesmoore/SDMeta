@@ -8,7 +8,7 @@
 	<ItemGroup>
 		<PackageReference Include="Dapper" Version="2.1.35" />
 		<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.7" />
-		<PackageReference Include="NLog" Version="5.3.2" />
+		<PackageReference Include="NLog" Version="5.3.3" />
 		<PackageReference Include="System.IO.Abstractions" Version="21.0.29" />
 	</ItemGroup>
 
