@@ -86,6 +86,8 @@ namespace SDMetaUI.Models
 			}
 		}
 
+		public bool AutoRescan { get; set; }
+
 		private int width;
 		public int Width
 		{

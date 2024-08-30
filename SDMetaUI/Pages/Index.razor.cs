@@ -100,6 +100,13 @@ namespace SDMetaUI.Pages
 				this.StateHasChanged();
 			}
 
+			if (viewModel.AutoRescan && (this.FileSystemObserver.Added > 0 || this.FileSystemObserver.Removed > 0))
+			{
+				await Task.Delay(3000);
+				await this.Rescan();
+				this.StateHasChanged();
+			}
+
 			await base.OnAfterRenderAsync(firstRender);
 		}
 
@@ -202,10 +209,10 @@ namespace SDMetaUI.Pages
 				});
 			};
 		}
-        private void OnSelectSortBy(ChangeEventArgs e)
-        {
-            var newOrder = Enum.Parse<QuerySortBy>(e.Value.ToString());
+		private void OnSelectSortBy(ChangeEventArgs e)
+		{
+			var newOrder = Enum.Parse<QuerySortBy>(e.Value.ToString());
 			viewModel.SortBy = newOrder;
-        }
+		}
 	}
 }

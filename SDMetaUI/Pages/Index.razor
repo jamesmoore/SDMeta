@@ -65,6 +65,9 @@
 					}
 				</HxButton>
 			</div>
+			<div class="col-auto d-flex align-items-center py-2 py-md-0">
+				<HxSwitch Text="Auto rescan" @bind-Value="@viewModel.AutoRescan" />
+			</div>
 			<div class="col-auto ms-auto">
 				@viewModel.FilteredFileCount items
 				<HxButton Outline="false" Icon="BootstrapIcon.Gear" Text="" Color="ThemeColor.Link" @onclick=@(() => NavigationManager.NavigateTo("/settings")) />
