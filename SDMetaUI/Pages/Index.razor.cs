@@ -102,7 +102,6 @@ namespace SDMetaUI.Pages
 
 			if (viewModel.AutoRescan && (this.FileSystemObserver.Added > 0 || this.FileSystemObserver.Removed > 0))
 			{
-				await Task.Delay(3000);
 				await this.Rescan();
 				this.StateHasChanged();
 			}

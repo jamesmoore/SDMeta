@@ -72,10 +72,11 @@ static void AddCustomServices(WebApplicationBuilder builder)
 	builder.Services.AddScoped<IPngFileDataSource, SqliteDataSource>();
 	builder.Services.AddSingleton<IFileLister, FileLister>();
 	builder.Services.AddScoped<IPngFileLoader>(x => 
+		new RetryingFileLoader(
 		new CachedPngFileLoader(x.GetRequiredService<IFileSystem>(),
 		new PngFileLoader(x.GetRequiredService<IFileSystem>()),
 		x.GetRequiredService<IPngFileDataSource>()
-		));
+		)));
 	builder.Services.AddScoped<Rescan>();
 	builder.Services.AddScoped<GalleryViewModel>();
 	builder.Services.AddSingleton<IThumbnailService, ThumbnailService>();
