@@ -20,4 +20,10 @@
     <ProjectReference Include="..\SDMeta\SDMeta.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Metadata\latin1-pngtext.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

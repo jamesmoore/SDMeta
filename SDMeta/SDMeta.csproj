@@ -18,8 +18,4 @@
 		</Content>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\Coderanger.ImageInfo\Coderanger.ImageInfo.csproj" />
-	</ItemGroup>
-
 </Project>

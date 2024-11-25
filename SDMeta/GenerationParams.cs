@@ -2,7 +2,7 @@
 
 namespace SDMeta
 {
-	public partial class GenerationParams
+	public class GenerationParams
 	{
 		public GenerationParams()
 		{

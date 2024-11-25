@@ -4,7 +4,7 @@ using System;
 
 namespace SDMeta
 {
-	public partial class PngFile
+	public class PngFile
 	{
 		public PngFile(string fileName,
 			DateTime lastUpdated,
