@@ -3,6 +3,7 @@ using SDMeta.Metadata;
 using System;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SDMeta
 {
@@ -10,13 +11,13 @@ namespace SDMeta
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-        public PngFile GetPngFile(string filename)
+        public async Task<PngFile> GetPngFile(string filename)
         {
             logger.Info($"Indexing: {filename}");
 
             try
             {
-                return ReadPngFile(fileSystem, filename);
+                return await ReadPngFile(fileSystem, filename);
             }
             catch (Exception ex)
             {
@@ -25,11 +26,11 @@ namespace SDMeta
             }
         }
 
-        private PngFile ReadPngFile(IFileSystem fileSystem, string filename)
+        private async Task<PngFile> ReadPngFile(IFileSystem fileSystem, string filename)
         {
             var fileInfo = fileSystem.FileInfo.New(filename);
 
-            var prompt = ExtractPromptFromPngText(fileSystem, filename);
+            var prompt = await ExtractPromptFromPngText(fileSystem, filename);
 
             var pngfile = new PngFile(
                 fileInfo.FullName,
@@ -43,11 +44,11 @@ namespace SDMeta
             return pngfile;
         }
 
-        private static (PromptFormat promptFormat, string prompt) ExtractPromptFromPngText(IFileSystem fileSystem, string filename)
+        private async static Task<(PromptFormat promptFormat, string prompt)> ExtractPromptFromPngText(IFileSystem fileSystem, string filename)
         {
             var metadata = PngMetadataExtractor.ExtractTextualInformation(filename);
 
-            var promptMetadata = metadata.FirstOrDefault(p => p.Key == "parameters" || p.Key == "prompt");
+            var promptMetadata = await metadata.FirstOrDefaultAsync(p => p.Key == "parameters" || p.Key == "prompt");
 
             switch (promptMetadata.Key)
             {

@@ -6,7 +6,7 @@ namespace SDMetaUI
 {
     public class RetryingFileLoader(IPngFileLoader inner) : IPngFileLoader
     {
-        public PngFile GetPngFile(string filename)
+        public async Task<PngFile> GetPngFile(string filename)
         {
             var exponentialRetryOptions = new RetryStrategyOptions
             {
@@ -22,7 +22,7 @@ namespace SDMetaUI
                 .AddTimeout(TimeSpan.FromSeconds(10)) 
                 .Build();
 
-            return pipeline.Execute(p => inner.GetPngFile(filename));
+            return await pipeline.ExecuteAsync(async p => await inner.GetPngFile(filename));
         }
     }
 }

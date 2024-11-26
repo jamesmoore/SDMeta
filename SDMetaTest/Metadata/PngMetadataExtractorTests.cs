@@ -6,10 +6,10 @@ namespace SDMetaTest.Metadata
     public class PngMetadataExtractorTests
     {
         [TestMethod]
-        public void PngMetadataExtractorTest()
+        public async Task PngMetadataExtractorTest()
         {
             var items = PngMetadataExtractor.ExtractTextualInformation("./Metadata/latin1-pngtext.png");
-            var metadata = items.ToDictionary(p => p.Key, p => p.Value);
+            var metadata = await items.ToDictionaryAsync(p => p.Key, p => p.Value);
 
             Assert.IsNotNull(metadata);
             Assert.IsTrue(metadata.Count ==1);

@@ -1,7 +1,9 @@
-﻿namespace SDMeta.Processors
+﻿using System.Threading.Tasks;
+
+namespace SDMeta.Processors
 {
 	public interface IPngFileListProcessor
     {
-        void ProcessPngFiles();
+        Task ProcessPngFiles();
     }
 }

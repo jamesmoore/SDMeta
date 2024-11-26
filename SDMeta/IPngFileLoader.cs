@@ -1,7 +1,9 @@
-﻿namespace SDMeta
+﻿using System.Threading.Tasks;
+
+namespace SDMeta
 {
 	public interface IPngFileLoader
 	{
-		PngFile GetPngFile(string filename);
+		Task<PngFile> GetPngFile(string filename);
 	}
 }

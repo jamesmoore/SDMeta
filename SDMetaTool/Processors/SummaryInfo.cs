@@ -3,17 +3,22 @@ using SDMeta;
 using SDMeta.Processors;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SDMetaTool.Processors
 {
     internal class SummaryInfo(IImageDir imageDir, IFileLister fileLister, IPngFileLoader pngFileLoader) : IPngFileListProcessor
 	{
-		public void ProcessPngFiles()
+		public async Task ProcessPngFiles()
 		{
 			var fileNames = imageDir.GetPath().Select(fileLister.GetList).SelectMany(p => p).Distinct().ToList();
-			var pngFiles = fileNames.Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).OrderBy(p => p.FileName).ToList();
+            var pngFileTasks = fileNames.Select(async p => await pngFileLoader.GetPngFile(p)).Where(p => p != null);
 
-			var distinctPrompts = pngFiles.Select(p => p.Parameters?.PromptHash).Distinct().ToList();
+            Task.WaitAll(pngFileTasks);
+
+            var pngFiles = pngFileTasks.Select(p => p.Result).OrderBy(p => p.FileName).ToList();
+
+            var distinctPrompts = pngFiles.Select(p => p.Parameters?.PromptHash).Distinct().ToList();
 			var distinctFullPrompts = pngFiles.Select(p => new
 			{
 				p.Parameters?.PromptHash,

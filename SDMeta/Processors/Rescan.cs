@@ -2,6 +2,7 @@
 using SDMeta.Cache;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SDMeta.Processors
 {
@@ -14,7 +15,7 @@ namespace SDMeta.Processors
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		public event EventHandler<float> ProgressNotification;
 
-		public void ProcessPngFiles()
+		public async Task ProcessPngFiles()
 		{
 			logger.Info("Rescan started");
 			pngFileDataSource.BeginTransaction();
@@ -44,7 +45,7 @@ namespace SDMeta.Processors
 
 				foreach (var addedFile in added)
 				{
-					var file = pngFileLoader.GetPngFile(addedFile);
+					var file = await pngFileLoader.GetPngFile(addedFile);
 					if (file != null && file.Exists == false)
 					{
 						file.Exists = true;

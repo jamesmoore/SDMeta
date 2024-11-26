@@ -1,5 +1,6 @@
 ﻿using SDMeta.Cache;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 
 namespace SDMeta
 {
@@ -8,7 +9,7 @@ namespace SDMeta
 		IPngFileLoader inner,
 		IPngFileDataSource pngFileDataSource) : IPngFileLoader
 	{
-		public PngFile GetPngFile(string filename)
+		public async Task<PngFile> GetPngFile(string filename)
 		{
 			var fileInfo = fileSystem.FileInfo.New(filename);
 			var pngFile = pngFileDataSource.ReadPngFile(filename);
@@ -18,7 +19,7 @@ namespace SDMeta
 			}
 			else
 			{
-				pngFile = inner.GetPngFile(filename);
+				pngFile = await inner.GetPngFile(filename);
 				pngFile.Exists = true;
 				pngFileDataSource.WritePngFile(pngFile);
 				return pngFile;

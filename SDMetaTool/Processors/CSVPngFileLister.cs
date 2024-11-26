@@ -7,21 +7,26 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SDMetaTool.Processors
 {
     class CSVPngFileLister(IImageDir imageDir, IFileLister fileLister, IPngFileLoader pngFileLoader, string outfile, bool distinct) : IPngFileListProcessor
 	{
-		public void ProcessPngFiles()
+		public async Task ProcessPngFiles()
 		{
 			using var writer = new StreamWriter(outfile);
 			using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
 
 			var fileNames = imageDir.GetPath().Select(fileLister.GetList).SelectMany(p => p).Distinct().ToList();
-			var pngFiles = fileNames.Select(p => pngFileLoader.GetPngFile(p)).Where(p => p != null).OrderBy(p => p.FileName).ToList();
+			var pngFileTasks = fileNames.Select(async p => await pngFileLoader.GetPngFile(p)).Where(p => p != null);
+
+			Task.WaitAll(pngFileTasks);
+			
+			var pngFiles = pngFileTasks.Select(p => p.Result).OrderBy(p => p.FileName).ToList();
 
 			var csvs = distinct ? GetCSVDistinct(pngFiles) : GetCSVPerItem(pngFiles);
-			csv.WriteRecords(csvs);
+			await csv.WriteRecordsAsync(csvs);
 		}
 
 		private static IEnumerable<CSVEntry> GetCSVPerItem(IEnumerable<PngFile> tracks)
