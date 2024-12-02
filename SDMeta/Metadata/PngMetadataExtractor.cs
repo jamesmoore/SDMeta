@@ -12,10 +12,8 @@ namespace SDMeta.Metadata
         private const char NullTerminator = (char)0;
         private static readonly byte[] pngSignature = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
 
-        public async static IAsyncEnumerable<KeyValuePair<string, string>> ExtractTextualInformation(string filePath)
+        public async static IAsyncEnumerable<(string Key, string Value)> ExtractTextualInformation(Stream fs)
         {
-            using var fs = new FileStream(filePath, FileMode.Open);
-
             if (!await VerifyPngSignature(fs))
             {
                 throw new InvalidDataException("Not a valid PNG file.");
@@ -46,57 +44,58 @@ namespace SDMeta.Metadata
         private async static Task<bool> VerifyPngSignature(Stream stream)
         {
             var actualSignature = new byte[pngSignature.Length];
-            var bytesRead = await stream.ReadAsync(actualSignature, 0, actualSignature.Length);
-            return bytesRead == pngSignature.Length && !actualSignature.Where((t, i) => t != pngSignature[i]).Any();
+            var bytesRead = await stream.ReadAsync(actualSignature);
+            return actualSignature.SequenceEqual(pngSignature);
         }
 
         private async static Task<int> ReadChunkLength(Stream stream)
         {
             var buffer = new byte[4];
-            if (await stream.ReadAsync(buffer, 0, 4) != 4)
+            if (await stream.ReadAsync(buffer) != 4)
             {
                 throw new EndOfStreamException("Unexpected end of file while reading chunk length.");
             }
-            return BitConverter.ToInt32(buffer.Reverse().ToArray(), 0); // Reverse for big endian
+            return BitConverter.ToInt32(buffer.Reverse().ToArray()); // Reverse for big endian
         }
 
         private async static Task<string> ReadChunkType(Stream stream)
         {
             var buffer = new byte[4];
-            if (await stream.ReadAsync(buffer, 0, 4) != 4)
+            if (await stream.ReadAsync(buffer) != 4)
             {
                 throw new EndOfStreamException("Unexpected end of file while reading chunk type.");
             }
             return Encoding.ASCII.GetString(buffer);
         }
 
-        private async static Task<KeyValuePair<string, string>> ReadTextualData(Stream stream, int length)
+        private async static Task<(string Key, string Value)> ReadTextualData(Stream stream, int length)
         {
             var buffer = new byte[length];
-            if (await stream.ReadAsync(buffer, 0, length) != length)
+            if (await stream.ReadAsync(buffer) != length)
             {
                 throw new EndOfStreamException("Unexpected end of file while reading textual data.");
             }
 
-            var dataString = BytesToString(buffer);
+            var dataString = BytesToString(buffer).TrimEnd(NullTerminator).Trim();
             var nullIndex = dataString.IndexOf(NullTerminator);
-            return new KeyValuePair<string, string>(
-                nullIndex > -1 ? dataString.Substring(0, nullIndex) : "",
-                nullIndex > -1 && nullIndex + 1 < length ? dataString.Substring(nullIndex + 1).TrimEnd(NullTerminator) : ""
+            return new (
+                nullIndex > -1 ? dataString.Substring(0, nullIndex) : string.Empty,
+                nullIndex > -1 && nullIndex + 1 < length ? dataString.Substring(nullIndex + 1).TrimEnd(NullTerminator) : string.Empty
             );
         }
+
+        private static readonly Encoding uTF8Encoding = new UTF8Encoding(false, true);
+        private static readonly Encoding fallbackEncoder = Encoding.GetEncoding("iso-8859-1");
 
         private static string BytesToString(byte[] buffer)
         {
             try
             {
-                var utf8EncoderWithErrorCatching = new UTF8Encoding(false, true);
-                return utf8EncoderWithErrorCatching.GetString(buffer).TrimEnd(NullTerminator).Trim();
+                return uTF8Encoding.GetString(buffer);
             }
             catch (DecoderFallbackException)
             {
-                var fallbackEncoder = Encoding.GetEncoding("iso-8859-1");
-                return fallbackEncoder.GetString(buffer).TrimEnd(NullTerminator).Trim();
+                return fallbackEncoder.GetString(buffer);
             }
         }
 

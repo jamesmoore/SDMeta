@@ -1,4 +1,5 @@
-﻿using SDMeta.Metadata;
+﻿using System.IO.Abstractions;
+using SDMeta.Metadata;
 
 namespace SDMetaTest.Metadata
 {
@@ -8,7 +9,9 @@ namespace SDMetaTest.Metadata
         [TestMethod]
         public async Task PngMetadataExtractorTest()
         {
-            var items = PngMetadataExtractor.ExtractTextualInformation("./Metadata/latin1-pngtext.png");
+            using var fs = new FileSystem().FileStream.New("./Metadata/latin1-pngtext.png", FileMode.Open);
+
+            var items = PngMetadataExtractor.ExtractTextualInformation(fs);
             var metadata = await items.ToDictionaryAsync(p => p.Key, p => p.Value);
 
             Assert.IsNotNull(metadata);

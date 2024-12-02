@@ -1,6 +1,7 @@
 ﻿using NLog;
 using SDMeta.Cache;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,6 +19,8 @@ namespace SDMeta.Processors
 		public async Task ProcessPngFiles()
 		{
 			logger.Info("Rescan started");
+			var stopwatch = new Stopwatch();
+			stopwatch.Start();
 			pngFileDataSource.BeginTransaction();
 			var fileNames = imageDir.GetPath().Select(fileLister.GetList).SelectMany(p => p).Distinct().ToList();
 
@@ -57,7 +60,7 @@ namespace SDMeta.Processors
 			}
 			pngFileDataSource.CommitTransaction();
 			pngFileDataSource.PostUpdateProcessing();
-			logger.Info("Rescan finished");
+			logger.Info($"Rescan finished in {stopwatch.ElapsedMilliseconds}ms");
 		}
 
 		private void Notify(int steps, float multiplier, int position)

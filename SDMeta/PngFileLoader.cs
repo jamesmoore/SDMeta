@@ -1,6 +1,7 @@
 ﻿using NLog;
 using SDMeta.Metadata;
 using System;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace SDMeta
             }
         }
 
-        private async Task<PngFile> ReadPngFile(IFileSystem fileSystem, string filename)
+        private static async Task<PngFile> ReadPngFile(IFileSystem fileSystem, string filename)
         {
             var fileInfo = fileSystem.FileInfo.New(filename);
 
@@ -46,19 +47,18 @@ namespace SDMeta
 
         private async static Task<(PromptFormat promptFormat, string prompt)> ExtractPromptFromPngText(IFileSystem fileSystem, string filename)
         {
-            var metadata = PngMetadataExtractor.ExtractTextualInformation(filename);
+            using var fs = fileSystem.FileStream.New(filename, FileMode.Open, FileAccess.Read);
 
-            var promptMetadata = await metadata.FirstOrDefaultAsync(p => p.Key == "parameters" || p.Key == "prompt");
+            var metadata = PngMetadataExtractor.ExtractTextualInformation(fs);
 
-            switch (promptMetadata.Key)
+            var promptMetadata = await metadata.FirstOrDefaultAsync(p => p.Key == "parameters" || p.Key== "prompt");
+
+            return promptMetadata.Key switch
             {
-                case "parameters":
-                    return (PromptFormat.Auto1111, promptMetadata.Value);
-                case "prompt":
-                    return (PromptFormat.ComfyUI, promptMetadata.Value);
-                default:
-                    return (PromptFormat.None, null);
-            }
+                "parameters" => (PromptFormat.Auto1111, promptMetadata.Value),
+                "prompt" => (PromptFormat.ComfyUI, promptMetadata.Value),
+                _ => (PromptFormat.None, null),
+            };
         }
     }
 }
