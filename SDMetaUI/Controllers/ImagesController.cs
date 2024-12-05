@@ -33,7 +33,7 @@ namespace SDMetaUI.Controllers
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError("ImagesController error: ", ex);
+				_logger.LogError(ex, "ImagesController error: ");
 				return NotFound();
 			}
 		}
@@ -56,7 +56,7 @@ namespace SDMetaUI.Controllers
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError("ImagesController error: ", ex);
+				_logger.LogError(ex, "ImagesController error: ");
 				return NotFound();
 			}
 		}

@@ -54,7 +54,7 @@
 				<HxSwitch Text="Group by prompt" @bind-Value="@viewModel.IsGrouped" />
 			</div>
 			<div class="col-auto py-2 py-md-1">
-				<HxButton Outline="false" Size="ButtonSize.Small" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="Rescan" CssClass="position-relative">
+				<HxButton Outline="false" Size="ButtonSize.Small" Icon="BootstrapIcon.ArrowClockwise" Text="Rescan" Color="ThemeColor.Primary" @onclick="FullRescan" CssClass="position-relative">
 					@if (this.Added != 0)
 					{
 						<HxBadge Color="ThemeColor.Success" CssClass="position-absolute top-0 start-100 translate-middle">+@this.Added</HxBadge>

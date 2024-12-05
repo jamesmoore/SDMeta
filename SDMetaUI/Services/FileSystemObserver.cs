@@ -2,107 +2,116 @@
 
 namespace SDMetaUI.Services
 {
-	public class FileSystemObserver : IDisposable
-	{
-		private readonly IImageDir configuration;
+    public class FileSystemObserver : IDisposable
+    {
+        public FileSystemObserver(IImageDir configuration)
+        {
+            watchers = configuration.GetPath().Select(p => GetWatcher(p)).ToList();
+        }
 
-		public FileSystemObserver(IImageDir configuration)
-		{
-			this.configuration = configuration;
-			this.Start();
-		}
+        public event FileSystemEventHandler? FileSystemChanged;
+        private readonly List<string> added = [];
+        private readonly List<string> removed = [];
+        private readonly List<string> removedInAdvance = [];
+        private readonly IEnumerable<FileSystemWatcher> watchers;
 
-		public event FileSystemEventHandler FileSystemChanged;
-		private readonly IList<string> added = new List<string>();
-		private readonly IList<string> removed = new List<string>();
-		private readonly IList<string> removedInAdvanced = new List<string>();
-		private IEnumerable<FileSystemWatcher> watchers;
+        private FileSystemWatcher GetWatcher(string directory)
+        {
+            var watcher = new FileSystemWatcher(directory);
 
-		private void Start()
-		{
-			if (watchers == null)
-			{
-				watchers = configuration.GetPath().Select(p => GetWatcher(p)).ToList();
-			}
-		}
+            watcher.Created += OnCreated;
+            watcher.Deleted += OnDeleted;
+            watcher.Renamed += OnCreated;
 
-		private FileSystemWatcher GetWatcher(string directory)
-		{
-			var watcher = new FileSystemWatcher(directory);
+            // watcher.Filter = "*.png";
+            watcher.IncludeSubdirectories = true;
+            watcher.EnableRaisingEvents = true;
+            return watcher;
+        }
 
-			watcher.Created += OnCreated;
-			watcher.Deleted += OnDeleted;
-			watcher.Renamed += OnCreated;
+        public void RegisterRemoval(string path)
+        {
+            removedInAdvance.Add(path);
+        }
 
-			// watcher.Filter = "*.png";
-			watcher.IncludeSubdirectories = true;
-			watcher.EnableRaisingEvents = true;
-			return watcher;
-		}
+        private void OnDeleted(object sender, FileSystemEventArgs e)
+        {
+            if (IsValidForEvent(e) && removedInAdvance.Contains(e.FullPath) == false)
+            {
+                if (added.Contains(e.FullPath))
+                {
+                    added.Remove(e.FullPath);
+                }
+                else if (removed.Contains(e.FullPath) == false)
+                {
+                    removed.Add(e.FullPath);
+                }
 
-		public void RegisterRemoval(string path)
-		{
-			removedInAdvanced.Add(path);
-		}
+                FileSystemChanged?.Invoke(this, e);
+            }
+        }
 
-		private void OnDeleted(object sender, FileSystemEventArgs e)
-		{
-			if (IsValidForEvent(e) && removedInAdvanced.Contains(e.FullPath) == false)
-			{
-				if (added.Contains(e.FullPath))
-				{
-					added.Remove(e.FullPath);
-				}
-				else if (removed.Contains(e.FullPath) == false)
-				{
-					removed.Add(e.FullPath);
-				}
+        private void OnCreated(object sender, FileSystemEventArgs e)
+        {
+            if (IsValidForEvent(e))
+            {
+                if (removed.Contains(e.FullPath))
+                {
+                    removed.Remove(e.FullPath);
+                }
+                else if (added.Contains(e.FullPath) == false)
+                {
+                    added.Add(e.FullPath);
+                }
 
-				if (this.FileSystemChanged != null) { this.FileSystemChanged(this, e); }
-			}
-		}
+                FileSystemChanged?.Invoke(this, e);
+            }
+        }
 
-		private void OnCreated(object sender, FileSystemEventArgs e)
-		{
-			if (IsValidForEvent(e))
-			{
-				if (removed.Contains(e.FullPath))
-				{
-					removed.Remove(e.FullPath);
-				}
-				else if (added.Contains(e.FullPath) == false)
-				{
-					added.Add(e.FullPath);
-				}
+        private static bool IsValidForEvent(FileSystemEventArgs e)
+        {
+            return e.FullPath.ToLower().EndsWith(".png");
+        }
 
-				if (this.FileSystemChanged != null) { this.FileSystemChanged(this, e); }
-			}
-		}
+        public void Dispose()
+        {
+            if (watchers != null)
+            {
+                foreach (var watcher in watchers)
+                {
+                    watcher.Dispose();
+                }
+            }
+        }
 
-		private static bool IsValidForEvent(FileSystemEventArgs e)
-		{
-			return e.FullPath.ToLower().EndsWith(".png");
-		}
+        public int AddedCount => added.Count;
+        public IEnumerable<string> DequeueAdded()
+        {
 
-		public void Dispose()
-		{
-			if (watchers != null)
-			{
-				foreach (var watcher in watchers)
-				{
-					watcher.Dispose();
-				}
-			}
-		}
+            lock (added)
+            {
+                var copy = added.ToList();
+                added.Clear();
+                return copy;
+            }
+        }
 
-		public int Added => added.Count;
-		public int Removed => removed.Count;
+        public int RemovedCount => removed.Count;
+        public IEnumerable<string> DequeueRemoved()
+        {
+            lock (removed)
+            {
+                var copy = removed.ToList();
+                removed.Clear();
+                return copy;
+            }
+        }
 
-		public void Reset()
-		{
-			this.added.Clear();
-			this.removed.Clear();
-			if (this.FileSystemChanged != null) { this.FileSystemChanged(this, null); }
-		}
-	}
+        public void Reset()
+        {
+            this.added.Clear();
+            this.removed.Clear();
+            FileSystemChanged?.Invoke(this, null);
+        }
+    }
 }

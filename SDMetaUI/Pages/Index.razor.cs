@@ -20,8 +20,8 @@ namespace SDMetaUI.Pages
         Action<ChangeEventArgs> onInputDebounced;
 
         IList<ModelSummaryViewModel> modelsList;
-        private int Added => this.FileSystemObserver.Added;
-        private int Removed => this.FileSystemObserver.Removed;
+        private int Added => this.FileSystemObserver.AddedCount;
+        private int Removed => this.FileSystemObserver.RemovedCount;
 
         public string PageTitle => "Gallery" + (string.IsNullOrWhiteSpace(this.Filter) ? "" : " - " + this.Filter);
 
@@ -100,9 +100,9 @@ namespace SDMetaUI.Pages
                 this.StateHasChanged();
             }
 
-            if (viewModel.AutoRescan && (this.FileSystemObserver.Added > 0 || this.FileSystemObserver.Removed > 0))
+            if (viewModel.AutoRescan && (this.FileSystemObserver.AddedCount > 0 || this.FileSystemObserver.RemovedCount > 0))
             {
-                await this.Rescan();
+                await this.PartialRescan();
                 this.StateHasChanged();
             }
 
@@ -141,12 +141,19 @@ namespace SDMetaUI.Pages
             }
         }
 
-        private async Task Rescan()
+        private async Task FullRescan()
         {
             this.FileSystemObserver.Reset();
-            var directory = imageDir.GetPath();
             await this.rescan.ProcessPngFiles();
             logger.LogInformation("Rescan done");
+            this.scanProgess = 0;
+            LoadData();
+        }
+
+        private async Task PartialRescan()
+        {
+            await this.rescan.PartialRescan(FileSystemObserver.DequeueAdded(), FileSystemObserver.DequeueRemoved());
+            logger.LogInformation("Partial Rescan done");
             this.scanProgess = 0;
             LoadData();
         }
@@ -171,7 +178,7 @@ namespace SDMetaUI.Pages
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError("Failed to delete.", ex);
+                    logger.LogError(ex, "Failed to delete.");
                     Messenger.AddError(title: "Delete", message: "Delete failed");
                 }
             }
