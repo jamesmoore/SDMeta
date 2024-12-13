@@ -9,7 +9,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="BlazorPro.BlazorSize" Version="9.0.0" />
-		<PackageReference Include="Havit.Blazor.Components.Web.Bootstrap" Version="4.7.4" />
+		<PackageReference Include="Havit.Blazor.Components.Web.Bootstrap" Version="4.7.5" />
 		<PackageReference Include="NLog.Web.AspNetCore" Version="5.3.15" />
 		<PackageReference Include="PhotoSauce.MagicScaler" Version="0.14.2" />
 		<PackageReference Include="PhotoSauce.NativeCodecs.Libjpeg" Version="3.0.2-preview2" />
