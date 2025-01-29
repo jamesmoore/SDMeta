@@ -9,7 +9,7 @@
 		<PackageReference Include="Dapper" Version="2.1.35" />
 		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.1" />
 		<PackageReference Include="NLog" Version="5.3.4" />
-		<PackageReference Include="System.IO.Abstractions" Version="21.2.8" />
+		<PackageReference Include="System.IO.Abstractions" Version="21.2.12" />
 		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
 	</ItemGroup>
 
