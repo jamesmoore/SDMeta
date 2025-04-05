@@ -9,13 +9,13 @@
 
 	<ItemGroup>
 		<PackageReference Include="BlazorPro.BlazorSize" Version="9.0.0" />
-		<PackageReference Include="Havit.Blazor.Components.Web.Bootstrap" Version="4.7.11" />
+		<PackageReference Include="Havit.Blazor.Components.Web.Bootstrap" Version="4.7.14" />
 		<PackageReference Include="NLog.Web.AspNetCore" Version="5.4.0" />
 		<PackageReference Include="PhotoSauce.MagicScaler" Version="0.15.0" />
 		<PackageReference Include="PhotoSauce.NativeCodecs.Libjpeg" Version="3.0.2-preview2" />
 		<PackageReference Include="PhotoSauce.NativeCodecs.Libpng" Version="1.6.43-preview2" />
 		<PackageReference Include="Polly" Version="8.5.2" />
-		<PackageReference Include="TestableIO.System.IO.Abstractions" Version="22.0.11" />
+		<PackageReference Include="TestableIO.System.IO.Abstractions" Version="22.0.13" />
 	</ItemGroup>
 
 	<ItemGroup>
