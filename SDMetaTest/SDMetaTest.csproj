@@ -15,6 +15,7 @@
     <PackageReference Include="MSTest.TestFramework" Version="3.8.3" />
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+    <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.14" />
   </ItemGroup>
 
   <ItemGroup>
