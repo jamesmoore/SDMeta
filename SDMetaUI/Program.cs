@@ -13,6 +13,7 @@ using SDMetaUI;
 using SDMeta.Cache;
 using SDMeta;
 using SDMeta.Processors;
+using SDMetaUI.Controllers;
 
 CodecManager.Configure(codecs => {
 	codecs.UseLibpng();
@@ -43,6 +44,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.MapGet("/images/thumb/{path}", ImagesController.GetThumb);
+app.MapGet("/images/full/{path}/{realfilename}", ImagesController.GetFull);
+
 // https://github.com/gmanvel/AspNetCoreSingleFileApp
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -54,7 +58,6 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseStaticFiles();
 
 app.UseRouting();
-app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
