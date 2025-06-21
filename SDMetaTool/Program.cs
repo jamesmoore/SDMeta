@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SDMetaTool
 {
-	public class Program
+    public class Program
     {
         static async Task<int> Main(string[] args)
         {
@@ -30,24 +30,34 @@ namespace SDMetaTool
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-            var pathArgument = new Argument<string>("path", "Path to mp3 directory");
+            var pathArgument = new Argument<string>("path")
+            {
+                Description = "Path to mp3 directory",
+            };
 
             var listCommand = new Command("list", "List sd metadata to csv.");
-            listCommand.AddArgument(pathArgument);
-            var outfileOption = new Option<string>(new string[] { "--outfile", "-o" }, () => "sdpnginfo.csv", "Output file name.");
-            var distinctOption = new Option<bool>(new string[] { "--distinct", "-d" }, () => false, "List distinct prompts with earliest file.");
-            listCommand.AddOption(outfileOption);
-            listCommand.AddOption(distinctOption);
-            listCommand.SetHandler((string path, string outfile, bool distinct) => new CSVPngFileLister(new ImageDirs(path), fileLister, loader, outfile, distinct).ProcessPngFiles(), pathArgument, outfileOption, distinctOption);
+            listCommand.Arguments.Add(pathArgument);
+            var outfileOption = new Option<string>("--outfile", "-o")
+            {
+                DefaultValueFactory = _ => "sdpnginfo.csv",
+                Description = "Output file name.",
+            };
+            var distinctOption = new Option<bool>("--distinct", "-d") { 
+                DefaultValueFactory = _ => false, 
+                Description = "List distinct prompts with earliest file.",
+            };
+            listCommand.Options.Add(outfileOption);
+            listCommand.Options.Add(distinctOption);
+            listCommand.SetAction((p) => new CSVPngFileLister(new ImageDirs(p.GetValue(pathArgument)), fileLister, loader, p.GetValue(outfileOption), p.GetValue(distinctOption)).ProcessPngFiles());
 
             var infoCommand = new Command("info", "Info on files.");
-            infoCommand.AddArgument(pathArgument);
-            infoCommand.AddOption(outfileOption);
-            infoCommand.SetHandler((string path, string outfile) => new SummaryInfo(new ImageDirs(path), fileLister, loader).ProcessPngFiles(), pathArgument, outfileOption);
+            infoCommand.Arguments.Add(pathArgument);
+            infoCommand.Options.Add(outfileOption);
+            infoCommand.SetAction((p) => new SummaryInfo(new ImageDirs(p.GetValue(pathArgument)), fileLister, loader).ProcessPngFiles());
 
             var rescanCommand = new Command("rescan", "Rescan dir. No output.");
-            rescanCommand.AddArgument(pathArgument);
-            rescanCommand.SetHandler((string path) => new Rescan(new ImageDirs(path), fileLister, pngFileDataSource, loader).ProcessPngFiles(), pathArgument);
+            rescanCommand.Arguments.Add(pathArgument);
+            rescanCommand.SetAction((p) => new Rescan(new ImageDirs(p.GetValue(pathArgument)), fileLister, pngFileDataSource, loader).ProcessPngFiles());
 
             var parent = new RootCommand()
             {
@@ -56,13 +66,13 @@ namespace SDMetaTool
                rescanCommand,
             };
 
-            var result = await parent.InvokeAsync(args);
-            return result;
+            var parseResult = parent.Parse(args);
+            return await parseResult.InvokeAsync();
         }
     }
 
-	public class ImageDirs(string path) : IImageDir
-	{
-		public IEnumerable<string> GetPath() => [path];
-	}
+    public class ImageDirs(string path) : IImageDir
+    {
+        public IEnumerable<string> GetPath() => [path];
+    }
 }
