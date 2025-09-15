@@ -9,6 +9,13 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    groups:
+      nuget-version-updates:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types:
+          - "minor"
+          - "patch"
     
   - package-ecosystem: "docker"
     directory: "/"
