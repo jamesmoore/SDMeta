@@ -23,7 +23,7 @@ namespace SDMeta
             catch (Exception ex)
             {
                 logger.Error(ex, $"Exception reading file {filename}");
-                return null;
+                throw;
             }
         }
 
