@@ -44,8 +44,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/images/thumb/{path}", ImagesController.GetThumb);
-app.MapGet("/images/full/{path}/{realfilename}", ImagesController.GetFull);
+app.MapGet("/images/thumb/{path:required}", ImagesController.GetThumb);
+app.MapGet("/images/full/{path:required}/{realfilename}", ImagesController.GetFull);
 
 // https://github.com/gmanvel/AspNetCoreSingleFileApp
 app.UseStaticFiles(new StaticFileOptions

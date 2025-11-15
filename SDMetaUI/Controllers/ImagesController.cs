@@ -19,7 +19,7 @@ namespace SDMetaUI.Controllers
                 {
                     var fileInfo = fileSystem.FileInfo.New(physicalPath);
                     var thumbPath = thumbnailService.GetOrGenerateThumbnail(fileInfo.FullName);
-                    httpResponse.Headers.LastModified = fileInfo.LastWriteTime.ToUniversalTime().ToString("R");
+                    httpResponse.Headers.LastModified = fileInfo.LastWriteTimeUtc.ToString("R");
 
                     return Results.File(thumbPath, "image/jpg");
                 }
@@ -31,7 +31,7 @@ namespace SDMetaUI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "ImagesController error: ");
-                return TypedResults.NotFound();
+                return TypedResults.Problem();
             }
         }
 
@@ -46,7 +46,7 @@ namespace SDMetaUI.Controllers
                 string physicalPath = Base32Decode(path);
                 if (fileSystem.File.Exists(physicalPath))
                 {
-                    httpResponse.Headers.LastModified = fileSystem.FileInfo.New(physicalPath).LastWriteTime.ToUniversalTime().ToString("R");
+                    httpResponse.Headers.LastModified = fileSystem.FileInfo.New(physicalPath).LastWriteTimeUtc.ToString("R");
                     return Results.File(physicalPath, "image/png");
                 }
                 else
@@ -57,13 +57,13 @@ namespace SDMetaUI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "ImagesController error: ");
-                return TypedResults.NotFound();
+                return TypedResults.Problem();
             }
         }
 
-        public static string Base32Decode(string base64EncodedData)
+        private static string Base32Decode(string base32EncodedData)
         {
-            var base32EncodedBytes = Base32Encoding.ToBytes(base64EncodedData);
+            var base32EncodedBytes = Base32Encoding.ToBytes(base32EncodedData);
             return System.Text.Encoding.UTF8.GetString(base32EncodedBytes);
         }
     }
