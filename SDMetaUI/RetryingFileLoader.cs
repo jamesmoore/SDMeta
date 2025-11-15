@@ -4,24 +4,32 @@ using SDMeta;
 
 namespace SDMetaUI
 {
-    public class RetryingFileLoader(IPngFileLoader inner) : IPngFileLoader
+    public class RetryingFileLoader : IPngFileLoader
     {
-        public async Task<PngFile> GetPngFile(string filename)
+        private readonly IPngFileLoader inner;
+        private readonly ResiliencePipeline pipeline;
+
+        public RetryingFileLoader(IPngFileLoader inner)
         {
+            this.inner = inner;
+
             var exponentialRetryOptions = new RetryStrategyOptions
             {
-                ShouldHandle = new PredicateBuilder().Handle<IOException>(),
+                ShouldHandle = new PredicateBuilder().Handle<Exception>(),
                 BackoffType = DelayBackoffType.Exponential,
                 UseJitter = true,
                 MaxRetryAttempts = 3,
                 Delay = TimeSpan.FromSeconds(2),
             };
 
-            var pipeline = new ResiliencePipelineBuilder()
-                .AddRetry(exponentialRetryOptions) 
-                .AddTimeout(TimeSpan.FromSeconds(10)) 
+            pipeline = new ResiliencePipelineBuilder()
+                .AddRetry(exponentialRetryOptions)
+                .AddTimeout(TimeSpan.FromSeconds(10))
                 .Build();
+        }
 
+        public async Task<PngFile> GetPngFile(string filename)
+        {
             return await pipeline.ExecuteAsync(async p => await inner.GetPngFile(filename));
         }
     }
