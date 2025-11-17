@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SDMeta/SDMeta.csproj" />
+  <Project Path="SDMetaTest/SDMetaTest.csproj" />
+  <Project Path="SDMetaUI/SDMetaUI.csproj" />
+</Solution>
