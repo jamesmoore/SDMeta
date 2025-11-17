@@ -1,4 +1,4 @@
-﻿using NLog;
+﻿using Microsoft.Extensions.Logging;
 using SDMeta.Metadata;
 using System;
 using System.IO;
@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 
 namespace SDMeta
 {
-    public class PngFileLoader(IFileSystem fileSystem) : IPngFileLoader
+    public class PngFileLoader(IFileSystem fileSystem, ILogger<PngFileLoader> logger) : IPngFileLoader
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-
         public async Task<PngFile> GetPngFile(string filename)
         {
-            logger.Info($"Indexing: {filename}");
+            logger.LogInformation("Indexing: {filename}", filename);
 
             try
             {
@@ -22,7 +20,7 @@ namespace SDMeta
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"Exception reading file {filename}");
+                logger.LogError(ex, $"Exception reading file {filename}");
                 throw;
             }
         }

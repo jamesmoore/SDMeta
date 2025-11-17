@@ -4,7 +4,6 @@ using PhotoSauce.NativeCodecs.Libpng;
 using PhotoSauce.NativeCodecs.Libjpeg;
 using PhotoSauce.MagicScaler;
 using SDMetaUI.Services;
-using NLog.Web;
 using BlazorPro.BlazorSize;
 using SDMetaUI.Models;
 using Havit.Blazor.Components.Web.Bootstrap;
@@ -14,6 +13,8 @@ using SDMeta.Cache;
 using SDMeta;
 using SDMeta.Processors;
 using SDMetaUI.Controllers;
+using SDMeta.Auto1111;
+using SDMeta.Comfy;
 
 CodecManager.Configure(codecs => {
 	codecs.UseLibpng();
@@ -21,10 +22,6 @@ CodecManager.Configure(codecs => {
 });
 
 var builder = WebApplication.CreateBuilder(args);
-
-// NLog: Setup NLog for Dependency injection
-builder.Logging.ClearProviders();
-builder.Host.UseNLog();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -72,12 +69,17 @@ static void AddCustomServices(WebApplicationBuilder builder)
 	builder.Services.AddSingleton<IFileSystem, FileSystem>();
 	builder.Services.AddSingleton<DataPath>();
 	builder.Services.AddSingleton<DbPath>();
-	builder.Services.AddScoped<IPngFileDataSource, SqliteDataSource>();
 	builder.Services.AddSingleton<IFileLister, FileLister>();
+    builder.Services.AddSingleton<ParameterDecoderFactory>();
+    builder.Services.AddSingleton<Auto1111ParameterDecoder>();
+    builder.Services.AddSingleton<ComfyUIParameterDecoder>();
+
+	builder.Services.AddScoped<IPngFileDataSource, SqliteDataSource>();
+    builder.Services.AddScoped<PngFileLoader>();
 	builder.Services.AddScoped<IPngFileLoader>(x => 
 		new RetryingFileLoader(
 		new CachedPngFileLoader(x.GetRequiredService<IFileSystem>(),
-		new PngFileLoader(x.GetRequiredService<IFileSystem>()),
+		x.GetRequiredService<PngFileLoader>(),
 		x.GetRequiredService<IPngFileDataSource>()
 		)));
 	builder.Services.AddScoped<Rescan>();

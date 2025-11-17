@@ -8,8 +8,9 @@ namespace SDMeta.Comfy
 {
 	public class ComfyUIParameterDecoder : IParameterDecoder
 	{
-		public GenerationParams GetParameters(string _parameters)
+		public GenerationParams GetParameters(PngFile pngFile)
 		{
+			var _parameters = pngFile.Prompt;
 			try
 			{
 				var nodes = JsonSerializer.Deserialize<Dictionary<string, UntypedBaseNode>>(_parameters);

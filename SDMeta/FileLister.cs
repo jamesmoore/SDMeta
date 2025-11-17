@@ -1,4 +1,4 @@
-﻿using NLog;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,10 +7,8 @@ using System.Linq;
 
 namespace SDMeta
 {
-	public class FileLister(IFileSystem fileSystem) : IFileLister
+	public class FileLister(IFileSystem fileSystem, ILogger<FileLister> logger) : IFileLister
 	{
-		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-
 		public IEnumerable<string> GetList(string path)
         {
             while (path.EndsWith(fileSystem.Path.DirectorySeparatorChar))
@@ -20,7 +18,7 @@ namespace SDMeta
 
             if (fileSystem.Directory.Exists(path) == false)
             {
-                logger.Error($"{path} does not exist");
+                logger.LogError($"{path} does not exist");
                 return Enumerable.Empty<string>();
             }
 
@@ -48,7 +46,7 @@ namespace SDMeta
             }
             catch (Exception ex)
             {
-                logger.Warn("Unable to scan directory " + path);
+                logger.LogWarning("Unable to scan directory " + path);
                 return [];
             }
         }

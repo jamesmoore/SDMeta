@@ -2,6 +2,6 @@
 {
 	public interface IParameterDecoder
 	{
-		GenerationParams GetParameters(string _parameters);
+		GenerationParams GetParameters(PngFile pngFile);
 	}
 }

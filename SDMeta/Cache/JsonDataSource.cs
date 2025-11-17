@@ -1,4 +1,4 @@
-﻿using NLog;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
@@ -9,40 +9,50 @@ namespace SDMeta.Cache
 {
 	public class JsonDataSource : IPngFileDataSource
 	{
-		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IFileSystem fileSystem;
-		private readonly CachePath cachePath;
+        private readonly ILogger<JsonDataSource> logger;
+        private readonly ParameterDecoderFactory parameterDecoderFactory;
+        private readonly CachePath cachePath;
 		private readonly Dictionary<string, PngFile> cache;
 
-		public JsonDataSource(IFileSystem fileSystem)
+		public JsonDataSource(IFileSystem fileSystem, ILogger<JsonDataSource> logger, ParameterDecoderFactory parameterDecoderFactory)
 		{
 			this.fileSystem = fileSystem;
-			cachePath = new CachePath(fileSystem);
+            this.logger = logger;
+            this.parameterDecoderFactory = parameterDecoderFactory;
+            cachePath = new CachePath(fileSystem);
 			cache = InitialQuery().ToDictionary(p => p.FileName, p => p);
 		}
 
 		public IEnumerable<PngFileSummary> Query(QueryParams queryParams)
-		{
-			var f = queryParams.Filter;
-			return cache.Values.Where(p =>
-				string.IsNullOrWhiteSpace(f) ||
-				p.FileName.Contains(f) ||
-				p.Prompt != null && p.Prompt.Contains(f)
-				).
-			Select(p => new PngFileSummary()
-			{
-				FileName = p.FileName,
-				FullPromptHash = p.Parameters?.PromptHash + p.Parameters?.NegativePromptHash,
-			}
-			).ToList();
-		}
+        {
+            var f = queryParams.Filter;
+            return cache.Values.Where(p =>
+                string.IsNullOrWhiteSpace(f) ||
+                p.FileName.Contains(f) ||
+                p.Prompt != null && p.Prompt.Contains(f)
+                ).
+            Select(p => NewMethod(p)
+            ).ToList();
+        }
 
-		private IEnumerable<PngFile> InitialQuery()
+        private PngFileSummary NewMethod(PngFile p)
+        {
+			var parameters = parameterDecoderFactory.GetParameters(p);
+
+            return new PngFileSummary()
+            {
+                FileName = p.FileName,
+                FullPromptHash = parameters?.PromptHash + parameters?.NegativePromptHash,
+            };
+        }
+
+        private IEnumerable<PngFile> InitialQuery()
 		{
 			var path = cachePath.GetPath();
 			if (fileSystem.File.Exists(path))
 			{
-				logger.Debug($"Reading cache at {path}");
+				logger.LogDebug($"Reading cache at {path}");
 				var cacheJson = fileSystem.File.ReadAllText(path);
 				var deserialised = JsonSerializer.Deserialize<List<PngFileDTO>>(cacheJson);
 				var dictionary = deserialised.Select(p => p.ToPngFile()).ToList();
@@ -58,7 +68,7 @@ namespace SDMeta.Cache
 		{
 			var path = cachePath.GetPath();
 
-			logger.Debug($"Flushing cache to {path}");
+			logger.LogDebug($"Flushing cache to {path}");
 			var serialized = JsonSerializer.Serialize(cache.Select(p => new PngFileDTO(p)), new JsonSerializerOptions()
 			{
 				WriteIndented = true,

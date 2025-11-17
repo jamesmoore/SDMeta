@@ -1,6 +1,4 @@
-﻿using SDMeta.Comfy;
-using SDMeta.Auto1111;
-using System;
+﻿using System;
 
 namespace SDMeta
 {
@@ -11,7 +9,8 @@ namespace SDMeta
 			long length,
 			PromptFormat promptFormat,
 			string prompt,
-			bool exists)
+			bool exists
+			)
 		{
 			FileName = fileName;
 			LastUpdated = lastUpdated;
@@ -19,26 +18,11 @@ namespace SDMeta
 			PromptFormat = promptFormat;
 			Prompt = prompt;
 			Exists = exists;
-			generationParams = new Lazy<GenerationParams>(GetParams);
 		}
 
 		public string FileName { get; }
 		public DateTime LastUpdated { get; }
 		public long Length { get; }
-		public GenerationParams Parameters => generationParams.Value;
-
-		private Lazy<GenerationParams> generationParams;
-
-		private GenerationParams GetParams()
-		{
-			return PromptFormat switch
-			{
-				PromptFormat.Auto1111 => new Auto1111ParameterDecoder().GetParameters(Prompt),
-				PromptFormat.ComfyUI => new ComfyUIParameterDecoder().GetParameters(Prompt),
-				_ => null
-			};
-		}
-
 		public string Prompt { get; }
 		public PromptFormat PromptFormat { get; }
 		/// <summary>

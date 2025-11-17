@@ -1,19 +1,13 @@
-﻿using NLog;
-using SDMeta;
-using SDMeta.Auto1111;
+﻿using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace SDMeta.Auto1111
 {
-	public partial class Auto1111ParameterDecoder : IParameterDecoder
+	public partial class Auto1111ParameterDecoder(ILogger<Auto1111ParameterDecoder> logger) : IParameterDecoder
 	{
-		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-
-		private const string NegativePromptPrefix = "Negative prompt:";
+        private const string NegativePromptPrefix = "Negative prompt:";
 		private const string SingleParameterRegexString = """\s*([\w\/ ]+):\s*("(?:\\"[^,]|\\"|\\|[^\\"])+"|[^,]*)(?:,|$)""";
 		private const string ImageSize = @"^(\d+)x(\d+)$";
 		private const string WildcardPrompt = @",?\s?Wildcard prompt: ""[\S\s]*""";
@@ -74,8 +68,9 @@ namespace SDMeta.Auto1111
 			ParamHiresSteps,
 		};
 
-		public GenerationParams GetParameters(string _parameters)
+		public GenerationParams GetParameters(PngFile pngFile)
 		{
+			var _parameters = pngFile.Prompt;
 			if (string.IsNullOrWhiteSpace(_parameters))
 			{
 				return new Auto1111GenerationParams();
@@ -152,7 +147,7 @@ namespace SDMeta.Auto1111
 			};
 		}
 
-		private static ILookup<string, string> DecodeParamsLine(string lastLine)
+		private ILookup<string, string> DecodeParamsLine(string lastLine)
 		{
 			var parametersDecoded = SingleParameterRegex().Matches(lastLine);
 
@@ -161,7 +156,7 @@ namespace SDMeta.Auto1111
 			var extraKeys = parametersLookup.Select(p => p.Key).Except(KnownParams).ToList();
 			if (extraKeys.Any())
 			{
-				logger.Warn("Unknown param: " + string.Join(",", extraKeys));
+				logger.LogWarning("Unknown param: " + string.Join(",", extraKeys));
 			}
 
 			return parametersLookup;

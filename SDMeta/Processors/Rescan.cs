@@ -1,4 +1,4 @@
-﻿using NLog;
+﻿using Microsoft.Extensions.Logging;
 using SDMeta.Cache;
 using System;
 using System.Collections.Generic;
@@ -8,18 +8,19 @@ using System.Threading.Tasks;
 
 namespace SDMeta.Processors
 {
-	public class Rescan(
-		IImageDir imageDir,
-		IFileLister fileLister,
-		IPngFileDataSource pngFileDataSource,
-		IPngFileLoader pngFileLoader) : IPngFileListProcessor
-	{
-		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-		public event EventHandler<float>? ProgressNotification;
+    public class Rescan(
+        IImageDir imageDir,
+        IFileLister fileLister,
+        IPngFileDataSource pngFileDataSource,
+        IPngFileLoader pngFileLoader,
+        ILogger<Rescan> logger
+        ) : IPngFileListProcessor
+    {
+        public event EventHandler<float>? ProgressNotification;
 
-		public async Task ProcessPngFiles()
+        public async Task ProcessPngFiles()
         {
-            logger.Info("Rescan started");
+            logger.LogInformation("Rescan started");
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
@@ -31,7 +32,7 @@ namespace SDMeta.Processors
             var added = fileNames.Except(knownExisting).ToList();
 
             await PartialRescan(added, deleted);
-            logger.Info($"Rescan finished in {stopwatch.ElapsedMilliseconds}ms");
+            logger.LogInformation("Rescan finished in {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
         }
 
         public async Task PartialRescan(IEnumerable<string> added, IEnumerable<string> deleted)
@@ -51,7 +52,7 @@ namespace SDMeta.Processors
                     var fileToDelete = pngFileDataSource.ReadPngFile(file);
                     fileToDelete.Exists = false;
                     pngFileDataSource.WritePngFile(fileToDelete);
-                    logger.Info("Removing " + file);
+                    logger.LogInformation("Removing {file}", file);
                     Notify(steps, multiplier, ++position);
                 }
 
@@ -76,11 +77,11 @@ namespace SDMeta.Processors
         }
 
         private void Notify(int steps, float multiplier, int position)
-		{
-			if (position % steps == 0)
-			{
+        {
+            if (position % steps == 0)
+            {
                 ProgressNotification?.Invoke(this, multiplier * position / steps);
-			}
-		}
-	}
+            }
+        }
+    }
 }
