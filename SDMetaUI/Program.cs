@@ -41,7 +41,7 @@ if (!app.Environment.IsDevelopment())
 	app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.MapGet("/images/thumb/{path:required}", ImagesController.GetThumb);
 app.MapGet("/images/full/{path:required}/{realfilename}", ImagesController.GetFull);
