@@ -15,6 +15,7 @@ using SDMetaUI;
 using SDMetaUI.Controllers;
 using SDMetaUI.Models;
 using SDMetaUI.Services;
+using System;
 using System.IO.Abstractions;
 
 CodecManager.Configure(codecs => {
@@ -59,6 +60,12 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
+using (var scope = app.Services.CreateScope())
+{
+    using var db = scope.ServiceProvider.GetRequiredService<IPngFileDataSource>();
+    db.Initialize();
+}
+
 app.Run();
 
 static void AddCustomServices(WebApplicationBuilder builder)
@@ -71,7 +78,7 @@ static void AddCustomServices(WebApplicationBuilder builder)
 	builder.Services.AddSingleton<DataPath>();
 	builder.Services.AddSingleton<DbPath>();
 	builder.Services.AddSingleton<IFileLister, FileLister>();
-    builder.Services.AddSingleton<ParameterDecoderFactory>();
+    builder.Services.AddSingleton<IParameterDecoder, ParameterDecoderFactory>();
     builder.Services.AddSingleton<Auto1111ParameterDecoder>();
     builder.Services.AddSingleton<ComfyUIParameterDecoder>();
     builder.Services.AddSingleton<ParameterlessDecoder>();

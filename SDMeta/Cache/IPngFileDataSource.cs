@@ -15,7 +15,8 @@ namespace SDMeta.Cache
 		IEnumerable<ModelSummary> GetModelSummaryList();
 		void Truncate();
 		void PostUpdateProcessing();
-	}
+        void Initialize();
+    }
 
 	public class QueryParams(string filter, ModelFilter modelFilter, QuerySortBy querySort)
     {

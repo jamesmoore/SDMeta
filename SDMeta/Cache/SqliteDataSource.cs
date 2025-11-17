@@ -36,24 +36,35 @@ namespace SDMeta.Cache
             "Version"
         ];
 
-        private readonly string insertSql;
+        private readonly Lazy<string> insertSql;
+        private readonly Lazy<string> ConnectionString;
         private readonly DbPath dbPath;
         private readonly ILogger<SqliteDataSource> logger;
-        private readonly ParameterDecoderFactory parameterDecoder;
+        private readonly IParameterDecoder parameterDecoder;
+
+        public SqliteDataSource(
+            DbPath dbPath,
+            ILogger<SqliteDataSource> logger,
+            IParameterDecoder parameterDecoder)
+        {
+            this.dbPath = dbPath;
+            this.logger = logger;
+            this.parameterDecoder = parameterDecoder;
+            this.ConnectionString = new Lazy<string>(GetConnectionString);
+            this.insertSql = new Lazy<string>(GetInsertSql);
+        }
 
         private string GetConnectionString()
         {
             var path = dbPath.GetPath();
-            logger.LogInformation("Using db at {path}", path);
             var connectionString = $"Data Source={path}";
             return connectionString;
         }
 
-        private readonly Lazy<string> ConnectionString;
 
         private SqliteConnection GetConnection()
         {
-            logger.LogInformation($"Opening connection");
+            logger.LogDebug($"Opening connection");
             var connectionString = ConnectionString.Value;
             var connection = new SqliteConnection(connectionString);
             connection.Open();
@@ -72,28 +83,23 @@ namespace SDMeta.Cache
                 return func(connection);
             }
         }
-        public SqliteDataSource(
-            DbPath dbPath,
-            ILogger<SqliteDataSource> logger,
-            ParameterDecoderFactory parameterDecoder
-            )
+
+        private string GetInsertSql()
         {
-            this.dbPath = dbPath;
-            this.logger = logger;
-            this.parameterDecoder = parameterDecoder;
-            this.ConnectionString = new Lazy<string>(() => GetConnectionString());
+            var tabledef = GetTableDefinition();
+            return $@"INSERT INTO {TableName}({columns.ToCommaSeparated()}) VALUES ( {tabledef.Select(p => p.Parameter).ToCommaSeparated()} )
+			ON CONFLICT(FileName) DO UPDATE SET {tabledef.Where(p => p.Column != "FileName").Select(p => p.Column + "=" + p.Parameter).ToCommaSeparated()}, Version=Version+1;
+			";
+        }
+
+        public void Initialize()
+        {
+            logger.LogInformation("Initalizing data source");
+            logger.LogInformation("Using db at {path}", this.ConnectionString.Value);
 
             dbPath.CreateIfMissing();
 
-            var tabledef = columns.Select(p => (
-                Column: p,
-                Parameter: "@" + p.Replace("[", "").Replace("]", ""),
-                DataType: p is "Length" or "[Exists]" or "Version" ? "INTEGER" : "TEXT",
-                IsPrimaryKey: p == "FileName"));
-
-            insertSql = $@"INSERT INTO {TableName}({columns.ToCommaSeparated()}) VALUES ( {tabledef.Select(p => p.Parameter).ToCommaSeparated()} )
-			ON CONFLICT(FileName) DO UPDATE SET {tabledef.Where(p => p.Column != "FileName").Select(p => p.Column + "=" + p.Parameter).ToCommaSeparated()}, Version=Version+1;
-			";
+            var tabledef = GetTableDefinition();
 
             // Setup table if absent https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/types
             ExecuteOnConnection(connection => connection.Execute(@$"CREATE TABLE IF NOT EXISTS {TableName} (
@@ -101,12 +107,21 @@ namespace SDMeta.Cache
 				);"));
 
             ExecuteOnConnection(connection => connection.Execute(@$"CREATE VIRTUAL TABLE IF NOT EXISTS {FTSTableName} USING fts5({ftscolumns.ToCommaSeparated()});"));
+            logger.LogInformation("Initalization completed");
+        }
 
+        private IEnumerable<ColumnDefinition> GetTableDefinition()
+        {
+            return columns.Select(p => new ColumnDefinition(
+                p,
+                "@" + p.Replace("[", "").Replace("]", ""),
+                p is "Length" or "[Exists]" or "Version" ? "INTEGER" : "TEXT",
+                p == "FileName"));
         }
 
         public void Dispose()
         {
-            logger.LogInformation("Data source dispose");
+            logger.LogDebug("Data source dispose");
             this.CommitTransaction();
         }
 
@@ -213,7 +228,7 @@ namespace SDMeta.Cache
         public void WritePngFile(PngFile info)
         {
             ExecuteOnConnection(connection => connection.Execute(
-                insertSql,
+                insertSql.Value,
                 FromModel(info),
                 this.transaction
             ));
@@ -312,4 +327,6 @@ namespace SDMeta.Cache
             return string.Join(",", list);
         }
     }
+
+    internal record struct ColumnDefinition(string Column, string Parameter, string DataType, bool IsPrimaryKey);
 }

@@ -134,7 +134,12 @@ namespace SDMeta.Cache
 		{
 		}
 
-		internal class PngFileDTO(PngFile track)
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal class PngFileDTO(PngFile track)
 		{
 			public string FileName { get; set; } = track.FileName;
 			public DateTime LastUpdated { get; set; } = track.LastUpdated;
