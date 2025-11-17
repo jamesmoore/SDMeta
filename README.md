@@ -3,43 +3,6 @@
 * Bulk extract metadata from SD generated PNG files.
 * View and search in a web UI.
 
-# Command line usage
-
-```
-Usage:
-  SDMetaTool [command] [options]
-
-Options:
-  --version       Show version information
-  -?, -h, --help  Show help and usage information
-
-Commands:
-  list <path>  List sd metadata to csv.
-  info <path>  Info on files.
-```
-
-## Running on Windows
-
-```ps
-.\SDMetaTool.exe list \\nas\sd --outfile info.csv
-```
-
-## Running on Docker
-
-```bash
-docker volume create sdmetatool_data
-
-docker pull ghcr.io/jamesmoore/sdmeta:main
-
-docker run \
---name sdmetatool \
---rm \
--v /mnt/storage/sd/:/sd:ro \
--v sdmetatool_data:/var/lib/sdmetatool \
--v $(pwd):/app/export \
-ghcr.io/jamesmoore/sdmeta:main list /sd -o ./export/sdmetalist.csv
-```
-
 # Web UI
 
 ## Running on Windows
@@ -63,8 +26,22 @@ docker run \
 --entrypoint dotnet \
 --restart always \
 --log-opt max-size=1m \
-ghcr.io/jamesmoore/sdmeta:main \
-SDMetaUI.dll
+ghcr.io/jamesmoore/sdmeta:main
+```
+
+## Docker compose
+```yaml
+services:
+  sdmeta:
+    environment:
+      ImageDir: /sd
+    image: ghcr.io/jamesmoore/sdmeta:meta
+    restart: unless-stopped
+    volumes:
+      - /mnt/storage/sd:/sd
+      - sdmeta_data:/var/lib/sdmeta
+volumes:
+  sdmeta_data:
 ```
 
 The ```ImageDir``` env variable points to the folder containing the generated images. The web server runs on port 80, but you can reassign it using the `-p` parameter and/or route it through a reverse proxy like Caddy.
