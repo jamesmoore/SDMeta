@@ -20,7 +20,7 @@ namespace SDMeta
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Exception reading file {filename}");
+                logger.LogError(ex, "Exception reading file {filename}", filename);
                 throw;
             }
         }

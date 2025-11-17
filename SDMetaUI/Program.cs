@@ -1,20 +1,21 @@
-using Havit.Blazor.Components.Web;
-using System.IO.Abstractions;
-using PhotoSauce.NativeCodecs.Libpng;
-using PhotoSauce.NativeCodecs.Libjpeg;
-using PhotoSauce.MagicScaler;
-using SDMetaUI.Services;
 using BlazorPro.BlazorSize;
-using SDMetaUI.Models;
+using Havit.Blazor.Components.Web;
 using Havit.Blazor.Components.Web.Bootstrap;
 using Microsoft.Extensions.FileProviders;
-using SDMetaUI;
-using SDMeta.Cache;
+using PhotoSauce.MagicScaler;
+using PhotoSauce.NativeCodecs.Libjpeg;
+using PhotoSauce.NativeCodecs.Libpng;
 using SDMeta;
-using SDMeta.Processors;
-using SDMetaUI.Controllers;
 using SDMeta.Auto1111;
+using SDMeta.Cache;
 using SDMeta.Comfy;
+using SDMeta.Parameterless;
+using SDMeta.Processors;
+using SDMetaUI;
+using SDMetaUI.Controllers;
+using SDMetaUI.Models;
+using SDMetaUI.Services;
+using System.IO.Abstractions;
 
 CodecManager.Configure(codecs => {
 	codecs.UseLibpng();
@@ -73,8 +74,9 @@ static void AddCustomServices(WebApplicationBuilder builder)
     builder.Services.AddSingleton<ParameterDecoderFactory>();
     builder.Services.AddSingleton<Auto1111ParameterDecoder>();
     builder.Services.AddSingleton<ComfyUIParameterDecoder>();
+    builder.Services.AddSingleton<ParameterlessDecoder>();
 
-	builder.Services.AddScoped<IPngFileDataSource, SqliteDataSource>();
+    builder.Services.AddScoped<IPngFileDataSource, SqliteDataSource>();
     builder.Services.AddScoped<PngFileLoader>();
 	builder.Services.AddScoped<IPngFileLoader>(x => 
 		new RetryingFileLoader(
