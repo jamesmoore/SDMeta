@@ -40,11 +40,13 @@ services:
     volumes:
       - /mnt/storage/sd:/sd
       - sdmeta_data:/var/lib/sdmeta
+    ports:
+      - 8080:8080      
 volumes:
   sdmeta_data:
 ```
 
-The ```ImageDir``` env variable points to the folder containing the generated images. The web server runs on port 80, but you can reassign it using the `-p` parameter and/or route it through a reverse proxy like Caddy.
+The ```ImageDir``` env variable points to the folder containing the generated images. The web server runs on port 8080, but you can reassign it using the `-p` parameter and/or route it through a reverse proxy like Caddy or Traefik.
 
 ## Data Volumes
 There are two directories required - one for the database of metadata and one for the image files. 
