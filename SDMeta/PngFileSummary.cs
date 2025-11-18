@@ -1,4 +1,8 @@
 ﻿namespace SDMeta
 {
-    public record PngFileSummary(string FileName, string FullPromptHash);
+    public class PngFileSummary
+    {
+        public string FileName { get; init; }
+        public string FullPromptHash { get; init; }
+    }
 }

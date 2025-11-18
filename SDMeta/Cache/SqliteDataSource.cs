@@ -127,14 +127,17 @@ namespace SDMeta.Cache
 
         public IEnumerable<PngFileSummary> Query(QueryParams queryParams)
         {
-            var Sql = BuildQueryStringFTS(queryParams);
-
-            var reader = ExecuteOnConnection(connection => connection.Query<PngFileSummary>(Sql, new
+            var sql = BuildQueryStringFTS(queryParams);
+            var param = new
             {
                 filter = queryParams.Filter,
                 model = queryParams.ModelFilter?.Model,
                 modelHash = queryParams.ModelFilter?.ModelHash,
-            }));
+            };
+
+            var reader = ExecuteOnConnection(connection =>
+                connection.Query<PngFileSummary>(sql, param)
+            );
             return reader;
         }
 
