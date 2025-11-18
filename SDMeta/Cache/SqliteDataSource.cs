@@ -11,7 +11,7 @@ namespace SDMeta.Cache
     {
         const string TableName = "PngFilesv2";
         private string FTSTableName = $"FTS5{TableName}";
-        private SqliteTransaction transaction;
+        private SqliteTransaction? transaction;
 
         private readonly string[] columns =
         [

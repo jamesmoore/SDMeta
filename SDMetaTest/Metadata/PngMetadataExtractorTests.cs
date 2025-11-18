@@ -15,15 +15,15 @@ namespace SDMetaTest.Metadata
             var metadata = await items.ToDictionaryAsync(p => p.Key, p => p.Value);
 
             Assert.IsNotNull(metadata);
-            Assert.IsTrue(metadata.Count ==1);
+            Assert.HasCount(1, metadata);
             Assert.IsTrue(metadata.ContainsKey("parameters"));
         
             var prompt = metadata["parameters"];
             Assert.IsNotNull(prompt);
             Assert.AreEqual(309, prompt.Length);
-            Assert.IsTrue(prompt.StartsWith("Quince"));
-            Assert.IsTrue(prompt.Contains("Sánchez"));
-            Assert.IsTrue(prompt.EndsWith("v1.8.0"));
+            Assert.StartsWith("Quince", prompt);
+            Assert.Contains("Sánchez", prompt);
+            Assert.EndsWith("v1.8.0", prompt);
         }
     }
 }

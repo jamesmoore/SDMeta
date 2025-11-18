@@ -40,11 +40,7 @@ namespace SDMeta.Cache
         {
 			var parameters = parameterDecoderFactory.GetParameters(p);
 
-            return new PngFileSummary()
-            {
-                FileName = p.FileName,
-                FullPromptHash = parameters?.PromptHash + parameters?.NegativePromptHash,
-            };
+            return new PngFileSummary(p.FileName, parameters?.PromptHash + parameters?.NegativePromptHash);
         }
 
         private IEnumerable<PngFile> InitialQuery()
@@ -148,7 +144,7 @@ namespace SDMeta.Cache
 			public PromptFormat PromptFormat { get; set; } = track.PromptFormat;
 			public bool Exists { get; set; } = track.Exists;
 
-			public PngFile ToPngFile() => new PngFile(
+			public PngFile ToPngFile() => new(
 				FileName,
 				LastUpdated,
 				Length,

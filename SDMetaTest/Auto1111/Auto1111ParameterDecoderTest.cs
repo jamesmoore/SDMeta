@@ -14,8 +14,8 @@ namespace SDMetaTest.Auto1111
             var sut = new Auto1111ParameterDecoder(GetLogger());
             var parameters = sut.GetParameters(GetPngFile(null));
             Assert.IsNotNull(parameters);
-            Assert.AreEqual(null, parameters.Prompt);
-            Assert.AreEqual(null, parameters.NegativePrompt);
+            Assert.IsNull(parameters.Prompt);
+            Assert.IsNull(parameters.NegativePrompt);
         }
 
         [TestMethod]
