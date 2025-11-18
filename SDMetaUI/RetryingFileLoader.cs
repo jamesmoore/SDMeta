@@ -4,33 +4,34 @@ using SDMeta;
 
 namespace SDMetaUI
 {
-    public class RetryingFileLoader : IPngFileLoader
+    public class RetryingFileLoader(IPngFileLoader inner, ILogger<RetryingFileLoader> logger) : IPngFileLoader
     {
-        private readonly IPngFileLoader inner;
-        private readonly ResiliencePipeline pipeline;
-
-        public RetryingFileLoader(IPngFileLoader inner)
+        private static readonly RetryStrategyOptions exponentialRetryOptions = new()
         {
-            this.inner = inner;
+            ShouldHandle = new PredicateBuilder().Handle<Exception>(),
+            BackoffType = DelayBackoffType.Exponential,
+            UseJitter = true,
+            MaxRetryAttempts = 3,
+            Delay = TimeSpan.FromSeconds(2),
+        };
 
-            var exponentialRetryOptions = new RetryStrategyOptions
-            {
-                ShouldHandle = new PredicateBuilder().Handle<Exception>(),
-                BackoffType = DelayBackoffType.Exponential,
-                UseJitter = true,
-                MaxRetryAttempts = 3,
-                Delay = TimeSpan.FromSeconds(2),
-            };
-
-            pipeline = new ResiliencePipelineBuilder()
+        private static readonly ResiliencePipeline pipeline = new ResiliencePipelineBuilder()
                 .AddRetry(exponentialRetryOptions)
                 .AddTimeout(TimeSpan.FromSeconds(10))
                 .Build();
-        }
 
         public async Task<PngFile> GetPngFile(string filename)
         {
-            return await pipeline.ExecuteAsync(async p => await inner.GetPngFile(filename));
+            try
+            {
+
+                return await pipeline.ExecuteAsync(async p => await inner.GetPngFile(filename));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Retries failed for {filename}", filename);
+            }
+            return null;
         }
     }
 }

@@ -15,12 +15,12 @@ using SDMetaUI;
 using SDMetaUI.Controllers;
 using SDMetaUI.Models;
 using SDMetaUI.Services;
-using System;
 using System.IO.Abstractions;
 
-CodecManager.Configure(codecs => {
-	codecs.UseLibpng();
-	codecs.UseLibjpeg();
+CodecManager.Configure(codecs =>
+{
+    codecs.UseLibpng();
+    codecs.UseLibjpeg();
 });
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,9 +36,9 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-	app.UseExceptionHandler("/Error");
-	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-	app.UseHsts();
+    app.UseExceptionHandler("/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
 }
 
 // app.UseHttpsRedirection();
@@ -49,9 +49,9 @@ app.MapGet("/images/full/{path:required}/{realfilename}", ImagesController.GetFu
 // https://github.com/gmanvel/AspNetCoreSingleFileApp
 app.UseStaticFiles(new StaticFileOptions
 {
-	FileProvider = new EmbeddedFileProvider(
-		 assembly: typeof(Program).Assembly,
-		 baseNamespace: "SDMetaUI.wwwroot"),
+    FileProvider = new EmbeddedFileProvider(
+         assembly: typeof(Program).Assembly,
+         baseNamespace: "SDMetaUI.wwwroot"),
 });
 
 app.UseStaticFiles();
@@ -70,14 +70,14 @@ app.Run();
 
 static void AddCustomServices(WebApplicationBuilder builder)
 {
-	builder.Services.AddHxServices();
-	builder.Services.AddHxMessenger();
-	builder.Services.AddResizeListener();
+    builder.Services.AddHxServices();
+    builder.Services.AddHxMessenger();
+    builder.Services.AddResizeListener();
 
-	builder.Services.AddSingleton<IFileSystem, FileSystem>();
-	builder.Services.AddSingleton<DataPath>();
-	builder.Services.AddSingleton<DbPath>();
-	builder.Services.AddSingleton<IFileLister, FileLister>();
+    builder.Services.AddSingleton<IFileSystem, FileSystem>();
+    builder.Services.AddSingleton<DataPath>();
+    builder.Services.AddSingleton<DbPath>();
+    builder.Services.AddSingleton<IFileLister, FileLister>();
     builder.Services.AddSingleton<IParameterDecoder, ParameterDecoderFactory>();
     builder.Services.AddSingleton<Auto1111ParameterDecoder>();
     builder.Services.AddSingleton<ComfyUIParameterDecoder>();
@@ -85,17 +85,20 @@ static void AddCustomServices(WebApplicationBuilder builder)
 
     builder.Services.AddScoped<IPngFileDataSource, SqliteDataSource>();
     builder.Services.AddScoped<PngFileLoader>();
-	builder.Services.AddScoped<IPngFileLoader>(x => 
-		new RetryingFileLoader(
-		new CachedPngFileLoader(x.GetRequiredService<IFileSystem>(),
-		x.GetRequiredService<PngFileLoader>(),
-		x.GetRequiredService<IPngFileDataSource>()
-		)));
-	builder.Services.AddScoped<Rescan>();
-	builder.Services.AddScoped<GalleryViewModel>();
-	builder.Services.AddSingleton<IThumbnailService, ThumbnailService>();
-	builder.Services.AddSingleton<PngFileViewModelBuilder>();
-	builder.Services.AddSingleton<FileSystemObserver>();
-	builder.Services.AddSingleton<IImageDir, ImageDir>();
-	HxMessengerServiceExtensions.Defaults.InformationAutohideDelay = 1000;
+    builder.Services.AddScoped<CachedPngFileLoader>();
+    builder.Services.AddScoped<IPngFileLoader>(x =>
+        new RetryingFileLoader(
+		    new CachedPngFileLoader(x.GetRequiredService<IFileSystem>(),
+		        x.GetRequiredService<PngFileLoader>(),
+		        x.GetRequiredService<IPngFileDataSource>()
+		    ),
+            x.GetRequiredService<ILogger<RetryingFileLoader>>()
+        ));
+    builder.Services.AddScoped<Rescan>();
+    builder.Services.AddScoped<GalleryViewModel>();
+    builder.Services.AddSingleton<IThumbnailService, ThumbnailService>();
+    builder.Services.AddSingleton<PngFileViewModelBuilder>();
+    builder.Services.AddSingleton<FileSystemObserver>();
+    builder.Services.AddSingleton<IImageDir, ImageDir>();
+    HxMessengerServiceExtensions.Defaults.InformationAutohideDelay = 1000;
 }
