@@ -78,7 +78,7 @@ static void AddCustomServices(WebApplicationBuilder builder)
     builder.Services.AddSingleton<DataPath>();
     builder.Services.AddSingleton<DbPath>();
     builder.Services.AddSingleton<IFileLister, FileLister>();
-    builder.Services.AddSingleton<IParameterDecoder, ParameterDecoderFactory>();
+    builder.Services.AddSingleton<IParameterDecoder, ParameterDecoder>();
     builder.Services.AddSingleton<Auto1111ParameterDecoder>();
     builder.Services.AddSingleton<ComfyUIParameterDecoder>();
     builder.Services.AddSingleton<ParameterlessDecoder>();

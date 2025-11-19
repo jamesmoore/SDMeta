@@ -4,7 +4,7 @@ using SDMeta.Parameterless;
 
 namespace SDMeta
 {
-    public class ParameterDecoderFactory(
+    public class ParameterDecoder(
         Auto1111ParameterDecoder auto1111ParameterDecoder,
         ComfyUIParameterDecoder comfyUIParameterDecoder,
         ParameterlessDecoder parameterlessDecoder) : IParameterDecoder
