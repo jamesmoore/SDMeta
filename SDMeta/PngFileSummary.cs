@@ -1,10 +1,8 @@
-﻿using System;
-
-namespace SDMeta
+﻿namespace SDMeta
 {
-	public class PngFileSummary
-	{
-		public string FileName { get; set; }
-		public string FullPromptHash { get; set; }
-	}
+    public class PngFileSummary
+    {
+        public string FileName { get; init; }
+        public string FullPromptHash { get; init; }
+    }
 }

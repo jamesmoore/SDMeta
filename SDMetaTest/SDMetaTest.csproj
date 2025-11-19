@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FakeItEasy" Version="8.3.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="4.0.2" />
     <PackageReference Include="MSTest.TestFramework" Version="4.0.2" />
@@ -22,6 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Metadata\00005-2343231048.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Metadata\latin1-pngtext.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

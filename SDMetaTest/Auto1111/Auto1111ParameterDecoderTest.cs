@@ -1,4 +1,7 @@
-﻿using SDMeta.Auto1111;
+﻿using FakeItEasy;
+using Microsoft.Extensions.Logging;
+using SDMeta;
+using SDMeta.Auto1111;
 
 namespace SDMetaTest.Auto1111
 {
@@ -8,11 +11,11 @@ namespace SDMetaTest.Auto1111
         [TestMethod]
         public void PngFile_GetParameters_Null_Test()
         {
-            var sut = new Auto1111ParameterDecoder();
-            var parameters = sut.GetParameters(null);
+            var sut = new Auto1111ParameterDecoder(GetLogger());
+            var parameters = sut.GetParameters(GetPngFile(null));
             Assert.IsNotNull(parameters);
-            Assert.AreEqual(null, parameters.Prompt);
-            Assert.AreEqual(null, parameters.NegativePrompt);
+            Assert.IsNull(parameters.Prompt);
+            Assert.IsNull(parameters.NegativePrompt);
         }
 
         [TestMethod]
@@ -25,8 +28,8 @@ by Katsushika Hokusai and Kitagawa Utamaro, Ukiyo-e, traditional media, woodbloc
 Negative prompt: lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts,signature, watermark, username, blurry, artist name
 Steps: 30, Sampler: DPM++ 2M Karras, CFG scale: 11, Seed: 358940890, Size: 704x704, Model hash: 2700c435, Model: Anything-V3.0-pruned, Clip skip: 2";
 
-            var sut = new Auto1111ParameterDecoder();
-            var parameters = sut.GetParameters(testdata);
+            var sut = new Auto1111ParameterDecoder(GetLogger());
+            var parameters = sut.GetParameters(GetPngFile(testdata));
             Assert.IsNotNull(parameters);
             StringAssert.StartsWith(parameters.Prompt, "(cute");
             StringAssert.EndsWith(parameters.Prompt, "Hokusai,");
@@ -35,6 +38,11 @@ Steps: 30, Sampler: DPM++ 2M Karras, CFG scale: 11, Seed: 358940890, Size: 704x7
             StringAssert.EndsWith(parameters.NegativePrompt, "artist name");
 
             Assert.AreEqual("2700c435", parameters.ModelHash);
+        }
+
+        private static PngFile GetPngFile(string testdata)
+        {
+            return new PngFile(default, default, default, default, testdata, default);
         }
 
         [TestMethod]
@@ -46,8 +54,8 @@ Steps: 24, Sampler: Euler a, CFG scale: 8, Seed: 891571864, Face restoration: Co
 Warning: too many input tokens; some (30) have been truncated:
 woods leather foliage autumn snow sea _ anemone _ art _ by _ hiroshi _ yoshida ps 1 dreamcast n 6 4 low poly maya blender zbrush";
 
-            var sut = new Auto1111ParameterDecoder();
-            var parameters = sut.GetParameters(testData) as Auto1111GenerationParams;
+            var sut = new Auto1111ParameterDecoder(GetLogger());
+            var parameters = sut.GetParameters(GetPngFile(testData)) as Auto1111GenerationParams;
             Assert.IsNotNull(parameters);
             StringAssert.StartsWith(parameters.Prompt, "Art");
             StringAssert.EndsWith(parameters.Prompt, "zbrush");
@@ -64,8 +72,8 @@ woods leather foliage autumn snow sea _ anemone _ art _ by _ hiroshi _ yoshida p
         public void PngFile_GetParameters_Positive_Only_Test()
         {
             const string testData = @"cute cat";
-            var sut = new Auto1111ParameterDecoder();
-            var parameters = sut.GetParameters(testData);
+            var sut = new Auto1111ParameterDecoder(GetLogger());
+            var parameters = sut.GetParameters(GetPngFile(testData));
             Assert.IsNotNull(parameters);
             Assert.AreEqual("cute cat", parameters.Prompt);
             Assert.AreEqual(string.Empty, parameters.NegativePrompt);
@@ -75,11 +83,16 @@ woods leather foliage autumn snow sea _ anemone _ art _ by _ hiroshi _ yoshida p
         public void PngFile_GetParameters_Negative_Only_Test()
         {
             const string testData = "Negative prompt: lowres";
-            var sut = new Auto1111ParameterDecoder();
-            var parameters = sut.GetParameters(testData);
+            var sut = new Auto1111ParameterDecoder(GetLogger());
+            var parameters = sut.GetParameters(GetPngFile(testData));
             Assert.IsNotNull(parameters);
             Assert.AreEqual(string.Empty, parameters.Prompt);
             Assert.AreEqual("lowres", parameters.NegativePrompt);
+        }
+
+        private static ILogger<Auto1111ParameterDecoder> GetLogger()
+        {
+            return A.Fake<ILogger<Auto1111ParameterDecoder>>();
         }
     }
 }

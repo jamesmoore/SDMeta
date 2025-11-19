@@ -7,23 +7,6 @@ namespace SDMeta.Cache
 	{
 		private class DataRow
 		{
-			public static DataRow FromModel(PngFile info)
-			{
-				var parameters = info.Parameters;
-				return new DataRow()
-				{
-					FileName = info.FileName,
-					LastUpdated = info.LastUpdated,
-					Length = info.Length,
-					Exists = info.Exists,
-					Prompt = info.Prompt,
-					PromptFormat = info.PromptFormat.ToString(),
-					ModelHash = parameters?.ModelHash,
-					Model = parameters?.Model,
-					PromptHash = parameters?.PromptHash,
-					NegativePromptHash = parameters?.NegativePromptHash,
-				};
-			}
 
 			public string FileName { get; set; }
 			public DateTime LastUpdated { get; set; }

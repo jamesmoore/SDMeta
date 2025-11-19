@@ -1,20 +1,21 @@
-﻿using SDMeta.Comfy;
+﻿using SDMeta;
+using SDMeta.Comfy;
 
 namespace SDMetaTest.ComfyUI
 {
-	[TestClass]
-	public class ComfyUIParameterDecoderTest
-	{
-		[TestMethod]
-		public void GetParams()
-		{
-			var comfyParams = new ComfyUIParameterDecoder().GetParameters(testJson);
-			Assert.AreEqual("breakdomain_M2000", comfyParams.Model);
-			Assert.AreEqual("close up, verdant, flowers, tropical, absurdres, best quality", comfyParams.Prompt);
-			Assert.AreEqual("(worst quality, low quality:1.2), (text, signature, logo, watermark)", comfyParams.NegativePrompt);
-		}
+    [TestClass]
+    public class ComfyUIParameterDecoderTest
+    {
+        [TestMethod]
+        public void GetParams()
+        {
+            var comfyParams = new ComfyUIParameterDecoder().GetParameters(new PngFile(default, default, default, default, testJson, default));
+            Assert.AreEqual("breakdomain_M2000", comfyParams.Model);
+            Assert.AreEqual("close up, verdant, flowers, tropical, absurdres, best quality", comfyParams.Prompt);
+            Assert.AreEqual("(worst quality, low quality:1.2), (text, signature, logo, watermark)", comfyParams.NegativePrompt);
+        }
 
-		const string testJson = """
+        const string testJson = """
 		{
 		    "638": {
 		        "inputs": {
@@ -298,7 +299,5 @@ namespace SDMetaTest.ComfyUI
 		    }
 		}
 		""";
-	}
-
-
+    }
 }

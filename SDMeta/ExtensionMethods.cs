@@ -74,5 +74,21 @@ namespace SDMeta
 		{
 			return WhitespaceRegex().Replace(stringToNormalize, " ").Trim().ToLower();
 		}
-	}
+
+
+        private static readonly Encoding uTF8Encoding = new UTF8Encoding(false, true);
+        private static readonly Encoding fallbackEncoder = Encoding.GetEncoding("iso-8859-1");
+
+        public static string BytesToString(this byte[] buffer)
+        {
+            try
+            {
+                return uTF8Encoding.GetString(buffer);
+            }
+            catch (DecoderFallbackException)
+            {
+                return fallbackEncoder.GetString(buffer);
+            }
+        }
+    }
 }

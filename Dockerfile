@@ -15,4 +15,4 @@ FROM mcr.microsoft.com/dotnet/aspnet:latest
 WORKDIR /app
 COPY --from=build-env /app/out .
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "SDMetaTool.dll"]
+ENTRYPOINT ["dotnet", "SDMetaUI.dll"]
