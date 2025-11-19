@@ -47,14 +47,18 @@ namespace SDMeta
         {
             using var fs = fileSystem.FileStream.New(filename, FileMode.Open, FileAccess.Read);
 
-            var metadata = PngMetadataExtractor.ExtractTextualInformation(fs);
+            var metadata = 
+                filename.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ? PngMetadataExtractor.ExtractTextualInformation(fs) :
+                filename.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ? JpegMetadataExtractor.ExtractTextualInformation(fs) : 
+                null;
 
-            var promptMetadata = await metadata.FirstOrDefaultAsync(p => p.Key == "parameters" || p.Key== "prompt");
+            var promptMetadata = await metadata.FirstOrDefaultAsync(p => p.Key == "parameters" || p.Key== "prompt" || p.Key == "UserComment");
 
             return promptMetadata.Key switch
             {
                 "parameters" => (PromptFormat.Auto1111, promptMetadata.Value),
                 "prompt" => (PromptFormat.ComfyUI, promptMetadata.Value),
+                "UserComment" => (PromptFormat.Auto1111, promptMetadata.Value),
                 _ => (PromptFormat.None, null),
             };
         }

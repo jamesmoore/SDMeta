@@ -76,27 +76,12 @@ namespace SDMeta.Metadata
                 throw new EndOfStreamException("Unexpected end of file while reading textual data.");
             }
 
-            var dataString = BytesToString(buffer).TrimEnd(NullTerminator).Trim();
+            var dataString = buffer.BytesToString().TrimEnd(NullTerminator).Trim();
             var nullIndex = dataString.IndexOf(NullTerminator);
             return new (
                 nullIndex > -1 ? dataString.Substring(0, nullIndex) : string.Empty,
                 nullIndex > -1 && nullIndex + 1 < length ? dataString.Substring(nullIndex + 1).TrimEnd(NullTerminator) : string.Empty
             );
-        }
-
-        private static readonly Encoding uTF8Encoding = new UTF8Encoding(false, true);
-        private static readonly Encoding fallbackEncoder = Encoding.GetEncoding("iso-8859-1");
-
-        private static string BytesToString(byte[] buffer)
-        {
-            try
-            {
-                return uTF8Encoding.GetString(buffer);
-            }
-            catch (DecoderFallbackException)
-            {
-                return fallbackEncoder.GetString(buffer);
-            }
         }
 
         private static void SkipBytes(Stream stream, int bytesToSkip)

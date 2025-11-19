@@ -25,6 +25,7 @@ namespace SDMeta
             var filetypes = new List<string>()
             {
                 "*.png",
+                "*.jpg",
             };
 
             var files = filetypes.Select(p => GetFileList(path, p)).SelectMany(p => p).OrderBy(p => p).ToList();

@@ -23,6 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Metadata\00005-2343231048.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Metadata\latin1-pngtext.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
