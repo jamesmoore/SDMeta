@@ -70,7 +70,7 @@ namespace SDMetaUI.Services
 
         private static bool IsValidForEvent(FileSystemEventArgs e)
         {
-            return e.FullPath.ToLower().EndsWith(".png");
+            return e.FullPath.ToLower().EndsWith(".png") || e.FullPath.ToLower().EndsWith(".jpg");
         }
 
         public void Dispose()
