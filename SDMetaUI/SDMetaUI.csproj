@@ -13,7 +13,7 @@
 		<PackageReference Include="PhotoSauce.MagicScaler" Version="0.15.0" />
 		<PackageReference Include="PhotoSauce.NativeCodecs.Libjpeg" Version="3.0.2-preview2" />
 		<PackageReference Include="PhotoSauce.NativeCodecs.Libpng" Version="1.6.43-preview2" />
-		<PackageReference Include="Polly" Version="8.6.4" />
+		<PackageReference Include="Polly" Version="8.6.5" />
 		<PackageReference Include="TestableIO.System.IO.Abstractions" Version="22.0.16" />
 		<PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.16" />
 	</ItemGroup>
