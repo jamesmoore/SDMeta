@@ -6,14 +6,14 @@ namespace SDMetaUI.Models
 	public class GalleryViewModel
 	{
 		public GalleryViewModel(
-			IPngFileDataSource pngFileDataSource,
-			PngFileViewModelBuilder pngFileViewModelBuilder,
+			IImageFileDataSource imageFileDataSource,
+			ImageFileViewModelBuilder imageFileViewModelBuilder,
 			IThumbnailService thumbnailService)
 		{
-			this.filteredList = new FilteredList(pngFileDataSource, pngFileViewModelBuilder, PostFiltering);
+			this.filteredList = new FilteredList(imageFileDataSource, imageFileViewModelBuilder, PostFiltering);
 			this.groupList = new FlatList(filteredList, PostGrouping);
-			this.pngFileDataSource = pngFileDataSource;
-			this.thumbnailService = thumbnailService;
+            this.imageFileDataSource = imageFileDataSource;
+            this.thumbnailService = thumbnailService;
 		}
 
 		private void PostGrouping()
@@ -23,11 +23,11 @@ namespace SDMetaUI.Models
 
 		private IGroupList groupList;
 		private readonly FilteredList filteredList;
-		private readonly IPngFileDataSource pngFileDataSource;
+		private readonly IImageFileDataSource imageFileDataSource;
 		private readonly IThumbnailService thumbnailService;
 
-		public PngFileViewModel? SelectedFile { get; set; }
-		public PngFileViewModel? ExpandedFile => (this.groupList as IExpandable)?.ExpandedFile;
+		public ImageFileViewModel? SelectedFile { get; set; }
+		public ImageFileViewModel? ExpandedFile => (this.groupList as IExpandable)?.ExpandedFile;
 
 		public void Initialize()
 		{
@@ -108,9 +108,9 @@ namespace SDMetaUI.Models
 				var filename = this.SelectedFile.FileName;
 				this.thumbnailService.Delete(filename);
 				File.Delete(filename);
-				var original = pngFileDataSource.ReadPngFile(filename);
+				var original = imageFileDataSource.ReadImageFile(filename);
 				original.Exists = false;
-				pngFileDataSource.WritePngFile(original);
+				imageFileDataSource.WriteImageFile(original);
 
 				var next = this.groupList.GetNext(this.SelectedFile);
 				if (next == this.SelectedFile) next = null;
@@ -132,14 +132,14 @@ namespace SDMetaUI.Models
 
 		public IList<GalleryRow> Rows { get; private set; }
 
-		public void ToggleExpandedState(PngFileViewModel model)
+		public void ToggleExpandedState(ImageFileViewModel model)
 		{
 			(groupList as IExpandable)?.ToggleExpandedState(model);
 		}
 
 		public IList<ModelSummaryViewModel> GetModelsList()
 		{
-			var modelsList = this.pngFileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel(p, i + 1)).ToList();
+			var modelsList = this.imageFileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel(p, i + 1)).ToList();
 			modelsList.Insert(0, new ModelSummaryViewModel());
 			return modelsList;
 		}

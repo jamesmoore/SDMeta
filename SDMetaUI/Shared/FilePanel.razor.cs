@@ -10,7 +10,7 @@ namespace SDMetaUI.Shared
 	public partial class FilePanel
 	{
 		[Parameter]
-		public PngFileViewModel selectedFile { get; set; }
+		public ImageFileViewModel selectedFile { get; set; }
 
 		[Parameter]
 		public EventCallback<MouseEventArgs> onDelete { get; set; }
@@ -32,7 +32,7 @@ namespace SDMetaUI.Shared
 
 		protected override Task OnParametersSetAsync()
 		{
-			var realFile = pngfileDataSource.ReadPngFile(selectedFile.FileName);
+			var realFile = imagefileDataSource.ReadImageFile(selectedFile.FileName);
 			if (realFile != null)
 			{
 				fileSize = realFile.Length.GetBytesReadable();

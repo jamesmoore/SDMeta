@@ -7,7 +7,7 @@ namespace SDMetaUI.Shared
 	public partial class Thumbnail
 	{
 		[Parameter]
-		public PngFileViewModel File { get; set; }
+		public ImageFileViewModel File { get; set; }
 
 		[Parameter]
 		public bool Selected { get; set; }

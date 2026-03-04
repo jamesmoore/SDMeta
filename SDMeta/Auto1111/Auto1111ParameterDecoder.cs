@@ -68,9 +68,9 @@ namespace SDMeta.Auto1111
 			ParamHiresSteps,
 		};
 
-		public GenerationParams GetParameters(PngFile pngFile)
+		public GenerationParams GetParameters(ImageFile imageFile)
 		{
-			var _parameters = pngFile.Prompt;
+			var _parameters = imageFile.Prompt;
 			if (string.IsNullOrWhiteSpace(_parameters))
 			{
 				return new Auto1111GenerationParams();

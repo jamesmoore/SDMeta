@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace SDMeta.Cache
 {
-    public partial class SqliteDataSource : IPngFileDataSource
+    public partial class SqliteDataSource : IImageFileDataSource
     {
         const string TableName = "PngFilesv2";
         private string FTSTableName = $"FTS5{TableName}";
@@ -125,7 +125,7 @@ namespace SDMeta.Cache
             this.CommitTransaction();
         }
 
-        public IEnumerable<PngFileSummary> Query(QueryParams queryParams)
+        public IEnumerable<ImageFileSummary> Query(QueryParams queryParams)
         {
             var sql = BuildQueryStringFTS(queryParams);
             var param = new
@@ -136,7 +136,7 @@ namespace SDMeta.Cache
             };
 
             var reader = ExecuteOnConnection(connection =>
-                connection.Query<PngFileSummary>(sql, param)
+                connection.Query<ImageFileSummary>(sql, param)
             );
             return reader;
         }
@@ -210,7 +210,7 @@ namespace SDMeta.Cache
             };
         }
 
-        public PngFile ReadPngFile(string realFileName)
+        public ImageFile ReadImageFile(string realFileName)
         {
             var reader = ExecuteOnConnection(connection => connection.QueryFirstOrDefault<DataRow>(
             $@"SELECT *
@@ -228,7 +228,7 @@ namespace SDMeta.Cache
             }
         }
 
-        public void WritePngFile(PngFile info)
+        public void WriteImageFile(ImageFile info)
         {
             ExecuteOnConnection(connection => connection.Execute(
                 insertSql.Value,
@@ -237,7 +237,7 @@ namespace SDMeta.Cache
             ));
         }
 
-        private DataRow FromModel(PngFile info)
+        private DataRow FromModel(ImageFile info)
         {
             var parameters = parameterDecoder.GetParameters(info);
             return new DataRow()

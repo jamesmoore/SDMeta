@@ -9,10 +9,10 @@ namespace SDMeta
         ComfyUIParameterDecoder comfyUIParameterDecoder,
         ParameterlessDecoder parameterlessDecoder) : IParameterDecoder
     {
-        public GenerationParams GetParameters(PngFile pngFile)
+        public GenerationParams GetParameters(ImageFile imageFile)
         {
-            var decoder = GetParameterDecoder(pngFile.PromptFormat);
-            return decoder.GetParameters(pngFile);
+            var decoder = GetParameterDecoder(imageFile.PromptFormat);
+            return decoder.GetParameters(imageFile);
         }
 
         private IParameterDecoder GetParameterDecoder(PromptFormat promptFormat) => promptFormat switch

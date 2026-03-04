@@ -121,12 +121,12 @@ namespace SDMetaUI.Pages
             this.viewModel.ModelFilter = model.Id == 0 ? null : model;
         }
 
-        private void imageClickParent(PngFileViewModel model)
+        private void imageClickParent(ImageFileViewModel model)
         {
             this.viewModel.ToggleExpandedState(model);
         }
 
-        private async void imageClick(PngFileViewModel model)
+        private async void imageClick(ImageFileViewModel model)
         {
             if (model == viewModel.SelectedFile)
             {
@@ -144,7 +144,7 @@ namespace SDMetaUI.Pages
         private async Task FullRescan()
         {
             this.FileSystemObserver.Reset();
-            await this.rescan.ProcessPngFiles();
+            await this.rescan.ProcessImageFiles();
             logger.LogInformation("Rescan done");
             this.scanProgess = 0;
             LoadData();

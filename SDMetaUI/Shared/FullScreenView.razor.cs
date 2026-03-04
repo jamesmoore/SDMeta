@@ -8,7 +8,7 @@ namespace SDMetaUI.Shared
 	public partial class FullScreenView
 	{
 		[Parameter]
-		public PngFileViewModel selectedFile { get; set; }
+		public ImageFileViewModel selectedFile { get; set; }
 		[Parameter]
 		public EventCallback<KeyboardEventArgs> onLeft { get; set; }
 		[Parameter]

@@ -62,7 +62,7 @@ app.MapFallbackToPage("/_Host");
 
 using (var scope = app.Services.CreateScope())
 {
-    using var db = scope.ServiceProvider.GetRequiredService<IPngFileDataSource>();
+    using var db = scope.ServiceProvider.GetRequiredService<IImageFileDataSource>();
     db.Initialize();
 }
 
@@ -83,21 +83,21 @@ static void AddCustomServices(WebApplicationBuilder builder)
     builder.Services.AddSingleton<ComfyUIParameterDecoder>();
     builder.Services.AddSingleton<ParameterlessDecoder>();
 
-    builder.Services.AddScoped<IPngFileDataSource, SqliteDataSource>();
-    builder.Services.AddScoped<PngFileLoader>();
-    builder.Services.AddScoped<CachedPngFileLoader>();
-    builder.Services.AddScoped<IPngFileLoader>(x =>
+    builder.Services.AddScoped<IImageFileDataSource, SqliteDataSource>();
+    builder.Services.AddScoped<ImageFileLoader>();
+    builder.Services.AddScoped<CachedImageFileLoader>();
+    builder.Services.AddScoped<IImageFileLoader>(x =>
         new RetryingFileLoader(
-		    new CachedPngFileLoader(x.GetRequiredService<IFileSystem>(),
-		        x.GetRequiredService<PngFileLoader>(),
-		        x.GetRequiredService<IPngFileDataSource>()
+		    new CachedImageFileLoader(x.GetRequiredService<IFileSystem>(),
+		        x.GetRequiredService<ImageFileLoader>(),
+		        x.GetRequiredService<IImageFileDataSource>()
 		    ),
             x.GetRequiredService<ILogger<RetryingFileLoader>>()
         ));
     builder.Services.AddScoped<Rescan>();
     builder.Services.AddScoped<GalleryViewModel>();
     builder.Services.AddSingleton<IThumbnailService, ThumbnailService>();
-    builder.Services.AddSingleton<PngFileViewModelBuilder>();
+    builder.Services.AddSingleton<ImageFileViewModelBuilder>();
     builder.Services.AddSingleton<FileSystemObserver>();
     builder.Services.AddSingleton<IImageDir, ImageDir>();
     HxMessengerServiceExtensions.Defaults.InformationAutohideDelay = 1000;

@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace SDMeta.Cache
 {
-	public interface IPngFileDataSource : IDisposable
+	public interface IImageFileDataSource : IDisposable
 	{
-		IEnumerable<PngFileSummary> Query(QueryParams queryParams);
+		IEnumerable<ImageFileSummary> Query(QueryParams queryParams);
 		IEnumerable<string> GetAllFilenames();
 
-		PngFile ReadPngFile(string realFileName);
-		void WritePngFile(PngFile info);
+		ImageFile ReadImageFile(string realFileName);
+		void WriteImageFile(ImageFile info);
 		void BeginTransaction();
 		void CommitTransaction();
 		IEnumerable<ModelSummary> GetModelSummaryList();

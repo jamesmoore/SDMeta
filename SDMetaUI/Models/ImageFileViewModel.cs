@@ -1,10 +1,10 @@
 ﻿namespace SDMetaUI.Models
 {
-	public class PngFileViewModel
+	public class ImageFileViewModel
 	{
 		private readonly Func<string, string> func;
 
-		public PngFileViewModel(string fileName, string fullPromptHash, Func<string, string> func)
+		public ImageFileViewModel(string fileName, string fullPromptHash, Func<string, string> func)
 		{
 			FileName = fileName;
 			FullPromptHash = fullPromptHash;
@@ -15,7 +15,7 @@
 		public string ThumbnailUrl => $"/images/thumb/{EncodedFileName.Value}";
 		public string ImageUrl => $"/images/full/{EncodedFileName.Value}/{func(this.FileName)}";
 		public string FullPromptHash { get; }
-		public IList<PngFileViewModel> SubItems { get; set; }
+		public IList<ImageFileViewModel> SubItems { get; set; }
 
 		private readonly Lazy<string> EncodedFileName; 
 

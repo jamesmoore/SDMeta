@@ -2,7 +2,7 @@
 
 namespace SDMeta
 {
-	public class PngFile(string fileName,
+    public class ImageFile(string fileName,
         DateTime lastUpdated,
         long length,
         PromptFormat promptFormat,
@@ -19,11 +19,4 @@ namespace SDMeta
         /// </summary>
         public bool Exists { get; set; } = exists;
     }
-
-	public enum PromptFormat
-	{
-		None,
-		Auto1111,
-		ComfyUI,
-	}
 }
