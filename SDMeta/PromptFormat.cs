@@ -1,6 +1,5 @@
 ﻿namespace SDMeta
 {
-
 	public enum PromptFormat
 	{
 		None,
