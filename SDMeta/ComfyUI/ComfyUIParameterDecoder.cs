@@ -3,176 +3,203 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace SDMeta.Comfy
 {
-	public class ComfyUIParameterDecoder : IParameterDecoder
-	{
-		public GenerationParams GetParameters(ImageFile imageFile)
-		{
-			var _parameters = imageFile.Prompt;
-			try
-			{
-				var nodes = JsonSerializer.Deserialize<Dictionary<string, UntypedBaseNode>>(_parameters);
+    public class ComfyUIParameterDecoder : IParameterDecoder
+    {
+        private static readonly JsonSerializerOptions options = new()
+        {
+            AllowOutOfOrderMetadataProperties = true,
 
-				var typedNodes = nodes.Select(p => p.Value.GetInputs(p.Key)).ToList();
+        };
 
-				var modelNode = typedNodes.OfType<CheckpointLoaderSimpleInputs>().OrderBy(p => p.IsRefiner()).FirstOrDefault();
+        public GenerationParams GetParameters(ImageFile imageFile)
+        {
+            var _parameters = imageFile.Prompt;
+            try
+            {
+                var nodes = JsonSerializer.Deserialize<Dictionary<string, UntypedBaseNode>>(_parameters, options);
 
-				var samplerNode = typedNodes.OfType<KSamplerBase>().ToList();
+                var typedNodes = nodes.Select(p => p.Value.GetInputs(p.Key)).ToList();
 
-				var clipText = typedNodes.OfType<BaseCLIPTestEncodeInputs>().ToList();
+                var modelNode = typedNodes.OfType<CheckpointLoaderSimpleInputs>().OrderBy(p => p.IsRefiner()).FirstOrDefault();
 
-				var posNeg = samplerNode.Select(p => p.GetClips(clipText)).Distinct().ToList();
+                var samplerNode = typedNodes.OfType<KSamplerBase>().ToList();
 
-				var positive = posNeg.Select(p => p.positive?.Trim()).DefaultIfEmpty("").OrderBy(p => p).Aggregate((p, q) => p + " " + q);
-				var negative = posNeg.Select(p => p.negative?.Trim()).DefaultIfEmpty("").OrderBy(p => p).Aggregate((p, q) => p + " " + q);
+                var clipText = typedNodes.OfType<BaseCLIPTestEncodeInputs>().ToList();
 
-				return new GenerationParams()
-				{
-					Model = modelNode?.GetCheckpointName(),
-					Prompt = positive,
-					NegativePrompt = negative,
-				};
-			}
-			catch(Exception ex)
-			{
-				const string errorMessage = "Unable to decode Comfy prompt";
-				return new GenerationParams()
-				{
-					Model = errorMessage,
-					Prompt = errorMessage,
-					NegativePrompt = errorMessage,
-				};
-			}
-		}
-	}
+                var posNeg = samplerNode.Select(p => p.GetClips(clipText)).Distinct().ToList();
 
-	public class UntypedBaseNode
-	{
-		public string class_type { get; set; }
-		public JsonNode inputs { get; set; }
+                var positive = posNeg.Select(p => p.positive?.Trim()).DefaultIfEmpty("").OrderBy(p => p).Aggregate((p, q) => p + " " + q);
+                var negative = posNeg.Select(p => p.negative?.Trim()).DefaultIfEmpty("").OrderBy(p => p).Aggregate((p, q) => p + " " + q);
 
-		public BaseInputs? GetInputs(string nodeId)
-		{
-			try
-			{
-				var node = GetNode();
-				if (node != null)
-				{
-					node.NodeId = nodeId;
-				}
-				return node;
-			}
-			catch (Exception ex)
-			{
-				return new BaseInputs()
-				{
-					NodeId = nodeId,
-				};
-			}
-		}
+                return new GenerationParams()
+                {
+                    Model = modelNode?.GetCheckpointName(),
+                    Prompt = positive,
+                    NegativePrompt = negative,
+                };
+            }
+            catch (Exception ex)
+            {
+                const string errorMessage = "Unable to decode Comfy prompt";
+                return new GenerationParams()
+                {
+                    Model = errorMessage,
+                    Prompt = errorMessage,
+                    NegativePrompt = errorMessage,
+                };
+            }
+        }
+    }
 
-		private BaseInputs? GetNode() => class_type switch
-		{
-			"CheckpointLoaderSimple" => inputs.Deserialize<CheckpointLoaderSimpleInputs>(),
-			"CLIPTextEncode" => inputs.Deserialize<CLIPTextEncodeInputs>(),
-			"KSampler" => inputs.Deserialize<KSamplerInputs>(),
-			"KSamplerAdvanced" => inputs.Deserialize<KSamplerAdvancedInputs>(),
-			"CLIPTextEncodeSDXL" => inputs.Deserialize<CLIPTextEncodeSDXL>(),
-			"CLIPTextEncodeSDXLRefiner" => inputs.Deserialize<CLIPTextEncodeSDXLRefiner>(),
-			_ => null
-		};
-	}
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "class_type",
+        IgnoreUnrecognizedTypeDiscriminators = true
+        )]
+    [JsonDerivedType(typeof(CheckpointLoaderSimpleNode), "CheckpointLoaderSimple")]
+    [JsonDerivedType(typeof(CLIPTextEncodeNode), "CLIPTextEncode")]
+    [JsonDerivedType(typeof(KSamplerNode), "KSampler")]
+    [JsonDerivedType(typeof(KSamplerAdvancedNode), "KSamplerAdvanced")]
+    [JsonDerivedType(typeof(CLIPTextEncodeSDXLNode), "CLIPTextEncodeSDXL")]
+    [JsonDerivedType(typeof(CLIPTextEncodeSDXLRefinerNode), "CLIPTextEncodeSDXLRefiner")]
+    public class UntypedBaseNode
+    {
+        public virtual BaseInputs? GetInputs(string nodeId)
+        {
+            return null;
+        }
+    }
 
-	public class BaseInputs
-	{
-		public string NodeId { get; set; }
-	}
+    public class UntypedBaseNode<T> : UntypedBaseNode where T : BaseInputs
+    {
+        public T? inputs { get; set; }
 
-	public class CheckpointLoaderSimpleInputs : BaseInputs
-	{
-		public string ckpt_name { get; set; }
+        public override BaseInputs? GetInputs(string nodeId)
+        {
+            if (inputs == null)
+            {
+                return null;
+            }
 
-		public string? GetCheckpointName() => ckpt_name?.Replace(".safetensors", "");
+            inputs.NodeId = nodeId;
+            return inputs;
+        }
+    }
 
-		public bool IsRefiner() => ckpt_name.ToLower().Contains("refiner");
-	}
+    public sealed class CheckpointLoaderSimpleNode : UntypedBaseNode<CheckpointLoaderSimpleInputs>
+    {
+    }
 
-	public abstract class BaseCLIPTestEncodeInputs : BaseInputs
-	{
-		public JsonArray clip { get; set; }
-		public abstract string GetText();
-	}
+    public sealed class CLIPTextEncodeNode : UntypedBaseNode<CLIPTextEncodeInputs>
+    {
+    }
 
-	public class CLIPTextEncodeInputs : BaseCLIPTestEncodeInputs
-	{
-		public string text { get; set; }
+    public sealed class KSamplerNode : UntypedBaseNode<KSamplerInputs>
+    {
+    }
 
-		public override string GetText() => text;
-	}
+    public sealed class KSamplerAdvancedNode : UntypedBaseNode<KSamplerAdvancedInputs>
+    {
+    }
 
-	public class KSamplerBase : BaseInputs
-	{
-		public JsonArray model { get; set; }
-		public JsonArray positive { get; set; }
-		public JsonArray negative { get; set; }
-		public JsonArray latent_image { get; set; }
+    public sealed class CLIPTextEncodeSDXLNode : UntypedBaseNode<CLIPTextEncodeSDXL>
+    {
+    }
 
-		public (string? positive, string? negative) GetClips(IEnumerable<BaseCLIPTestEncodeInputs> clips)
-		{
-			var positiveNodeId = positive?.FirstOrDefault()?.ToString();
-			var negativeNodeId = negative?.FirstOrDefault()?.ToString();
+    public sealed class CLIPTextEncodeSDXLRefinerNode : UntypedBaseNode<CLIPTextEncodeSDXLRefiner>
+    {
+    }
 
-			return (
-				clips.FirstOrDefault(p => p.NodeId == positiveNodeId)?.GetText(),
-				clips.FirstOrDefault(p => p.NodeId == negativeNodeId)?.GetText()
-				);
-		}
-	}
+    public class BaseInputs
+    {
+        public string NodeId { get; set; }
+    }
 
-	public class KSamplerInputs : KSamplerBase
-	{
-		public long seed { get; set; }
-		public int steps { get; set; }
-		public float cfg { get; set; }
-		public string sampler_name { get; set; }
-		public string scheduler { get; set; }
-		public float denoise { get; set; }
-	}
+    public class CheckpointLoaderSimpleInputs : BaseInputs
+    {
+        public string ckpt_name { get; set; }
 
-	public class KSamplerAdvancedInputs : KSamplerBase
-	{
-		public string add_noise { get; set; }
-		public long noise_seed { get; set; }
-		public int steps { get; set; }
-		public float cfg { get; set; }
-		public string sampler_name { get; set; }
-		public string scheduler { get; set; }
-		public int start_at_step { get; set; }
-		public int end_at_step { get; set; }
-		public string return_with_leftover_noise { get; set; }
-	}
+        public string? GetCheckpointName() => ckpt_name?.Replace(".safetensors", "");
 
-	public class CLIPTextEncodeSDXL : BaseCLIPTestEncodeInputs
-	{
-		public int width { get; set; }
-		public int height { get; set; }
-		public int crop_w { get; set; }
-		public int crop_h { get; set; }
-		public int target_width { get; set; }
-		public int target_height { get; set; }
-		public string text_g { get; set; }
-		public string text_l { get; set; }
-		public override string GetText() => (text_g + " " + text_l).Trim();
-	}
+        public bool IsRefiner() => ckpt_name.ToLower().Contains("refiner");
+    }
 
-	public class CLIPTextEncodeSDXLRefiner : BaseCLIPTestEncodeInputs
-	{
-		public float ascore { get; set; }
-		public int width { get; set; }
-		public int height { get; set; }
-		public string text { get; set; }
-		public override string GetText() => text;
-	}
+    public abstract class BaseCLIPTestEncodeInputs : BaseInputs
+    {
+        public JsonArray clip { get; set; }
+        public abstract string GetText();
+    }
+
+    public class CLIPTextEncodeInputs : BaseCLIPTestEncodeInputs
+    {
+        public string text { get; set; }
+
+        public override string GetText() => text;
+    }
+
+    public class KSamplerBase : BaseInputs
+    {
+        public JsonArray model { get; set; }
+        public JsonArray positive { get; set; }
+        public JsonArray negative { get; set; }
+        public JsonArray latent_image { get; set; }
+
+        public (string? positive, string? negative) GetClips(IEnumerable<BaseCLIPTestEncodeInputs> clips)
+        {
+            var positiveNodeId = positive?.FirstOrDefault()?.ToString();
+            var negativeNodeId = negative?.FirstOrDefault()?.ToString();
+
+            return (
+                clips.FirstOrDefault(p => p.NodeId == positiveNodeId)?.GetText(),
+                clips.FirstOrDefault(p => p.NodeId == negativeNodeId)?.GetText()
+                );
+        }
+    }
+
+    public class KSamplerInputs : KSamplerBase
+    {
+        public long seed { get; set; }
+        public int steps { get; set; }
+        public float cfg { get; set; }
+        public string sampler_name { get; set; }
+        public string scheduler { get; set; }
+        public float denoise { get; set; }
+    }
+
+    public class KSamplerAdvancedInputs : KSamplerBase
+    {
+        public string add_noise { get; set; }
+        public long noise_seed { get; set; }
+        public int steps { get; set; }
+        public float cfg { get; set; }
+        public string sampler_name { get; set; }
+        public string scheduler { get; set; }
+        public int start_at_step { get; set; }
+        public int end_at_step { get; set; }
+        public string return_with_leftover_noise { get; set; }
+    }
+
+    public class CLIPTextEncodeSDXL : BaseCLIPTestEncodeInputs
+    {
+        public int width { get; set; }
+        public int height { get; set; }
+        public int crop_w { get; set; }
+        public int crop_h { get; set; }
+        public int target_width { get; set; }
+        public int target_height { get; set; }
+        public string text_g { get; set; }
+        public string text_l { get; set; }
+        public override string GetText() => (text_g + " " + text_l).Trim();
+    }
+
+    public class CLIPTextEncodeSDXLRefiner : BaseCLIPTestEncodeInputs
+    {
+        public float ascore { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+        public string text { get; set; }
+        public override string GetText() => text;
+    }
 }
