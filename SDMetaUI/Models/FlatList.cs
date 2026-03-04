@@ -9,11 +9,11 @@
 
 		public IList<GalleryRow> GetChunks() => filteredList.Chunk(countPerRow).Select(p => new GalleryRow(p)).ToList();
 
-		public PngFileViewModel GetPrevious(PngFileViewModel current) => filteredList.GetPrevious(current);
+		public ImageFileViewModel GetPrevious(ImageFileViewModel current) => filteredList.GetPrevious(current);
 
-		public PngFileViewModel GetNext(PngFileViewModel current) => filteredList.GetNext(current);
+		public ImageFileViewModel GetNext(ImageFileViewModel current) => filteredList.GetNext(current);
 
-		public void Remove(PngFileViewModel current)
+		public void Remove(ImageFileViewModel current)
 		{
 			filteredList.Remove(current);
 			postGroupingAction();

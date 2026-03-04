@@ -8,7 +8,7 @@ namespace SDMeta.Comfy
 {
 	public class ComfyUIParameterDecoder : IParameterDecoder
 	{
-		public GenerationParams GetParameters(PngFile pngFile)
+		public GenerationParams GetParameters(ImageFile pngFile)
 		{
 			var _parameters = pngFile.Prompt;
 			try

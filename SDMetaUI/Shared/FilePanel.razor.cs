@@ -10,7 +10,7 @@ namespace SDMetaUI.Shared
 	public partial class FilePanel
 	{
 		[Parameter]
-		public PngFileViewModel selectedFile { get; set; }
+		public ImageFileViewModel selectedFile { get; set; }
 
 		[Parameter]
 		public EventCallback<MouseEventArgs> onDelete { get; set; }

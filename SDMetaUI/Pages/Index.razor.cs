@@ -121,12 +121,12 @@ namespace SDMetaUI.Pages
             this.viewModel.ModelFilter = model.Id == 0 ? null : model;
         }
 
-        private void imageClickParent(PngFileViewModel model)
+        private void imageClickParent(ImageFileViewModel model)
         {
             this.viewModel.ToggleExpandedState(model);
         }
 
-        private async void imageClick(PngFileViewModel model)
+        private async void imageClick(ImageFileViewModel model)
         {
             if (model == viewModel.SelectedFile)
             {

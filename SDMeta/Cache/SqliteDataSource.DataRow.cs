@@ -23,7 +23,7 @@ namespace SDMeta.Cache
 			public string NegativePromptHash { get; set; }
 			public int Version { get; set; }
 
-			internal PngFile ToModel() => new(
+			internal ImageFile ToModel() => new(
 				this.FileName,
 				this.LastUpdated,
 				this.Length,

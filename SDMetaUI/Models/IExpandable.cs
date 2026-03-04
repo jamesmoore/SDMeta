@@ -2,7 +2,7 @@
 {
 	public interface IExpandable
 	{
-		PngFileViewModel? ExpandedFile { get; }
-		void ToggleExpandedState(PngFileViewModel model);
+		ImageFileViewModel? ExpandedFile { get; }
+		void ToggleExpandedState(ImageFileViewModel model);
 	}
 }

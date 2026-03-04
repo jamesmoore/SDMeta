@@ -4,12 +4,12 @@ using System.Collections;
 namespace SDMetaUI.Models
 {
     public class FilteredList(
-        IPngFileDataSource pngFileDataSource,
-        PngFileViewModelBuilder pngFileViewModelBuilder,
+        IImageFileDataSource pngFileDataSource,
+        ImageFileViewModelBuilder pngFileViewModelBuilder,
         Action postFilteringAction
-            ) : IList<PngFileViewModel>
+            ) : IList<ImageFileViewModel>
     {
-        private IList<PngFileViewModel> filteredFiles = new List<PngFileViewModel>();
+        private IList<ImageFileViewModel> filteredFiles = new List<ImageFileViewModel>();
 
         public bool FilterError { get; private set; }
 
@@ -70,7 +70,7 @@ namespace SDMetaUI.Models
 
         public bool IsReadOnly => throw new NotImplementedException();
 
-        public PngFileViewModel this[int index]
+        public ImageFileViewModel this[int index]
         {
             get => this.filteredFiles[index];
             set => throw new NotImplementedException();
@@ -102,17 +102,17 @@ namespace SDMetaUI.Models
             postFilteringAction();
         }
 
-        public PngFileViewModel? Get(string path)
+        public ImageFileViewModel? Get(string path)
         {
             return filteredFiles.FirstOrDefault(p => p.FileName == path);
         }
 
-        public int IndexOf(PngFileViewModel item)
+        public int IndexOf(ImageFileViewModel item)
         {
             return filteredFiles.IndexOf(item);
         }
 
-        public void Insert(int index, PngFileViewModel item)
+        public void Insert(int index, ImageFileViewModel item)
         {
             throw new NotImplementedException();
         }
@@ -122,7 +122,7 @@ namespace SDMetaUI.Models
             throw new NotImplementedException();
         }
 
-        public void Add(PngFileViewModel item)
+        public void Add(ImageFileViewModel item)
         {
             throw new NotImplementedException();
         }
@@ -132,22 +132,22 @@ namespace SDMetaUI.Models
             throw new NotImplementedException();
         }
 
-        public bool Contains(PngFileViewModel item)
+        public bool Contains(ImageFileViewModel item)
         {
             throw new NotImplementedException();
         }
 
-        public void CopyTo(PngFileViewModel[] array, int arrayIndex)
+        public void CopyTo(ImageFileViewModel[] array, int arrayIndex)
         {
             throw new NotImplementedException();
         }
 
-        public bool Remove(PngFileViewModel item)
+        public bool Remove(ImageFileViewModel item)
         {
             return this.filteredFiles.Remove(item);
         }
 
-        public IEnumerator<PngFileViewModel> GetEnumerator()
+        public IEnumerator<ImageFileViewModel> GetEnumerator()
         {
             return this.filteredFiles.GetEnumerator();
         }

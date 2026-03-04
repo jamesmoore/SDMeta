@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 
 namespace SDMeta
 {
-    public class CachedPngFileLoader(
+    public class CachedImageFileLoader(
         IFileSystem fileSystem,
-        IPngFileLoader inner,
-        IPngFileDataSource pngFileDataSource) : IPngFileLoader
+        IImageFileLoader inner,
+        IImageFileDataSource pngFileDataSource) : IImageFileLoader
     {
-        public async Task<PngFile> GetPngFile(string filename)
+        public async Task<ImageFile> GetPngFile(string filename)
         {
             var fileInfo = fileSystem.FileInfo.New(filename);
             var pngFile = pngFileDataSource.ReadPngFile(filename);

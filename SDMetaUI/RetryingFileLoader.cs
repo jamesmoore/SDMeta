@@ -4,7 +4,7 @@ using SDMeta;
 
 namespace SDMetaUI
 {
-    public class RetryingFileLoader(IPngFileLoader inner, ILogger<RetryingFileLoader> logger) : IPngFileLoader
+    public class RetryingFileLoader(IImageFileLoader inner, ILogger<RetryingFileLoader> logger) : IImageFileLoader
     {
         private static readonly RetryStrategyOptions exponentialRetryOptions = new()
         {
@@ -20,7 +20,7 @@ namespace SDMetaUI
                 .AddTimeout(TimeSpan.FromSeconds(10))
                 .Build();
 
-        public async Task<PngFile> GetPngFile(string filename)
+        public async Task<ImageFile> GetPngFile(string filename)
         {
             try
             {

@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace SDMeta
 {
-    public class PngFileLoader(IFileSystem fileSystem, ILogger<PngFileLoader> logger) : IPngFileLoader
+    public class ImageFileLoader(IFileSystem fileSystem, ILogger<ImageFileLoader> logger) : IImageFileLoader
     {
-        public async Task<PngFile> GetPngFile(string filename)
+        public async Task<ImageFile> GetPngFile(string filename)
         {
             logger.LogInformation("Indexing: {filename}", filename);
 
@@ -25,13 +25,13 @@ namespace SDMeta
             }
         }
 
-        private static async Task<PngFile> ReadPngFile(IFileSystem fileSystem, string filename)
+        private static async Task<ImageFile> ReadPngFile(IFileSystem fileSystem, string filename)
         {
             var fileInfo = fileSystem.FileInfo.New(filename);
 
             var prompt = await ExtractPromptFromPngText(fileSystem, filename);
 
-            var pngfile = new PngFile(
+            var pngfile = new ImageFile(
                 fileInfo.FullName,
                 fileInfo.LastWriteTime,
                 fileInfo.Length,

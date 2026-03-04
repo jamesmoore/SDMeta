@@ -6,8 +6,8 @@ namespace SDMetaUI.Models
 	public class GalleryViewModel
 	{
 		public GalleryViewModel(
-			IPngFileDataSource pngFileDataSource,
-			PngFileViewModelBuilder pngFileViewModelBuilder,
+			IImageFileDataSource pngFileDataSource,
+			ImageFileViewModelBuilder pngFileViewModelBuilder,
 			IThumbnailService thumbnailService)
 		{
 			this.filteredList = new FilteredList(pngFileDataSource, pngFileViewModelBuilder, PostFiltering);
@@ -23,11 +23,11 @@ namespace SDMetaUI.Models
 
 		private IGroupList groupList;
 		private readonly FilteredList filteredList;
-		private readonly IPngFileDataSource pngFileDataSource;
+		private readonly IImageFileDataSource pngFileDataSource;
 		private readonly IThumbnailService thumbnailService;
 
-		public PngFileViewModel? SelectedFile { get; set; }
-		public PngFileViewModel? ExpandedFile => (this.groupList as IExpandable)?.ExpandedFile;
+		public ImageFileViewModel? SelectedFile { get; set; }
+		public ImageFileViewModel? ExpandedFile => (this.groupList as IExpandable)?.ExpandedFile;
 
 		public void Initialize()
 		{
@@ -132,7 +132,7 @@ namespace SDMetaUI.Models
 
 		public IList<GalleryRow> Rows { get; private set; }
 
-		public void ToggleExpandedState(PngFileViewModel model)
+		public void ToggleExpandedState(ImageFileViewModel model)
 		{
 			(groupList as IExpandable)?.ToggleExpandedState(model);
 		}

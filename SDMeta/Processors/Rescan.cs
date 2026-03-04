@@ -11,10 +11,10 @@ namespace SDMeta.Processors
     public class Rescan(
         IImageDir imageDir,
         IFileLister fileLister,
-        IPngFileDataSource pngFileDataSource,
-        IPngFileLoader pngFileLoader,
+        IImageFileDataSource pngFileDataSource,
+        IImageFileLoader pngFileLoader,
         ILogger<Rescan> logger
-        ) : IPngFileListProcessor
+        ) : IImageFileListProcessor
     {
         public event EventHandler<float>? ProgressNotification;
 

@@ -2,7 +2,7 @@
 {
     public class ParameterlessDecoder : IParameterDecoder
     {
-        public GenerationParams GetParameters(PngFile pngFile)
+        public GenerationParams GetParameters(ImageFile pngFile)
         {
             return new GenerationParams();
         }

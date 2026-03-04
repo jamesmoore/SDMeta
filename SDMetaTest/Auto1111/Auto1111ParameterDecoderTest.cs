@@ -40,9 +40,9 @@ Steps: 30, Sampler: DPM++ 2M Karras, CFG scale: 11, Seed: 358940890, Size: 704x7
             Assert.AreEqual("2700c435", parameters.ModelHash);
         }
 
-        private static PngFile GetPngFile(string testdata)
+        private static ImageFile GetPngFile(string testdata)
         {
-            return new PngFile(default, default, default, default, testdata, default);
+            return new ImageFile(default, default, default, default, testdata, default);
         }
 
         [TestMethod]

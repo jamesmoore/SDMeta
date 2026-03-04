@@ -2,12 +2,12 @@
 {
 	public class GroupedByPromptList : IGroupList, IExpandable
 	{
-		private IList<PngFileViewModel>? groupedFiles = null;
-		private IDictionary<string, List<PngFileViewModel>>? promptGroups = null;
+		private IList<ImageFileViewModel>? groupedFiles = null;
+		private IDictionary<string, List<ImageFileViewModel>>? promptGroups = null;
 		private readonly FilteredList filteredList;
 		private readonly Action postGroupingAction;
 
-		public PngFileViewModel? ExpandedFile { get; private set; }
+		public ImageFileViewModel? ExpandedFile { get; private set; }
 
 		private int countPerRow = 1;
 		public int ItemsPerRow
@@ -71,11 +71,11 @@
 			}
 		}
 
-		public PngFileViewModel GetPrevious(PngFileViewModel current) => this.promptGroups[current.FullPromptHash].GetPrevious(current);
+		public ImageFileViewModel GetPrevious(ImageFileViewModel current) => this.promptGroups[current.FullPromptHash].GetPrevious(current);
 
-		public PngFileViewModel GetNext(PngFileViewModel current) => this.promptGroups[current.FullPromptHash].GetNext(current);
+		public ImageFileViewModel GetNext(ImageFileViewModel current) => this.promptGroups[current.FullPromptHash].GetNext(current);
 
-		public void Remove(PngFileViewModel current)
+		public void Remove(ImageFileViewModel current)
 		{
 			if (current == this.ExpandedFile && this.ExpandedFile.SubItems?.Count > 1)
 			{
@@ -93,7 +93,7 @@
 			postGroupingAction();
 		}
 
-		public void ToggleExpandedState(PngFileViewModel model)
+		public void ToggleExpandedState(ImageFileViewModel model)
 		{
 			this.ExpandedFile = model == this.ExpandedFile ? null : model;
 			postGroupingAction();

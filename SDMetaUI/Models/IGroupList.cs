@@ -4,9 +4,9 @@
 	{
 		void RunGrouping();
 		IList<GalleryRow> GetChunks();
-		PngFileViewModel GetPrevious(PngFileViewModel current);
-		PngFileViewModel GetNext(PngFileViewModel current);
-		void Remove(PngFileViewModel current);
+		ImageFileViewModel GetPrevious(ImageFileViewModel current);
+		ImageFileViewModel GetNext(ImageFileViewModel current);
+		void Remove(ImageFileViewModel current);
 		public int ItemsPerRow { get; set; }
 	}
 }
