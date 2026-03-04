@@ -56,7 +56,7 @@ namespace SDMeta.Processors
                     Notify(steps, multiplier, ++position);
                 }
 
-                var chunkedTasks = added.Select(GetPngFile).Chunk(100);
+                var chunkedTasks = added.Select(GetImageFile).Chunk(100);
 
                 foreach (var chunk in chunkedTasks)
                 {
@@ -71,7 +71,7 @@ namespace SDMeta.Processors
             }
         }
 
-        private async Task GetPngFile(string addedFile)
+        private async Task GetImageFile(string addedFile)
         {
             _ = await imageFileLoader.GetImageFile(addedFile);
         }
