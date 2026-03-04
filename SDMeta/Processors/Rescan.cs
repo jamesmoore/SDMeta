@@ -11,14 +11,14 @@ namespace SDMeta.Processors
     public class Rescan(
         IImageDir imageDir,
         IFileLister fileLister,
-        IImageFileDataSource pngFileDataSource,
-        IImageFileLoader pngFileLoader,
+        IImageFileDataSource imageFileDataSource,
+        IImageFileLoader imageFileLoader,
         ILogger<Rescan> logger
         ) : IImageFileListProcessor
     {
         public event EventHandler<float>? ProgressNotification;
 
-        public async Task ProcessPngFiles()
+        public async Task ProcessImageFiles()
         {
             logger.LogInformation("Rescan started");
             var stopwatch = new Stopwatch();
@@ -26,7 +26,7 @@ namespace SDMeta.Processors
 
             var fileNames = imageDir.GetPath().Select(fileLister.GetList).SelectMany(p => p).Distinct().ToList();
 
-            var knownExisting = pngFileDataSource.GetAllFilenames();
+            var knownExisting = imageFileDataSource.GetAllFilenames();
 
             var deleted = knownExisting.Except(fileNames).ToList();
             var added = fileNames.Except(knownExisting).ToList();
@@ -45,13 +45,13 @@ namespace SDMeta.Processors
 
                 int position = 0;
 
-                pngFileDataSource.BeginTransaction();
+                imageFileDataSource.BeginTransaction();
 
                 foreach (var file in deleted)
                 {
-                    var fileToDelete = pngFileDataSource.ReadPngFile(file);
+                    var fileToDelete = imageFileDataSource.ReadImageFile(file);
                     fileToDelete.Exists = false;
-                    pngFileDataSource.WritePngFile(fileToDelete);
+                    imageFileDataSource.WriteImageFile(fileToDelete);
                     logger.LogInformation("Removing {file}", file);
                     Notify(steps, multiplier, ++position);
                 }
@@ -61,19 +61,19 @@ namespace SDMeta.Processors
                 foreach (var chunk in chunkedTasks)
                 {
                     await Task.WhenAll(chunk);
-                    pngFileDataSource.CommitTransaction();
-                    pngFileDataSource.BeginTransaction();
+                    imageFileDataSource.CommitTransaction();
+                    imageFileDataSource.BeginTransaction();
                     position += chunk.Count();
                     ProgressNotification?.Invoke(this, multiplier * position / steps);
                 }
-                pngFileDataSource.CommitTransaction();
-                pngFileDataSource.PostUpdateProcessing();
+                imageFileDataSource.CommitTransaction();
+                imageFileDataSource.PostUpdateProcessing();
             }
         }
 
         private async Task GetPngFile(string addedFile)
         {
-            _ = await pngFileLoader.GetPngFile(addedFile);
+            _ = await imageFileLoader.GetImageFile(addedFile);
         }
 
         private void Notify(int steps, float multiplier, int position)

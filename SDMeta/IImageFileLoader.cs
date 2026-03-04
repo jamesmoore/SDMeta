@@ -4,6 +4,6 @@ namespace SDMeta
 {
 	public interface IImageFileLoader
 	{
-		Task<ImageFile> GetPngFile(string filename);
+		Task<ImageFile> GetImageFile(string filename);
 	}
 }

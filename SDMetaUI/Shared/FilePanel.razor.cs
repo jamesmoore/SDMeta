@@ -32,7 +32,7 @@ namespace SDMetaUI.Shared
 
 		protected override Task OnParametersSetAsync()
 		{
-			var realFile = pngfileDataSource.ReadPngFile(selectedFile.FileName);
+			var realFile = imagefileDataSource.ReadImageFile(selectedFile.FileName);
 			if (realFile != null)
 			{
 				fileSize = realFile.Length.GetBytesReadable();

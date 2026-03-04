@@ -4,6 +4,6 @@ namespace SDMeta.Processors
 {
 	public interface IImageFileListProcessor
     {
-        Task ProcessPngFiles();
+        Task ProcessImageFiles();
     }
 }

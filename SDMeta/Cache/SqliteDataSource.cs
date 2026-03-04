@@ -210,7 +210,7 @@ namespace SDMeta.Cache
             };
         }
 
-        public ImageFile ReadPngFile(string realFileName)
+        public ImageFile ReadImageFile(string realFileName)
         {
             var reader = ExecuteOnConnection(connection => connection.QueryFirstOrDefault<DataRow>(
             $@"SELECT *
@@ -228,7 +228,7 @@ namespace SDMeta.Cache
             }
         }
 
-        public void WritePngFile(ImageFile info)
+        public void WriteImageFile(ImageFile info)
         {
             ExecuteOnConnection(connection => connection.Execute(
                 insertSql.Value,

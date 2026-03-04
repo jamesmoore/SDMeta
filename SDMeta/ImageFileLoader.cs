@@ -10,13 +10,13 @@ namespace SDMeta
 {
     public class ImageFileLoader(IFileSystem fileSystem, ILogger<ImageFileLoader> logger) : IImageFileLoader
     {
-        public async Task<ImageFile> GetPngFile(string filename)
+        public async Task<ImageFile> GetImageFile(string filename)
         {
             logger.LogInformation("Indexing: {filename}", filename);
 
             try
             {
-                return await ReadPngFile(fileSystem, filename);
+                return await ReadImageFile(fileSystem, filename);
             }
             catch (Exception ex)
             {
@@ -25,13 +25,13 @@ namespace SDMeta
             }
         }
 
-        private static async Task<ImageFile> ReadPngFile(IFileSystem fileSystem, string filename)
+        private static async Task<ImageFile> ReadImageFile(IFileSystem fileSystem, string filename)
         {
             var fileInfo = fileSystem.FileInfo.New(filename);
 
             var prompt = await ExtractPromptFromPngText(fileSystem, filename);
 
-            var pngfile = new ImageFile(
+            var imagefile = new ImageFile(
                 fileInfo.FullName,
                 fileInfo.LastWriteTime,
                 fileInfo.Length,
@@ -40,7 +40,7 @@ namespace SDMeta
                 true
             );
 
-            return pngfile;
+            return imagefile;
         }
 
         private async static Task<(PromptFormat promptFormat, string prompt)> ExtractPromptFromPngText(IFileSystem fileSystem, string filename)

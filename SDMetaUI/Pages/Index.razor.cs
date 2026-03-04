@@ -144,7 +144,7 @@ namespace SDMetaUI.Pages
         private async Task FullRescan()
         {
             this.FileSystemObserver.Reset();
-            await this.rescan.ProcessPngFiles();
+            await this.rescan.ProcessImageFiles();
             logger.LogInformation("Rescan done");
             this.scanProgess = 0;
             LoadData();

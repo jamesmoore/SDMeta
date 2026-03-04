@@ -6,14 +6,14 @@ namespace SDMetaUI.Models
 	public class GalleryViewModel
 	{
 		public GalleryViewModel(
-			IImageFileDataSource pngFileDataSource,
-			ImageFileViewModelBuilder pngFileViewModelBuilder,
+			IImageFileDataSource imageFileDataSource,
+			ImageFileViewModelBuilder imageFileViewModelBuilder,
 			IThumbnailService thumbnailService)
 		{
-			this.filteredList = new FilteredList(pngFileDataSource, pngFileViewModelBuilder, PostFiltering);
+			this.filteredList = new FilteredList(imageFileDataSource, imageFileViewModelBuilder, PostFiltering);
 			this.groupList = new FlatList(filteredList, PostGrouping);
-			this.pngFileDataSource = pngFileDataSource;
-			this.thumbnailService = thumbnailService;
+            this.imageFileDataSource = imageFileDataSource;
+            this.thumbnailService = thumbnailService;
 		}
 
 		private void PostGrouping()
@@ -23,7 +23,7 @@ namespace SDMetaUI.Models
 
 		private IGroupList groupList;
 		private readonly FilteredList filteredList;
-		private readonly IImageFileDataSource pngFileDataSource;
+		private readonly IImageFileDataSource imageFileDataSource;
 		private readonly IThumbnailService thumbnailService;
 
 		public ImageFileViewModel? SelectedFile { get; set; }
@@ -108,9 +108,9 @@ namespace SDMetaUI.Models
 				var filename = this.SelectedFile.FileName;
 				this.thumbnailService.Delete(filename);
 				File.Delete(filename);
-				var original = pngFileDataSource.ReadPngFile(filename);
+				var original = imageFileDataSource.ReadImageFile(filename);
 				original.Exists = false;
-				pngFileDataSource.WritePngFile(original);
+				imageFileDataSource.WriteImageFile(original);
 
 				var next = this.groupList.GetNext(this.SelectedFile);
 				if (next == this.SelectedFile) next = null;
@@ -139,7 +139,7 @@ namespace SDMetaUI.Models
 
 		public IList<ModelSummaryViewModel> GetModelsList()
 		{
-			var modelsList = this.pngFileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel(p, i + 1)).ToList();
+			var modelsList = this.imageFileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel(p, i + 1)).ToList();
 			modelsList.Insert(0, new ModelSummaryViewModel());
 			return modelsList;
 		}

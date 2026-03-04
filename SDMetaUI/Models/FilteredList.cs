@@ -4,8 +4,8 @@ using System.Collections;
 namespace SDMetaUI.Models
 {
     public class FilteredList(
-        IImageFileDataSource pngFileDataSource,
-        ImageFileViewModelBuilder pngFileViewModelBuilder,
+        IImageFileDataSource imageFileDataSource,
+        ImageFileViewModelBuilder imageFileViewModelBuilder,
         Action postFilteringAction
             ) : IList<ImageFileViewModel>
     {
@@ -85,7 +85,7 @@ namespace SDMetaUI.Models
             );
             try
             {
-                filteredFiles = pngFileDataSource.Query(queryParams).Select(p => pngFileViewModelBuilder.BuildModel(p)).ToList();
+                filteredFiles = imageFileDataSource.Query(queryParams).Select(p => imageFileViewModelBuilder.BuildModel(p)).ToList();
                 this.FilterError = false;
             }
             catch (Exception ex)

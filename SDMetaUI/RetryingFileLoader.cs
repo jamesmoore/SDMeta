@@ -20,12 +20,12 @@ namespace SDMetaUI
                 .AddTimeout(TimeSpan.FromSeconds(10))
                 .Build();
 
-        public async Task<ImageFile> GetPngFile(string filename)
+        public async Task<ImageFile> GetImageFile(string filename)
         {
             try
             {
 
-                return await pipeline.ExecuteAsync(async p => await inner.GetPngFile(filename));
+                return await pipeline.ExecuteAsync(async p => await inner.GetImageFile(filename));
             }
             catch (Exception ex)
             {

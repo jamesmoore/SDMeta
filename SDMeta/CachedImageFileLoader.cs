@@ -7,22 +7,22 @@ namespace SDMeta
     public class CachedImageFileLoader(
         IFileSystem fileSystem,
         IImageFileLoader inner,
-        IImageFileDataSource pngFileDataSource) : IImageFileLoader
+        IImageFileDataSource imageFileDataSource) : IImageFileLoader
     {
-        public async Task<ImageFile> GetPngFile(string filename)
+        public async Task<ImageFile> GetImageFile(string filename)
         {
             var fileInfo = fileSystem.FileInfo.New(filename);
-            var pngFile = pngFileDataSource.ReadPngFile(filename);
-            if (pngFile != null && pngFile.LastUpdated == fileInfo.LastWriteTime && pngFile.Exists)
+            var imageFile = imageFileDataSource.ReadImageFile(filename);
+            if (imageFile != null && imageFile.LastUpdated == fileInfo.LastWriteTime && imageFile.Exists)
             {
-                return pngFile;
+                return imageFile;
             }
             else
             {
-                pngFile = await inner.GetPngFile(filename);
-                pngFile.Exists = true;
-                pngFileDataSource.WritePngFile(pngFile);
-                return pngFile;
+                imageFile = await inner.GetImageFile(filename);
+                imageFile.Exists = true;
+                imageFileDataSource.WriteImageFile(imageFile);
+                return imageFile;
             }
         }
     }
