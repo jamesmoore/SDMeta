@@ -64,8 +64,6 @@ namespace SDMeta.Comfy
 	[JsonDerivedType(typeof(CLIPTextEncodeSDXLRefinerNode), "CLIPTextEncodeSDXLRefiner")]
 	public class UntypedBaseNode
 	{
-		//public string? class_type { get; set; }
-
 		public virtual BaseInputs? GetInputs(string nodeId)
 		{
 			return new BaseInputs()
