@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace SDMeta.Comfy
 {
 	public class ComfyUIParameterDecoder : IParameterDecoder
 	{
-		public GenerationParams GetParameters(ImageFile imageFile)
+        private readonly JsonSerializerOptions options = new()
+        {
+            AllowOutOfOrderMetadataProperties = true,
+        };
+
+        public GenerationParams GetParameters(ImageFile imageFile)
 		{
 			var _parameters = imageFile.Prompt;
 			try
 			{
-				var nodes = JsonSerializer.Deserialize<Dictionary<string, UntypedBaseNode>>(_parameters);
+				var nodes = JsonSerializer.Deserialize<Dictionary<string, UntypedBaseNode>>(_parameters, options);
 
 				var typedNodes = nodes.Select(p => p.Value.GetInputs(p.Key)).ToList();
 
@@ -48,41 +54,121 @@ namespace SDMeta.Comfy
 		}
 	}
 
+	[JsonPolymorphic(TypeDiscriminatorPropertyName = "class_type", 
+        IgnoreUnrecognizedTypeDiscriminators = true)]
+	[JsonDerivedType(typeof(CheckpointLoaderSimpleNode), "CheckpointLoaderSimple")]
+	[JsonDerivedType(typeof(CLIPTextEncodeNode), "CLIPTextEncode")]
+	[JsonDerivedType(typeof(KSamplerNode), "KSampler")]
+	[JsonDerivedType(typeof(KSamplerAdvancedNode), "KSamplerAdvanced")]
+	[JsonDerivedType(typeof(CLIPTextEncodeSDXLNode), "CLIPTextEncodeSDXL")]
+	[JsonDerivedType(typeof(CLIPTextEncodeSDXLRefinerNode), "CLIPTextEncodeSDXLRefiner")]
 	public class UntypedBaseNode
 	{
-		public string class_type { get; set; }
-		public JsonNode inputs { get; set; }
+		//public string? class_type { get; set; }
 
-		public BaseInputs? GetInputs(string nodeId)
+		public virtual BaseInputs? GetInputs(string nodeId)
 		{
-			try
+			return new BaseInputs()
 			{
-				var node = GetNode();
-				if (node != null)
-				{
-					node.NodeId = nodeId;
-				}
-				return node;
-			}
-			catch (Exception ex)
-			{
-				return new BaseInputs()
-				{
-					NodeId = nodeId,
-				};
-			}
+				NodeId = nodeId,
+			};
 		}
+	}
 
-		private BaseInputs? GetNode() => class_type switch
+	public sealed class CheckpointLoaderSimpleNode : UntypedBaseNode
+	{
+		public CheckpointLoaderSimpleInputs? inputs { get; set; }
+
+		public override BaseInputs? GetInputs(string nodeId)
 		{
-			"CheckpointLoaderSimple" => inputs.Deserialize<CheckpointLoaderSimpleInputs>(),
-			"CLIPTextEncode" => inputs.Deserialize<CLIPTextEncodeInputs>(),
-			"KSampler" => inputs.Deserialize<KSamplerInputs>(),
-			"KSamplerAdvanced" => inputs.Deserialize<KSamplerAdvancedInputs>(),
-			"CLIPTextEncodeSDXL" => inputs.Deserialize<CLIPTextEncodeSDXL>(),
-			"CLIPTextEncodeSDXLRefiner" => inputs.Deserialize<CLIPTextEncodeSDXLRefiner>(),
-			_ => null
-		};
+			if (inputs == null)
+			{
+				return base.GetInputs(nodeId);
+			}
+
+			inputs.NodeId = nodeId;
+			return inputs;
+		}
+	}
+
+	public sealed class CLIPTextEncodeNode : UntypedBaseNode
+	{
+		public CLIPTextEncodeInputs? inputs { get; set; }
+
+		public override BaseInputs? GetInputs(string nodeId)
+		{
+			if (inputs == null)
+			{
+				return base.GetInputs(nodeId);
+			}
+
+			inputs.NodeId = nodeId;
+			return inputs;
+		}
+	}
+
+	public sealed class KSamplerNode : UntypedBaseNode
+	{
+		public KSamplerInputs? inputs { get; set; }
+
+		public override BaseInputs? GetInputs(string nodeId)
+		{
+			if (inputs == null)
+			{
+				return base.GetInputs(nodeId);
+			}
+
+			inputs.NodeId = nodeId;
+			return inputs;
+		}
+	}
+
+	public sealed class KSamplerAdvancedNode : UntypedBaseNode
+	{
+		public KSamplerAdvancedInputs? inputs { get; set; }
+
+		public override BaseInputs? GetInputs(string nodeId)
+		{
+			if (inputs == null)
+			{
+				return base.GetInputs(nodeId);
+			}
+
+			inputs.NodeId = nodeId;
+			return inputs;
+		}
+	}
+
+	public sealed class CLIPTextEncodeSDXLNode : UntypedBaseNode
+	{
+		public CLIPTextEncodeSDXL? inputs { get; set; }
+
+		public override BaseInputs? GetInputs(string nodeId)
+		{
+			if (inputs == null)
+			{
+				return base.GetInputs(nodeId);
+			}
+
+			inputs.NodeId = nodeId;
+			return inputs;
+		}
+	}
+
+	public sealed class CLIPTextEncodeSDXLRefinerNode : UntypedBaseNode
+	{
+		public CLIPTextEncodeSDXLRefiner? inputs { get; set; }
+
+		public override BaseInputs? GetInputs(string nodeId)
+		{
+			if (inputs == null)
+			{
+				return base.GetInputs(nodeId);
+			}
+
+			inputs.NodeId = nodeId;
+			return inputs;
+		}
 	}
 
 	public class BaseInputs
