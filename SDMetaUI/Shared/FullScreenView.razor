@@ -7,7 +7,7 @@
 			OnClosed=@(() => IsOpen = false)
 			OnShown=@(() => IsOpen = true)>
 			<BodyTemplate>
-				<div @onclick="() => hxModal.HideAsync()" class="text-center img-container">
+				<div @onclick="() => hxModal!.HideAsync()" class="text-center img-container">
 					<img src="@selectedFile.ImageUrl" class="img-fit" />
 				</div>
 			</BodyTemplate>

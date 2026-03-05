@@ -111,7 +111,7 @@ namespace SDMetaUI.Services
         {
             this.added.Clear();
             this.removed.Clear();
-            FileSystemChanged?.Invoke(this, null);
+            FileSystemChanged?.Invoke(this, null!);
         }
     }
 }

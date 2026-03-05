@@ -8,7 +8,7 @@ namespace SDMetaUI.Shared
 	public partial class FullScreenView
 	{
 		[Parameter]
-		public ImageFileViewModel selectedFile { get; set; }
+		public ImageFileViewModel selectedFile { get; set; } = default!;
 		[Parameter]
 		public EventCallback<KeyboardEventArgs> onLeft { get; set; }
 		[Parameter]
@@ -20,7 +20,7 @@ namespace SDMetaUI.Shared
 
 		public Task ShowAsync()
 		{
-			return hxModal.ShowAsync();
+			return hxModal!.ShowAsync();
 		}
 
 		private async void KeyboardEventHandler(KeyboardEventArgs args)

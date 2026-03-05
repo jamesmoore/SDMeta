@@ -32,7 +32,7 @@ namespace SDMetaUI
             {
                 logger.LogError(ex, "Retries failed for {filename}", fileInfo.FullName);
             }
-            return null;
+            return null!;
         }
     }
 }

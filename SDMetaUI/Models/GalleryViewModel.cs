@@ -38,13 +38,13 @@ namespace SDMetaUI.Models
 
 		public int FilteredFileCount => filteredList.Count;
 
-		public ModelSummaryViewModel ModelFilter
+		public ModelSummaryViewModel? ModelFilter
 		{
 			get => filteredList.ModelFilter;
 			set => filteredList.ModelFilter = value;
 		}
 
-		public string Filter
+		public string? Filter
 		{
 			get => filteredList.Filter;
 			set => filteredList.Filter = value;
@@ -109,8 +109,11 @@ namespace SDMetaUI.Models
 				this.thumbnailService.Delete(filename);
 				File.Delete(filename);
 				var original = imageFileDataSource.ReadImageFile(filename);
-				original.Exists = false;
-				imageFileDataSource.WriteImageFile(original);
+				if (original != null)
+				{
+					original.Exists = false;
+					imageFileDataSource.WriteImageFile(original);
+				}
 
 				var next = this.groupList.GetNext(this.SelectedFile);
 				if (next == this.SelectedFile) next = null;
@@ -122,15 +125,21 @@ namespace SDMetaUI.Models
 
 		public void MovePrevious()
 		{
-			this.SelectedFile = this.groupList.GetPrevious(this.SelectedFile);
+			if (this.SelectedFile != null)
+			{
+				this.SelectedFile = this.groupList.GetPrevious(this.SelectedFile);
+			}
 		}
 
 		public void MoveNext()
 		{
-			this.SelectedFile = this.groupList.GetNext(this.SelectedFile);
+			if (this.SelectedFile != null)
+			{
+				this.SelectedFile = this.groupList.GetNext(this.SelectedFile);
+			}
 		}
 
-		public IList<GalleryRow> Rows { get; private set; }
+		public IList<GalleryRow> Rows { get; private set; } = new List<GalleryRow>();
 
 		public void ToggleExpandedState(ImageFileViewModel model)
 		{
