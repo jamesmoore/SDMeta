@@ -11,7 +11,7 @@ namespace SDMetaTest.ComfyUI
         [TestMethod]
         public void GetParams()
         {
-            var comfyParams = new ComfyUIParameterDecoder(GetLogger()).GetParameters(new ImageFile(default, default, default, default, testJson, default));
+            var comfyParams = new ComfyUIParameterDecoder(GetLogger()).GetParameters(new ImageFile("testfile.png", default, default, default, testJson, default));
             Assert.AreEqual("breakdomain_M2000", comfyParams.Model);
             Assert.AreEqual("close up, verdant, flowers, tropical, absurdres, best quality", comfyParams.Prompt);
             Assert.AreEqual("(worst quality, low quality:1.2), (text, signature, logo, watermark)", comfyParams.NegativePrompt);
@@ -298,6 +298,64 @@ namespace SDMetaTest.ComfyUI
 		            ]
 		        },
 		        "class_type": "VAEDecodeTiled"
+		    }
+		}
+		""";
+
+        [TestMethod]
+        public void GetParams_WithNonStandardNumericLiterals()
+        {
+            var comfyParams = new ComfyUIParameterDecoder(GetLogger()).GetParameters(new ImageFile("testfile.png", default, default, default, testJsonWithNonStandardNumbers, default));
+            Assert.AreEqual("breakdomain_M2000", comfyParams.Model);
+            Assert.AreEqual("a beautiful landscape", comfyParams.Prompt);
+        }
+
+        const string testJsonWithNonStandardNumbers = """
+		{
+		    "1": {
+		        "inputs": {
+		            "ckpt_name": "breakdomain_M2000.safetensors"
+		        },
+		        "class_type": "CheckpointLoaderSimple"
+		    },
+		    "2": {
+		        "inputs": {
+		            "seed": 123456,
+		            "steps": 20,
+		            "cfg": NaN,
+		            "strength_model": Infinity,
+		            "strength_clip": -Infinity,
+		            "sampler_name": "euler",
+		            "scheduler": "normal",
+		            "denoise": 1.0,
+		            "model": ["1", 0],
+		            "positive": ["3", 0],
+		            "negative": ["4", 0],
+		            "latent_image": ["5", 0]
+		        },
+		        "class_type": "KSampler"
+		    },
+		    "3": {
+		        "inputs": {
+		            "text": "a beautiful landscape",
+		            "clip": ["1", 1]
+		        },
+		        "class_type": "CLIPTextEncode"
+		    },
+		    "4": {
+		        "inputs": {
+		            "text": "",
+		            "clip": ["1", 1]
+		        },
+		        "class_type": "CLIPTextEncode"
+		    },
+		    "5": {
+		        "inputs": {
+		            "width": 512,
+		            "height": 512,
+		            "batch_size": 1
+		        },
+		        "class_type": "EmptyLatentImage"
 		    }
 		}
 		""";
