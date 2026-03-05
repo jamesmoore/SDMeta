@@ -2,9 +2,6 @@
 {
     public class ParameterlessDecoder : IParameterDecoder
     {
-        public GenerationParams GetParameters(ImageFile imageFile)
-        {
-            return new GenerationParams();
-        }
+        public GenerationParams GetParameters(ImageFile imageFile) => GenerationParams.Empty;
     }
 }

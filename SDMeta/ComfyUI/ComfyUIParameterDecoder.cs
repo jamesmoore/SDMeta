@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -7,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace SDMeta.Comfy
 {
-    public class ComfyUIParameterDecoder : IParameterDecoder
+    public class ComfyUIParameterDecoder(ILogger<ComfyUIParameterDecoder> logger) : IParameterDecoder
     {
         private static readonly JsonSerializerOptions options = new()
         {
@@ -17,10 +18,20 @@ namespace SDMeta.Comfy
 
         public GenerationParams GetParameters(ImageFile imageFile)
         {
-            var _parameters = imageFile.Prompt;
+            if (imageFile.Prompt == null)
+            {
+                return GenerationParams.Empty;
+            }
+
             try
             {
-                var nodes = JsonSerializer.Deserialize<Dictionary<string, UntypedBaseNode>>(_parameters, options);
+                var nodes = JsonSerializer.Deserialize<Dictionary<string, UntypedBaseNode>>(imageFile.Prompt, options);
+
+                if (nodes == null)
+                {
+                    logger.LogWarning("No nodes found in prompt for file {filename}", imageFile.FileName);
+                    return GenerationParams.Empty;
+                }
 
                 var typedNodes = nodes.Select(p => p.Value.GetInputs(p.Key)).ToList();
 
@@ -45,6 +56,7 @@ namespace SDMeta.Comfy
             catch (Exception ex)
             {
                 const string errorMessage = "Unable to decode Comfy prompt";
+                logger.LogError(ex, errorMessage + " for file {filename}", imageFile.FileName);
                 return new GenerationParams()
                 {
                     Model = errorMessage,
@@ -123,20 +135,20 @@ namespace SDMeta.Comfy
 
         public string? GetCheckpointName() => ckpt_name?.Replace(".safetensors", "");
 
-        public bool IsRefiner() => ckpt_name.ToLower().Contains("refiner");
+        public bool? IsRefiner() => ckpt_name?.ToLower().Contains("refiner");
     }
 
     public abstract class BaseCLIPTestEncodeInputs : BaseInputs
     {
         public JsonArray? clip { get; set; }
-        public abstract string GetText();
+        public abstract string? GetText();
     }
 
     public class CLIPTextEncodeInputs : BaseCLIPTestEncodeInputs
     {
         public string? text { get; set; }
 
-        public override string GetText() => text;
+        public override string? GetText() => text;
     }
 
     public class KSamplerBase : BaseInputs
@@ -191,7 +203,7 @@ namespace SDMeta.Comfy
         public int target_height { get; set; }
         public string? text_g { get; set; }
         public string? text_l { get; set; }
-        public override string GetText() => (text_g + " " + text_l).Trim();
+        public override string? GetText() => (text_g + " " + text_l).Trim();
     }
 
     public class CLIPTextEncodeSDXLRefiner : BaseCLIPTestEncodeInputs
@@ -200,6 +212,6 @@ namespace SDMeta.Comfy
         public int width { get; set; }
         public int height { get; set; }
         public string? text { get; set; }
-        public override string GetText() => text;
+        public override string? GetText() => text;
     }
 }

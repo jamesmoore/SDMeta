@@ -1,4 +1,6 @@
-﻿using SDMeta;
+﻿using FakeItEasy;
+using Microsoft.Extensions.Logging;
+using SDMeta;
 using SDMeta.Comfy;
 
 namespace SDMetaTest.ComfyUI
@@ -9,7 +11,7 @@ namespace SDMetaTest.ComfyUI
         [TestMethod]
         public void GetParams()
         {
-            var comfyParams = new ComfyUIParameterDecoder().GetParameters(new ImageFile(default, default, default, default, testJson, default));
+            var comfyParams = new ComfyUIParameterDecoder(GetLogger()).GetParameters(new ImageFile(default, default, default, default, testJson, default));
             Assert.AreEqual("breakdomain_M2000", comfyParams.Model);
             Assert.AreEqual("close up, verdant, flowers, tropical, absurdres, best quality", comfyParams.Prompt);
             Assert.AreEqual("(worst quality, low quality:1.2), (text, signature, logo, watermark)", comfyParams.NegativePrompt);
@@ -299,5 +301,10 @@ namespace SDMetaTest.ComfyUI
 		    }
 		}
 		""";
+
+        private static ILogger<ComfyUIParameterDecoder> GetLogger()
+        {
+            return A.Fake<ILogger<ComfyUIParameterDecoder>>();
+        }
     }
 }

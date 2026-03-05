@@ -88,7 +88,7 @@ static void AddCustomServices(WebApplicationBuilder builder)
     builder.Services.AddScoped<CachedImageFileLoader>();
     builder.Services.AddScoped<IImageFileLoader>(x =>
         new RetryingFileLoader(
-		    new CachedImageFileLoader(x.GetRequiredService<IFileSystem>(),
+		    new CachedImageFileLoader(
 		        x.GetRequiredService<ImageFileLoader>(),
 		        x.GetRequiredService<IImageFileDataSource>()
 		    ),

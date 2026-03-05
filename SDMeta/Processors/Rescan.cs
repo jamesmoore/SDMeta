@@ -3,6 +3,7 @@ using SDMeta.Cache;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,7 +14,8 @@ namespace SDMeta.Processors
         IFileLister fileLister,
         IImageFileDataSource imageFileDataSource,
         IImageFileLoader imageFileLoader,
-        ILogger<Rescan> logger
+        ILogger<Rescan> logger,
+        IFileSystem fileSystem
         ) : IImageFileListProcessor
     {
         public event EventHandler<float>? ProgressNotification;
@@ -50,13 +52,20 @@ namespace SDMeta.Processors
                 foreach (var file in deleted)
                 {
                     var fileToDelete = imageFileDataSource.ReadImageFile(file);
-                    fileToDelete.Exists = false;
-                    imageFileDataSource.WriteImageFile(fileToDelete);
-                    logger.LogInformation("Removing {file}", file);
+                    if (fileToDelete != null)
+                    {
+                        fileToDelete.Exists = false;
+                        imageFileDataSource.WriteImageFile(fileToDelete);
+                        logger.LogInformation("Removing {file}", file);
+                    }
+                    else
+                    {
+                        logger.LogWarning("File {file} marked as deleted but not found in database", file);
+                    }
                     Notify(steps, multiplier, ++position);
                 }
 
-                var chunkedTasks = added.Select(GetImageFile).Chunk(100);
+                var chunkedTasks = added.Select(GetImageFile).Chunk(Environment.ProcessorCount);
 
                 foreach (var chunk in chunkedTasks)
                 {
@@ -73,7 +82,8 @@ namespace SDMeta.Processors
 
         private async Task GetImageFile(string addedFile)
         {
-            _ = await imageFileLoader.GetImageFile(addedFile);
+            var fileInfo = fileSystem.FileInfo.New(addedFile);
+            _ = await imageFileLoader.GetImageFile(fileInfo);
         }
 
         private void Notify(int steps, float multiplier, int position)

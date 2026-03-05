@@ -4,7 +4,9 @@ namespace SDMeta
 {
 	public class GenerationParams
 	{
-		public GenerationParams()
+		public static GenerationParams Empty => new GenerationParams();
+
+        public GenerationParams()
 		{
 			lazyPromptHash = new Lazy<string?>(() => GetHash(Prompt));
 			lazyNegativePromptHash = new Lazy<string?>(() => GetHash(NegativePrompt));
