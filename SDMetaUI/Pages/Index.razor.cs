@@ -19,7 +19,7 @@ namespace SDMetaUI.Pages
 
         Action<ChangeEventArgs>? onInputDebounced;
 
-        IList<ModelSummaryViewModel> modelsList = new List<ModelSummaryViewModel>();
+        IList<ModelSummaryViewModel> modelsList = [];
         private int Added => this.FileSystemObserver.AddedCount;
         private int Removed => this.FileSystemObserver.RemovedCount;
 
@@ -59,12 +59,9 @@ namespace SDMetaUI.Pages
             });
         }
 
-        private void OnFileSystemChanged(object sender, FileSystemEventArgs e)
+        private void OnFileSystemChanged(object? sender, EventArgs e)
         {
-            this.InvokeAsync(() =>
-            {
-                this.StateHasChanged();
-            });
+            this.InvokeAsync(this.StateHasChanged);
         }
 
         protected async override Task OnAfterRenderAsync(bool firstRender)

@@ -9,7 +9,7 @@ namespace SDMetaUI.Services
             watchers = configuration.GetPath().Select(p => GetWatcher(p)).ToList();
         }
 
-        public event FileSystemEventHandler? FileSystemChanged;
+        public event EventHandler? FileSystemChanged;
         private readonly List<string> added = [];
         private readonly List<string> removed = [];
         private readonly List<string> removedInAdvance = [];
@@ -111,7 +111,7 @@ namespace SDMetaUI.Services
         {
             this.added.Clear();
             this.removed.Clear();
-            FileSystemChanged?.Invoke(this, null!);
+            FileSystemChanged?.Invoke(this, new EventArgs());
         }
     }
 }
