@@ -8,7 +8,7 @@ namespace SDMeta
         IImageFileLoader inner,
         IImageFileDataSource imageFileDataSource) : IImageFileLoader
     {
-        public async Task<ImageFile> GetImageFile(IFileInfo fileInfo)
+        public async Task<ImageFile?> GetImageFile(IFileInfo fileInfo)
         {
             var imageFile = imageFileDataSource.ReadImageFile(fileInfo.FullName);
             if (imageFile != null && imageFile.LastUpdated == fileInfo.LastWriteTime && imageFile.Exists)
@@ -18,8 +18,11 @@ namespace SDMeta
             else
             {
                 imageFile = await inner.GetImageFile(fileInfo);
-                imageFile.Exists = true;
-                imageFileDataSource.WriteImageFile(imageFile);
+                if (imageFile != null)
+                {
+                    imageFile.Exists = true;
+                    imageFileDataSource.WriteImageFile(imageFile);
+                }
                 return imageFile;
             }
         }

@@ -120,7 +120,7 @@ namespace SDMetaUI.Pages
             var model = modelsList.FirstOrDefault(p => p.Id == selectedModelId);
             if (model != null)
             {
-                this.viewModel.ModelFilter = model.Id == 0 ? null : model;
+                this.viewModel.ModelFilter = model.Id == 0 ? ModelSummaryViewModel.AllModels : model;
             }
         }
 

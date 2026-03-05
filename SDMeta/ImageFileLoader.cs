@@ -9,7 +9,7 @@ namespace SDMeta
 {
     public class ImageFileLoader(ILogger<ImageFileLoader> logger) : IImageFileLoader
     {
-        public async Task<ImageFile> GetImageFile(IFileInfo fileInfo)
+        public async Task<ImageFile?> GetImageFile(IFileInfo fileInfo)
         {
             logger.LogInformation("Indexing: {filename}", fileInfo.FullName);
 

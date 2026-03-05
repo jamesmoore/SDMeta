@@ -18,18 +18,9 @@ namespace SDMeta.Cache
         void Initialize();
     }
 
-	public class QueryParams(string filter, ModelFilter modelFilter, QuerySortBy querySort)
-    {
-        public string Filter { get; } = filter;
-        public ModelFilter ModelFilter { get; } = modelFilter;
-		public QuerySortBy QuerySortBy { get; } = querySort;
-    }
+	public record QueryParams(string? Filter, ModelFilter? ModelFilter, QuerySortBy QuerySortBy);
 
-	public class ModelFilter(string model, string modelHash)
-    {
-        public string Model { get; } = model;
-        public string ModelHash { get; } = modelHash;
-    }
+	public record class ModelFilter(string? Model, string? ModelHash);
 
 	public enum QuerySortBy
 	{

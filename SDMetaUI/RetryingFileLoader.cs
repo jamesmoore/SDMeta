@@ -21,18 +21,17 @@ namespace SDMetaUI
                 .AddTimeout(TimeSpan.FromSeconds(10))
                 .Build();
 
-        public async Task<ImageFile> GetImageFile(IFileInfo fileInfo)
+        public async Task<ImageFile?> GetImageFile(IFileInfo fileInfo)
         {
             try
             {
-
                 return await pipeline.ExecuteAsync(async p => await inner.GetImageFile(fileInfo));
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Retries failed for {filename}", fileInfo.FullName);
             }
-            return null!;
+            return null;
         }
     }
 }

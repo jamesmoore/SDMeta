@@ -38,7 +38,7 @@ namespace SDMetaUI.Models
 
 		public int FilteredFileCount => filteredList.Count;
 
-		public ModelSummaryViewModel? ModelFilter
+		public ModelSummaryViewModel ModelFilter
 		{
 			get => filteredList.ModelFilter;
 			set => filteredList.ModelFilter = value;
@@ -149,7 +149,7 @@ namespace SDMetaUI.Models
 		public IList<ModelSummaryViewModel> GetModelsList()
 		{
 			var modelsList = this.imageFileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel(p, i + 1)).ToList();
-			modelsList.Insert(0, new ModelSummaryViewModel());
+			modelsList.Insert(0, ModelSummaryViewModel.AllModels);
 			return modelsList;
 		}
 	}

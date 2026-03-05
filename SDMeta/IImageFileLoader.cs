@@ -5,6 +5,6 @@ namespace SDMeta
 {
 	public interface IImageFileLoader
 	{
-		Task<ImageFile> GetImageFile(IFileInfo fileInfo);
+		Task<ImageFile?> GetImageFile(IFileInfo fileInfo);
 	}
 }

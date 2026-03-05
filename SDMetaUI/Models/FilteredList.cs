@@ -13,8 +13,8 @@ namespace SDMetaUI.Models
 
         public bool FilterError { get; private set; }
 
-        private ModelSummaryViewModel? modelFilter;
-        public ModelSummaryViewModel? ModelFilter
+        private ModelSummaryViewModel modelFilter = ModelSummaryViewModel.AllModels;
+        public ModelSummaryViewModel ModelFilter
         {
             get
             {
@@ -79,8 +79,8 @@ namespace SDMetaUI.Models
         public void RunFilter()
         {
             var queryParams = new QueryParams(
-                this.filter ?? "",
-                this.modelFilter == null ? null! : new ModelFilter(this.modelFilter.Model ?? "", this.modelFilter.ModelHash ?? ""),
+                this.filter,
+                this.modelFilter == ModelSummaryViewModel.AllModels ? null : new ModelFilter(this.modelFilter.Model ?? "", this.modelFilter.ModelHash ?? ""),
                 sortBy
             );
             try
