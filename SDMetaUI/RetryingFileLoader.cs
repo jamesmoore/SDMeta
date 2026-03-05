@@ -1,6 +1,7 @@
 ﻿using Polly;
 using Polly.Retry;
 using SDMeta;
+using System.IO.Abstractions;
 
 namespace SDMetaUI
 {
@@ -20,16 +21,16 @@ namespace SDMetaUI
                 .AddTimeout(TimeSpan.FromSeconds(10))
                 .Build();
 
-        public async Task<ImageFile> GetImageFile(string filename)
+        public async Task<ImageFile> GetImageFile(IFileInfo fileInfo)
         {
             try
             {
 
-                return await pipeline.ExecuteAsync(async p => await inner.GetImageFile(filename));
+                return await pipeline.ExecuteAsync(async p => await inner.GetImageFile(fileInfo));
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Retries failed for {filename}", filename);
+                logger.LogError(ex, "Retries failed for {filename}", fileInfo.FullName);
             }
             return null;
         }

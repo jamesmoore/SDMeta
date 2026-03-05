@@ -5,21 +5,19 @@ using System.Threading.Tasks;
 namespace SDMeta
 {
     public class CachedImageFileLoader(
-        IFileSystem fileSystem,
         IImageFileLoader inner,
         IImageFileDataSource imageFileDataSource) : IImageFileLoader
     {
-        public async Task<ImageFile> GetImageFile(string filename)
+        public async Task<ImageFile> GetImageFile(IFileInfo fileInfo)
         {
-            var fileInfo = fileSystem.FileInfo.New(filename);
-            var imageFile = imageFileDataSource.ReadImageFile(filename);
+            var imageFile = imageFileDataSource.ReadImageFile(fileInfo.FullName);
             if (imageFile != null && imageFile.LastUpdated == fileInfo.LastWriteTime && imageFile.Exists)
             {
                 return imageFile;
             }
             else
             {
-                imageFile = await inner.GetImageFile(filename);
+                imageFile = await inner.GetImageFile(fileInfo);
                 imageFile.Exists = true;
                 imageFileDataSource.WriteImageFile(imageFile);
                 return imageFile;

@@ -8,7 +8,7 @@ namespace SDMeta.Cache
 		IEnumerable<ImageFileSummary> Query(QueryParams queryParams);
 		IEnumerable<string> GetAllFilenames();
 
-		ImageFile ReadImageFile(string realFileName);
+		ImageFile? ReadImageFile(string realFileName);
 		void WriteImageFile(ImageFile info);
 		void BeginTransaction();
 		void CommitTransaction();

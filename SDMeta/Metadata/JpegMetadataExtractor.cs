@@ -169,10 +169,10 @@ namespace SDMeta.Metadata
                     continue;
                 }
 
-                string key = TagName(tag);
+                var key = TagName(tag);
                 if (key != null)
                 {
-                    string value = await ReadExifValue(fs, tiffStart, type, numVals, valueOffset, little, tag);
+                    var value = await ReadExifValue(fs, tiffStart, type, numVals, valueOffset, little, tag);
                     if (!string.IsNullOrWhiteSpace(value))
                         results.Add((key, value));
                 }
@@ -188,7 +188,7 @@ namespace SDMeta.Metadata
         // Reading individual EXIF values
         // ----------------------------------------------------------
 
-        private async static Task<string> ReadExifValue(
+        private async static Task<string?> ReadExifValue(
             Stream fs,
             long tiffStart,
             ushort type,
@@ -256,7 +256,7 @@ namespace SDMeta.Metadata
         // Tag name mapping – which ones we expose
         // ----------------------------------------------------------
 
-        private static string TagName(ushort tag) => tag switch
+        private static string? TagName(ushort tag) => tag switch
         {
             0x010E => "ImageDescription",
             0x010F => "Make",

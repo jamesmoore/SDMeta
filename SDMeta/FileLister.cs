@@ -7,9 +7,9 @@ using System.Linq;
 
 namespace SDMeta
 {
-	public class FileLister(IFileSystem fileSystem, ILogger<FileLister> logger) : IFileLister
-	{
-		public IEnumerable<string> GetList(string path)
+    public class FileLister(IFileSystem fileSystem, ILogger<FileLister> logger) : IFileLister
+    {
+        public IEnumerable<string> GetList(string path)
         {
             while (path.EndsWith(fileSystem.Path.DirectorySeparatorChar))
             {
@@ -18,8 +18,8 @@ namespace SDMeta
 
             if (fileSystem.Directory.Exists(path) == false)
             {
-                logger.LogError($"{path} does not exist");
-                return Enumerable.Empty<string>();
+                logger.LogError("{path} does not exist", path);
+                return [];
             }
 
             var filetypes = new List<string>()
@@ -43,11 +43,11 @@ namespace SDMeta
                     {
                         IgnoreInaccessible = true,
                         RecurseSubdirectories = true,
-                    } );
+                    });
             }
             catch (Exception ex)
             {
-                logger.LogWarning("Unable to scan directory " + path);
+                logger.LogWarning(ex, "Unable to scan directory {path}", path);
                 return [];
             }
         }

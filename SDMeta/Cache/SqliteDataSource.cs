@@ -73,7 +73,7 @@ namespace SDMeta.Cache
 
         private T ExecuteOnConnection<T>(Func<SqliteConnection, T> func)
         {
-            if (this.transaction != null)
+            if (this.transaction?.Connection != null)
             {
                 return func(transaction.Connection);
             }
@@ -210,7 +210,7 @@ namespace SDMeta.Cache
             };
         }
 
-        public ImageFile ReadImageFile(string realFileName)
+        public ImageFile? ReadImageFile(string realFileName)
         {
             var reader = ExecuteOnConnection(connection => connection.QueryFirstOrDefault<DataRow>(
             $@"SELECT *
@@ -268,8 +268,8 @@ namespace SDMeta.Cache
                 this.transaction.Commit();
                 this.transaction.Dispose();
                 this.transaction = null;
-                connection.Close();
-                connection.Dispose();
+                connection?.Close();
+                connection?.Dispose();
             }
         }
 

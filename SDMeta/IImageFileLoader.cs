@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.IO.Abstractions;
+using System.Threading.Tasks;
 
 namespace SDMeta
 {
 	public interface IImageFileLoader
 	{
-		Task<ImageFile> GetImageFile(string filename);
+		Task<ImageFile> GetImageFile(IFileInfo fileInfo);
 	}
 }

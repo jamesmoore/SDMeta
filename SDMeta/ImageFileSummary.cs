@@ -2,7 +2,7 @@
 {
     public class ImageFileSummary
     {
-        public string FileName { get; init; }
-        public string FullPromptHash { get; init; }
+        public required string FileName { get; init; }
+        public string? FullPromptHash { get; init; }
     }
 }
