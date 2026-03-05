@@ -135,7 +135,9 @@ namespace SDMeta.Comfy
 
         public string? GetCheckpointName() => ckpt_name?.Replace(".safetensors", "");
 
-        public bool? IsRefiner() => ckpt_name?.ToLower().Contains("refiner");
+        public bool IsRefiner() =>
+            ckpt_name != null &&
+            ckpt_name.Contains("refiner", StringComparison.OrdinalIgnoreCase);
     }
 
     public abstract class BaseCLIPTestEncodeInputs : BaseInputs
