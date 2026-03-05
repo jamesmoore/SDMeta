@@ -42,7 +42,7 @@ Steps: 30, Sampler: DPM++ 2M Karras, CFG scale: 11, Seed: 358940890, Size: 704x7
 
         private static ImageFile GetTestImageFile(string? prompt)
         {
-            return new ImageFile(default, default, default, default, prompt, default);
+            return new ImageFile(@"C:\testfile.png", default, default, default, prompt, default);
         }
 
         [TestMethod]

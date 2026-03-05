@@ -11,7 +11,7 @@ namespace SDMetaTest.ComfyUI
         [TestMethod]
         public void GetParams()
         {
-            var comfyParams = new ComfyUIParameterDecoder(GetLogger()).GetParameters(new ImageFile(default, default, default, default, testJson, default));
+            var comfyParams = new ComfyUIParameterDecoder(GetLogger()).GetParameters(new ImageFile(@"C:\testfile.png", default, default, default, testJson, default));
             Assert.AreEqual("breakdomain_M2000", comfyParams.Model);
             Assert.AreEqual("close up, verdant, flowers, tropical, absurdres, best quality", comfyParams.Prompt);
             Assert.AreEqual("(worst quality, low quality:1.2), (text, signature, logo, watermark)", comfyParams.NegativePrompt);
