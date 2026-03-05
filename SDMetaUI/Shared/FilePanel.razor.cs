@@ -41,6 +41,14 @@ namespace SDMetaUI.Shared
 				this.promptLines = fullPrompt?.Split("\n").Select(p => p.Trim()).Select(p => p.FormatPromptLine()).ToList();
 				this.promptFormat = realFile.PromptFormat.ToString();
 			}
+			else
+			{
+				fileSize = null;
+				lastUpdated = null;
+				fullPrompt = null;
+				promptLines = null;
+				promptFormat = null;
+			}
 			return base.OnParametersSetAsync();
 		}
 
