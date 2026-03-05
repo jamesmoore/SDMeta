@@ -17,13 +17,14 @@ namespace SDMeta.Comfy
         };
 
         private static readonly Regex NonStandardNumberRegex = new(
-            @"(?<=[:\[,]\s*)(NaN|Infinity|-Infinity)(?=\s*[,\}\]])",
+            @"([:\[,]\s*)(NaN|Infinity|-Infinity)(?=\s*[,\}\]])",
             RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
         private static string SanitizeNonStandardJson(string json)
         {
             // Replace non-standard numeric literals that System.Text.Json cannot parse.
-            return NonStandardNumberRegex.Replace(json, "null");
+            // Preserve the preceding separator and whitespace while replacing the value with null.
+            return NonStandardNumberRegex.Replace(json, "$1null");
         }
 
         public GenerationParams GetParameters(ImageFile imageFile)
@@ -213,10 +214,10 @@ namespace SDMeta.Comfy
     {
         public long seed { get; set; }
         public int steps { get; set; }
-        public float cfg { get; set; }
+        public float? cfg { get; set; }
         public string? sampler_name { get; set; }
         public string? scheduler { get; set; }
-        public float denoise { get; set; }
+        public float? denoise { get; set; }
     }
 
     public class KSamplerAdvancedInputs : KSamplerBase
@@ -224,7 +225,7 @@ namespace SDMeta.Comfy
         public string? add_noise { get; set; }
         public long noise_seed { get; set; }
         public int steps { get; set; }
-        public float cfg { get; set; }
+        public float? cfg { get; set; }
         public string? sampler_name { get; set; }
         public string? scheduler { get; set; }
         public int start_at_step { get; set; }
@@ -257,8 +258,8 @@ namespace SDMeta.Comfy
 
     public class UNETLoaderInputs : BaseInputs, ICheckpointLoaderSimpleInputs
     {
-        public string unet_name { get; set; }
-        public string weight_dtype { get; set; }
+        public string? unet_name { get; set; }
+        public string? weight_dtype { get; set; }
         public string? GetCheckpointName() => unet_name?.Replace(".safetensors", "");
         public bool IsRefiner() => false;
     }
