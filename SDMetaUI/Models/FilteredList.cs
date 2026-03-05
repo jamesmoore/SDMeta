@@ -80,7 +80,7 @@ namespace SDMetaUI.Models
         {
             var queryParams = new QueryParams(
                 this.filter,
-                this.modelFilter == ModelSummaryViewModel.AllModels ? null : new ModelFilter(this.modelFilter.Model ?? "", this.modelFilter.ModelHash ?? ""),
+                this.modelFilter == ModelSummaryViewModel.AllModels ? null : new ModelFilter(this.modelFilter.Model, this.modelFilter.ModelHash),
                 sortBy
             );
             try
