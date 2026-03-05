@@ -43,7 +43,7 @@ namespace SDMeta
             return imagefile;
         }
 
-        private async static Task<(PromptFormat promptFormat, string prompt)> ExtractPromptFromPngText(IFileSystem fileSystem, string filename)
+        private async static Task<(PromptFormat promptFormat, string? prompt)> ExtractPromptFromPngText(IFileSystem fileSystem, string filename)
         {
             using var fs = fileSystem.FileStream.New(filename, FileMode.Open, FileAccess.Read);
 

@@ -114,12 +114,12 @@ namespace SDMeta.Comfy
 
     public class BaseInputs
     {
-        public string NodeId { get; set; }
+        public string? NodeId { get; set; }
     }
 
     public class CheckpointLoaderSimpleInputs : BaseInputs
     {
-        public string ckpt_name { get; set; }
+        public string? ckpt_name { get; set; }
 
         public string? GetCheckpointName() => ckpt_name?.Replace(".safetensors", "");
 
@@ -128,23 +128,23 @@ namespace SDMeta.Comfy
 
     public abstract class BaseCLIPTestEncodeInputs : BaseInputs
     {
-        public JsonArray clip { get; set; }
+        public JsonArray? clip { get; set; }
         public abstract string GetText();
     }
 
     public class CLIPTextEncodeInputs : BaseCLIPTestEncodeInputs
     {
-        public string text { get; set; }
+        public string? text { get; set; }
 
         public override string GetText() => text;
     }
 
     public class KSamplerBase : BaseInputs
     {
-        public JsonArray model { get; set; }
-        public JsonArray positive { get; set; }
-        public JsonArray negative { get; set; }
-        public JsonArray latent_image { get; set; }
+        public JsonArray? model { get; set; }
+        public JsonArray? positive { get; set; }
+        public JsonArray? negative { get; set; }
+        public JsonArray? latent_image { get; set; }
 
         public (string? positive, string? negative) GetClips(IEnumerable<BaseCLIPTestEncodeInputs> clips)
         {
@@ -163,22 +163,22 @@ namespace SDMeta.Comfy
         public long seed { get; set; }
         public int steps { get; set; }
         public float cfg { get; set; }
-        public string sampler_name { get; set; }
-        public string scheduler { get; set; }
+        public string? sampler_name { get; set; }
+        public string? scheduler { get; set; }
         public float denoise { get; set; }
     }
 
     public class KSamplerAdvancedInputs : KSamplerBase
     {
-        public string add_noise { get; set; }
+        public string? add_noise { get; set; }
         public long noise_seed { get; set; }
         public int steps { get; set; }
         public float cfg { get; set; }
-        public string sampler_name { get; set; }
-        public string scheduler { get; set; }
+        public string? sampler_name { get; set; }
+        public string? scheduler { get; set; }
         public int start_at_step { get; set; }
         public int end_at_step { get; set; }
-        public string return_with_leftover_noise { get; set; }
+        public string? return_with_leftover_noise { get; set; }
     }
 
     public class CLIPTextEncodeSDXL : BaseCLIPTestEncodeInputs
@@ -189,8 +189,8 @@ namespace SDMeta.Comfy
         public int crop_h { get; set; }
         public int target_width { get; set; }
         public int target_height { get; set; }
-        public string text_g { get; set; }
-        public string text_l { get; set; }
+        public string? text_g { get; set; }
+        public string? text_l { get; set; }
         public override string GetText() => (text_g + " " + text_l).Trim();
     }
 
@@ -199,7 +199,7 @@ namespace SDMeta.Comfy
         public float ascore { get; set; }
         public int width { get; set; }
         public int height { get; set; }
-        public string text { get; set; }
+        public string? text { get; set; }
         public override string GetText() => text;
     }
 }

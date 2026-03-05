@@ -12,7 +12,7 @@ namespace SDMetaTest.Auto1111
         public void Auto1111ParameterDecoder_GetParameters_Null_Test()
         {
             var sut = new Auto1111ParameterDecoder(GetLogger());
-            var parameters = sut.GetParameters(GetImageFile(null));
+            var parameters = sut.GetParameters(GetTestImageFile(null));
             Assert.IsNotNull(parameters);
             Assert.IsNull(parameters.Prompt);
             Assert.IsNull(parameters.NegativePrompt);
@@ -29,7 +29,7 @@ Negative prompt: lowres, bad anatomy, bad hands, text, error, missing fingers, e
 Steps: 30, Sampler: DPM++ 2M Karras, CFG scale: 11, Seed: 358940890, Size: 704x704, Model hash: 2700c435, Model: Anything-V3.0-pruned, Clip skip: 2";
 
             var sut = new Auto1111ParameterDecoder(GetLogger());
-            var parameters = sut.GetParameters(GetImageFile(testdata));
+            var parameters = sut.GetParameters(GetTestImageFile(testdata));
             Assert.IsNotNull(parameters);
             StringAssert.StartsWith(parameters.Prompt, "(cute");
             StringAssert.EndsWith(parameters.Prompt, "Hokusai,");
@@ -40,9 +40,9 @@ Steps: 30, Sampler: DPM++ 2M Karras, CFG scale: 11, Seed: 358940890, Size: 704x7
             Assert.AreEqual("2700c435", parameters.ModelHash);
         }
 
-        private static ImageFile GetImageFile(string testdata)
+        private static ImageFile GetTestImageFile(string? prompt)
         {
-            return new ImageFile(default, default, default, default, testdata, default);
+            return new ImageFile(default, default, default, default, prompt, default);
         }
 
         [TestMethod]
@@ -55,7 +55,7 @@ Warning: too many input tokens; some (30) have been truncated:
 woods leather foliage autumn snow sea _ anemone _ art _ by _ hiroshi _ yoshida ps 1 dreamcast n 6 4 low poly maya blender zbrush";
 
             var sut = new Auto1111ParameterDecoder(GetLogger());
-            var parameters = sut.GetParameters(GetImageFile(testData)) as Auto1111GenerationParams;
+            var parameters = sut.GetParameters(GetTestImageFile(testData)) as Auto1111GenerationParams;
             Assert.IsNotNull(parameters);
             StringAssert.StartsWith(parameters.Prompt, "Art");
             StringAssert.EndsWith(parameters.Prompt, "zbrush");
@@ -73,7 +73,7 @@ woods leather foliage autumn snow sea _ anemone _ art _ by _ hiroshi _ yoshida p
         {
             const string testData = @"cute cat";
             var sut = new Auto1111ParameterDecoder(GetLogger());
-            var parameters = sut.GetParameters(GetImageFile(testData));
+            var parameters = sut.GetParameters(GetTestImageFile(testData));
             Assert.IsNotNull(parameters);
             Assert.AreEqual("cute cat", parameters.Prompt);
             Assert.AreEqual(string.Empty, parameters.NegativePrompt);
@@ -84,7 +84,7 @@ woods leather foliage autumn snow sea _ anemone _ art _ by _ hiroshi _ yoshida p
         {
             const string testData = "Negative prompt: lowres";
             var sut = new Auto1111ParameterDecoder(GetLogger());
-            var parameters = sut.GetParameters(GetImageFile(testData));
+            var parameters = sut.GetParameters(GetTestImageFile(testData));
             Assert.IsNotNull(parameters);
             Assert.AreEqual(string.Empty, parameters.Prompt);
             Assert.AreEqual("lowres", parameters.NegativePrompt);
