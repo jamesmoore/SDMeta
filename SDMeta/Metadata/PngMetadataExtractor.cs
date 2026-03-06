@@ -30,6 +30,7 @@ namespace SDMeta.Metadata
                         SkipBytes(fs, 4);
                         break;
                     case "tEXt":
+                    case "iTXt":
                         var keywordValuePair = await ReadTextualData(fs, chunkLength);
                         SkipBytes(fs, 4); // Move past the current chunk CRC
                         yield return keywordValuePair;
@@ -80,7 +81,7 @@ namespace SDMeta.Metadata
             var nullIndex = dataString.IndexOf(NullTerminator);
             return new (
                 nullIndex > -1 ? dataString.Substring(0, nullIndex) : string.Empty,
-                nullIndex > -1 && nullIndex + 1 < length ? dataString.Substring(nullIndex + 1).TrimEnd(NullTerminator) : string.Empty
+                nullIndex > -1 && nullIndex + 1 < length ? dataString.Substring(nullIndex + 1).Trim(NullTerminator) : string.Empty
             );
         }
 
