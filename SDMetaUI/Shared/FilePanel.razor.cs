@@ -10,7 +10,7 @@ namespace SDMetaUI.Shared
 	public partial class FilePanel
 	{
 		[Parameter]
-		public ImageFileViewModel selectedFile { get; set; }
+		public required ImageFileViewModel selectedFile { get; set; }
 
 		[Parameter]
 		public EventCallback<MouseEventArgs> onDelete { get; set; }
@@ -21,12 +21,12 @@ namespace SDMetaUI.Shared
 		[Parameter]
 		public EventCallback<MouseEventArgs> onFullScreenView { get; set; }
 
-		private string fileSize;
-		private string lastUpdated;
-		private string promptFormat;
+		private string? fileSize;
+		private string? lastUpdated;
+		private string? promptFormat;
 
-		private IEnumerable<string> promptLines;
-		private string fullPrompt;
+		private IEnumerable<string>? promptLines;
+		private string? fullPrompt;
 
 		private bool HasPrompt => this.promptLines != null && this.promptLines.Any();
 
@@ -37,9 +37,17 @@ namespace SDMetaUI.Shared
 			{
 				fileSize = realFile.Length.GetBytesReadable();
 				lastUpdated = realFile.LastUpdated.ToString();
-				this.fullPrompt = realFile?.Prompt;
+				this.fullPrompt = realFile.Prompt;
 				this.promptLines = fullPrompt?.Split("\n").Select(p => p.Trim()).Select(p => p.FormatPromptLine()).ToList();
 				this.promptFormat = realFile.PromptFormat.ToString();
+			}
+			else
+			{
+				fileSize = null;
+				lastUpdated = null;
+				fullPrompt = null;
+				promptLines = null;
+				promptFormat = null;
 			}
 			return base.OnParametersSetAsync();
 		}

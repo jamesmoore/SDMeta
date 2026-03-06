@@ -7,7 +7,7 @@ namespace SDMetaUI.Models
 	{
 		public ImageFileViewModel BuildModel(ImageFileSummary p)
 		{
-			return new ImageFileViewModel(p.FileName, p.FullPromptHash, fileSystem.Path.GetFileName);
+			return new ImageFileViewModel(p.FileName, p.FullPromptHash ?? "", fileSystem.Path.GetFileName);
 		}
 	}
 }

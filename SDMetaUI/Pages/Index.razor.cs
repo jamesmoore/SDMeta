@@ -13,13 +13,13 @@ namespace SDMetaUI.Pages
         [SupplyParameterFromQuery(Name = "filter")]
         public string? Filter { get; set; }
 
-        private string FilterInput { get; set; }
+        private string? FilterInput { get; set; }
 
         private FullScreenView? fullScreenView;
 
-        Action<ChangeEventArgs> onInputDebounced;
+        Action<ChangeEventArgs>? onInputDebounced;
 
-        IList<ModelSummaryViewModel> modelsList;
+        IList<ModelSummaryViewModel> modelsList = [];
         private int Added => this.FileSystemObserver.AddedCount;
         private int Removed => this.FileSystemObserver.RemovedCount;
 
@@ -30,7 +30,7 @@ namespace SDMetaUI.Pages
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void LocationChanged(object sender, LocationChangedEventArgs e)
+        void LocationChanged(object? sender, LocationChangedEventArgs e)
         {
             if (this.viewModel.Filter != this.Filter)
             {
@@ -50,7 +50,7 @@ namespace SDMetaUI.Pages
 
         private float scanProgess = 0;
 
-        private void ProgressNotification(object sender, float i)
+        private void ProgressNotification(object? sender, float i)
         {
             this.InvokeAsync(() =>
             {
@@ -59,12 +59,9 @@ namespace SDMetaUI.Pages
             });
         }
 
-        private void OnFileSystemChanged(object sender, FileSystemEventArgs e)
+        private void OnFileSystemChanged(object? sender, EventArgs e)
         {
-            this.InvokeAsync(() =>
-            {
-                this.StateHasChanged();
-            });
+            this.InvokeAsync(this.StateHasChanged);
         }
 
         protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -75,7 +72,7 @@ namespace SDMetaUI.Pages
                 {
                     this.InvokeAsync(() =>
                     {
-                        var updatedFilter = (string)e.Value;
+                        var updatedFilter = (string?)e.Value;
                         if (updatedFilter == string.Empty) updatedFilter = null;
                         viewModel.Filter = updatedFilter;
                         NavigationManager.NavigateTo(NavigationManager.GetUriWithQueryParameter("filter", updatedFilter));
@@ -116,9 +113,12 @@ namespace SDMetaUI.Pages
 
         void OnSelectModel(ChangeEventArgs e)
         {
-            var selectedModelId = int.Parse(e.Value.ToString());
+            var selectedModelId = int.Parse(e.Value!.ToString()!);
             var model = modelsList.FirstOrDefault(p => p.Id == selectedModelId);
-            this.viewModel.ModelFilter = model.Id == 0 ? null : model;
+            if (model != null)
+            {
+                this.viewModel.ModelFilter = model.Id == 0 ? ModelSummaryViewModel.AllModels : model;
+            }
         }
 
         private void imageClickParent(ImageFileViewModel model)
@@ -130,7 +130,7 @@ namespace SDMetaUI.Pages
         {
             if (model == viewModel.SelectedFile)
             {
-                if (fullScreenView.IsOpen == false)
+                if (fullScreenView != null && fullScreenView.IsOpen == false)
                 {
                     await fullScreenView.ShowAsync();
                 }
@@ -214,7 +214,7 @@ namespace SDMetaUI.Pages
         }
         private void OnSelectSortBy(ChangeEventArgs e)
         {
-            var newOrder = Enum.Parse<QuerySortBy>(e.Value.ToString());
+            var newOrder = Enum.Parse<QuerySortBy>(e.Value!.ToString()!);
             viewModel.SortBy = newOrder;
         }
     }

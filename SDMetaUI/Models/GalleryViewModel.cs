@@ -44,7 +44,7 @@ namespace SDMetaUI.Models
 			set => filteredList.ModelFilter = value;
 		}
 
-		public string Filter
+		public string? Filter
 		{
 			get => filteredList.Filter;
 			set => filteredList.Filter = value;
@@ -109,8 +109,11 @@ namespace SDMetaUI.Models
 				this.thumbnailService.Delete(filename);
 				File.Delete(filename);
 				var original = imageFileDataSource.ReadImageFile(filename);
-				original.Exists = false;
-				imageFileDataSource.WriteImageFile(original);
+				if (original != null)
+				{
+					original.Exists = false;
+					imageFileDataSource.WriteImageFile(original);
+				}
 
 				var next = this.groupList.GetNext(this.SelectedFile);
 				if (next == this.SelectedFile) next = null;
@@ -122,15 +125,21 @@ namespace SDMetaUI.Models
 
 		public void MovePrevious()
 		{
-			this.SelectedFile = this.groupList.GetPrevious(this.SelectedFile);
+			if (this.SelectedFile != null)
+			{
+				this.SelectedFile = this.groupList.GetPrevious(this.SelectedFile);
+			}
 		}
 
 		public void MoveNext()
 		{
-			this.SelectedFile = this.groupList.GetNext(this.SelectedFile);
+			if (this.SelectedFile != null)
+			{
+				this.SelectedFile = this.groupList.GetNext(this.SelectedFile);
+			}
 		}
 
-		public IList<GalleryRow> Rows { get; private set; }
+		public IList<GalleryRow> Rows { get; private set; } = new List<GalleryRow>();
 
 		public void ToggleExpandedState(ImageFileViewModel model)
 		{
@@ -140,7 +149,7 @@ namespace SDMetaUI.Models
 		public IList<ModelSummaryViewModel> GetModelsList()
 		{
 			var modelsList = this.imageFileDataSource.GetModelSummaryList().Select((p, i) => new ModelSummaryViewModel(p, i + 1)).ToList();
-			modelsList.Insert(0, new ModelSummaryViewModel());
+			modelsList.Insert(0, ModelSummaryViewModel.AllModels);
 			return modelsList;
 		}
 	}

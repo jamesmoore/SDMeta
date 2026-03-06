@@ -7,7 +7,7 @@ namespace SDMetaUI.Shared
 	public partial class Thumbnail
 	{
 		[Parameter]
-		public ImageFileViewModel File { get; set; }
+		public required ImageFileViewModel File { get; set; }
 
 		[Parameter]
 		public bool Selected { get; set; }
@@ -16,7 +16,7 @@ namespace SDMetaUI.Shared
 		public bool Expanded { get; set; }
 
 		[Parameter]
-		public string Text { get; set; }
+		public string? Text { get; set; }
 
 		private string GetClass => (Selected ? "selected" : "") + (Expanded ? " expanded" : "");
 

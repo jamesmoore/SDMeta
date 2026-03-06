@@ -2,8 +2,8 @@
 {
 	public class GroupedByPromptList : IGroupList, IExpandable
 	{
-		private IList<ImageFileViewModel>? groupedFiles = null;
-		private IDictionary<string, List<ImageFileViewModel>>? promptGroups = null;
+		private IList<ImageFileViewModel> groupedFiles = new List<ImageFileViewModel>();
+		private IDictionary<string, List<ImageFileViewModel>> promptGroups = new Dictionary<string, List<ImageFileViewModel>>();
 		private readonly FilteredList filteredList;
 		private readonly Action postGroupingAction;
 

@@ -15,7 +15,7 @@
 		public string ThumbnailUrl => $"/images/thumb/{EncodedFileName.Value}";
 		public string ImageUrl => $"/images/full/{EncodedFileName.Value}/{func(this.FileName)}";
 		public string FullPromptHash { get; }
-		public IList<ImageFileViewModel> SubItems { get; set; }
+		public IList<ImageFileViewModel>? SubItems { get; set; }
 
 		private readonly Lazy<string> EncodedFileName; 
 
