@@ -54,7 +54,7 @@ public interface IImagePathAuthorizer
     bool IsAuthorized(string fullPath);
 }
 
-public sealed class ImagePathAuthorizer(IImageDir imageDir, IFileSystem fileSystem) : IImagePathAuthorizer
+public sealed class ImagePathAuthorizer(IImageDir imageDir) : IImagePathAuthorizer
 {
     private readonly string[] _roots = imageDir.GetPath()
         .Select(NormalizeRoot)
