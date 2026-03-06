@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { GalleryQueryState, GroupByMode, QuerySortBy } from '../types/api'
 
@@ -23,29 +23,42 @@ function parseGroupBy(value: string | null): GroupByMode {
   return value === 'prompt' ? 'prompt' : 'none'
 }
 
+function parseQuery(params: URLSearchParams): GalleryQueryState {
+  return {
+    filter: params.get('filter') ?? DEFAULT_STATE.filter,
+    model: params.get('model') ?? DEFAULT_STATE.model,
+    modelHash: params.get('modelHash') ?? DEFAULT_STATE.modelHash,
+    sortBy: parseSortBy(params.get('sortBy')),
+    groupBy: parseGroupBy(params.get('groupBy')),
+  }
+}
+
+function toSearchParams(state: GalleryQueryState): URLSearchParams {
+  const params = new URLSearchParams()
+
+  if (state.filter) params.set('filter', state.filter)
+  if (state.model) params.set('model', state.model)
+  if (state.modelHash) params.set('modelHash', state.modelHash)
+  if (state.sortBy !== DEFAULT_STATE.sortBy) params.set('sortBy', state.sortBy)
+  if (state.groupBy !== DEFAULT_STATE.groupBy) params.set('groupBy', state.groupBy)
+
+  return params
+}
+
 export function useGalleryQueryState() {
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const queryState = useMemo<GalleryQueryState>(() => ({
-    filter: searchParams.get('filter') ?? DEFAULT_STATE.filter,
-    model: searchParams.get('model') ?? DEFAULT_STATE.model,
-    modelHash: searchParams.get('modelHash') ?? DEFAULT_STATE.modelHash,
-    sortBy: parseSortBy(searchParams.get('sortBy')),
-    groupBy: parseGroupBy(searchParams.get('groupBy')),
-  }), [searchParams])
+  const queryState = useMemo<GalleryQueryState>(() => parseQuery(searchParams), [searchParams])
 
-  const setQueryState = (patch: Partial<GalleryQueryState>) => {
-    const next = { ...queryState, ...patch }
-    const params = new URLSearchParams()
-
-    if (next.filter) params.set('filter', next.filter)
-    if (next.model) params.set('model', next.model)
-    if (next.modelHash) params.set('modelHash', next.modelHash)
-    if (next.sortBy !== DEFAULT_STATE.sortBy) params.set('sortBy', next.sortBy)
-    if (next.groupBy !== DEFAULT_STATE.groupBy) params.set('groupBy', next.groupBy)
-
-    setSearchParams(params, { replace: true })
-  }
+  const setQueryState = useCallback(
+    (patch: Partial<GalleryQueryState>) => {
+      setSearchParams((prev) => {
+        const nextState = { ...parseQuery(prev), ...patch }
+        return toSearchParams(nextState)
+      }, { replace: true })
+    },
+    [setSearchParams],
+  )
 
   return { queryState, setQueryState }
 }

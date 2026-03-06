@@ -11,6 +11,7 @@ import {
   RefreshCw,
   Settings,
   Trash2,
+  X,
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { api, formatBytes, subscribeToScanEvents } from './lib/api'
@@ -194,8 +195,10 @@ function App() {
   }, [queryState.filter])
 
   useEffect(() => {
-    setQueryState({ filter: debouncedFilter })
-  }, [debouncedFilter, setQueryState])
+    if (debouncedFilter !== queryState.filter) {
+      setQueryState({ filter: debouncedFilter })
+    }
+  }, [debouncedFilter, queryState.filter, setQueryState])
 
   useEffect(() => {
     const element = galleryRef.current
@@ -433,12 +436,26 @@ function App() {
     <div className="flex h-full flex-col bg-zinc-700 text-zinc-100">
       <header className="sticky top-0 z-20 border-b border-zinc-700 bg-zinc-900/95 px-3 py-2 backdrop-blur">
         <div className="grid grid-cols-1 gap-2 md:grid-cols-[minmax(220px,320px)_minmax(200px,300px)_minmax(160px,190px)_auto_auto_auto_1fr_auto] md:items-center">
-          <Input
-            value={filterInput}
-            onChange={(event) => setFilterInput(event.target.value)}
-            placeholder="filter"
-            className="bg-zinc-100 text-zinc-950"
-          />
+          <div className="relative">
+            <Input
+              value={filterInput}
+              onChange={(event) => setFilterInput(event.target.value)}
+              placeholder="filter"
+              className="bg-zinc-100 pr-9 text-zinc-950"
+            />
+            {filterInput.length > 0 && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-10 w-10 text-zinc-600 hover:text-zinc-900"
+                onClick={() => setFilterInput('')}
+                title="Clear filter"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
 
           <Select
             value={selectedModelValue}
@@ -593,7 +610,7 @@ function App() {
                   key={row.id}
                   data-index={virtualRow.index}
                   ref={rowVirtualizer.measureElement}
-                  className="absolute left-0 w-full"
+                  className="absolute left-0 w-full pb-3"
                   style={{ transform: `translateY(${virtualRow.start}px)` }}
                 >
                   {row.kind === 'grid' ? (
