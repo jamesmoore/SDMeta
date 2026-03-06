@@ -10,6 +10,7 @@ using SDMeta.Comfy;
 using SDMeta.Parameterless;
 using SDMeta.Processors;
 using System.IO.Abstractions;
+using System.Text.Json.Serialization;
 
 CodecManager.Configure(codecs =>
 {
@@ -18,6 +19,11 @@ CodecManager.Configure(codecs =>
 });
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services.AddCors(options =>
 {

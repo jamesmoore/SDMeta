@@ -508,7 +508,6 @@ function App() {
             variant="secondary"
             disabled={fullScanMutation.isPending || partialScanMutation.isPending}
             onClick={() => fullScanMutation.mutate()}
-            className="bg-blue-600 text-white hover:bg-blue-500"
           >
             {fullScanMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
             Rescan

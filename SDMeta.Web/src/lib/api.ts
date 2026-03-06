@@ -12,6 +12,23 @@ import type {
 } from '../types/api'
 
 const API_ROOT = '/api/v1'
+const SCAN_STATUS_MAP: Record<number, ScanStateResponse['status']> = {
+  0: 'Queued',
+  1: 'Running',
+  2: 'Completed',
+  3: 'Failed',
+}
+
+function normalizeScanState(payload: ScanStateResponse | (Omit<ScanStateResponse, 'status'> & { status: number | string })): ScanStateResponse {
+  if (typeof payload.status === 'number') {
+    return {
+      ...payload,
+      status: SCAN_STATUS_MAP[payload.status] ?? 'Failed',
+    }
+  }
+
+  return payload as ScanStateResponse
+}
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_ROOT}${path}`, {
@@ -80,8 +97,9 @@ export const api = {
       body: JSON.stringify(body),
     })
   },
-  getScan(scanId: string) {
-    return apiFetch<ScanStateResponse>(`/scans/${scanId}`)
+  async getScan(scanId: string) {
+    const payload = await apiFetch<ScanStateResponse | (Omit<ScanStateResponse, 'status'> & { status: number | string })>(`/scans/${scanId}`)
+    return normalizeScanState(payload)
   },
   getPendingChanges() {
     return apiFetch<PendingChangesResponse>('/scans/pending')
@@ -106,8 +124,8 @@ export function subscribeToScanEvents(
 
   const handleMessage = (raw: MessageEvent<string>) => {
     try {
-      const payload = JSON.parse(raw.data) as ScanStateResponse
-      onEvent(payload)
+      const payload = JSON.parse(raw.data) as ScanStateResponse | (Omit<ScanStateResponse, 'status'> & { status: number | string })
+      onEvent(normalizeScanState(payload))
     } catch {
       // Ignore parse failures from transient frames.
     }

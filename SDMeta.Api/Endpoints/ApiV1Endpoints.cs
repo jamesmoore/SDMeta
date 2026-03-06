@@ -5,11 +5,17 @@ using SDMeta.Auto1111;
 using SDMeta.Cache;
 using System.IO.Abstractions;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SDMeta.Api.Endpoints;
 
 public static class ApiV1Endpoints
 {
+    private static readonly JsonSerializerOptions sseJsonOptions = new()
+    {
+        Converters = { new JsonStringEnumConverter() }
+    };
+
     public static IEndpointRouteBuilder MapApiV1(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("/api/v1");
@@ -325,7 +331,7 @@ public static class ApiV1Endpoints
             if (next.Revision != revision)
             {
                 revision = next.Revision;
-                var json = JsonSerializer.Serialize(next);
+                var json = JsonSerializer.Serialize(next, sseJsonOptions);
                 await context.Response.WriteAsync($"event: progress\ndata: {json}\n\n", context.RequestAborted);
                 await context.Response.Body.FlushAsync(context.RequestAborted);
             }
@@ -404,3 +410,6 @@ public static class ApiV1Endpoints
         return true;
     }
 }
+
+
+
