@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,10 +31,14 @@ namespace SDMeta.Metadata
                         SkipBytes(fs, 4);
                         break;
                     case "tEXt":
-                    case "iTXt":
                         var keywordValuePair = await ReadTextualData(fs, chunkLength);
                         SkipBytes(fs, 4); // Move past the current chunk CRC
                         yield return keywordValuePair;
+                        break;
+                    case "iTXt":
+                        var itxtKeywordValuePair = await ReadInternationalTextualData(fs, chunkLength);
+                        SkipBytes(fs, 4); // Move past the current chunk CRC
+                        yield return itxtKeywordValuePair;
                         break;
                     default:
                         SkipBytes(fs, chunkLength + 4); // Move past the current chunk and its CRC
@@ -83,6 +88,67 @@ namespace SDMeta.Metadata
                 nullIndex > -1 ? dataString.Substring(0, nullIndex) : string.Empty,
                 nullIndex > -1 && nullIndex + 1 < length ? dataString.Substring(nullIndex + 1).Trim(NullTerminator) : string.Empty
             );
+        }
+
+        private async static Task<(string Key, string Value)> ReadInternationalTextualData(Stream stream, int length)
+        {
+            var buffer = new byte[length];
+            if (await stream.ReadAsync(buffer) != length)
+            {
+                throw new EndOfStreamException("Unexpected end of file while reading iTXt data.");
+            }
+
+            // iTXt layout (all indices into buffer):
+            //   [keyword]\0 [compression_flag:1] [compression_method:1]
+            //   [language_tag]\0 [translated_keyword]\0 [text...]
+            var keywordEnd = Array.IndexOf(buffer, (byte)0);
+            if (keywordEnd < 0 || keywordEnd + 4 > buffer.Length)
+            {
+                return (string.Empty, string.Empty);
+            }
+
+            var keyword = Encoding.UTF8.GetString(buffer, 0, keywordEnd);
+            var compressionFlag = buffer[keywordEnd + 1];
+            var compressionMethod = buffer[keywordEnd + 2];
+            // compression_method is at keywordEnd + 2; only method 0 (zlib) is defined
+            var afterFlags = keywordEnd + 3;
+
+            // Skip language tag (null-terminated)
+            var languageEnd = Array.IndexOf(buffer, (byte)0, afterFlags);
+            if (languageEnd < 0 || languageEnd + 1 > buffer.Length)
+            {
+                return (keyword, string.Empty);
+            }
+
+            // Skip translated keyword (null-terminated)
+            var translatedKeywordEnd = Array.IndexOf(buffer, (byte)0, languageEnd + 1);
+            if (translatedKeywordEnd < 0 || translatedKeywordEnd + 1 > buffer.Length)
+            {
+                return (keyword, string.Empty);
+            }
+
+            var textStart = translatedKeywordEnd + 1;
+            var textBytes = buffer.AsSpan(textStart).ToArray();
+
+            string text;
+            if (compressionFlag == 1)
+            {
+                if (compressionMethod != 0)
+                {
+                    throw new InvalidDataException($"Unsupported iTXt compression method: {compressionMethod}. Only zlib deflate (method 0) is supported.");
+                }
+                using var compressed = new MemoryStream(textBytes);
+                using var zlib = new ZLibStream(compressed, CompressionMode.Decompress);
+                using var decompressed = new MemoryStream();
+                await zlib.CopyToAsync(decompressed);
+                text = Encoding.UTF8.GetString(decompressed.ToArray());
+            }
+            else
+            {
+                text = Encoding.UTF8.GetString(textBytes);
+            }
+
+            return (keyword, text);
         }
 
         private static void SkipBytes(Stream stream, int bytesToSkip)
