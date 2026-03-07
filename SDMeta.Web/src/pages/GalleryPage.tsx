@@ -8,7 +8,7 @@ import type { ImageDetailResponse } from '../types/api'
 import { GAP, TILE_WIDTH, buildRows, type GalleryCard, type PagedImages } from '../features/gallery/gallery-model'
 import { FullscreenViewer } from '../features/gallery/FullscreenViewer'
 import { GalleryToolbar } from '../features/gallery/GalleryToolbar'
-import { ImageDetailsFooter } from '../features/gallery/ImageDetailsFooter'
+import { ImageDetailsFooter, type FooterSelection } from '../features/gallery/ImageDetailsFooter'
 import { ScanToast } from '../features/gallery/ScanToast'
 import { SettingsDialog } from '../features/gallery/SettingsDialog'
 import { VirtualizedGallery } from '../features/gallery/VirtualizedGallery'
@@ -21,6 +21,7 @@ export function GalleryPage() {
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [autoRescan, setAutoRescan] = useState(false)
+  const [footerSelection, setFooterSelection] = useState<FooterSelection | null>(null)
 
   const debouncedFilter = useDebouncedValue(filterInput, 450)
   const { queryState, setQueryState } = useGalleryQueryState()
@@ -62,6 +63,40 @@ export function GalleryPage() {
     () => (selectedImageId ? allItems.find((item) => item.imageId === selectedImageId) ?? null : null),
     [allItems, selectedImageId],
   )
+
+  const detail = galleryData.detailQuery.data
+
+  useEffect(() => {
+    if (!selectedImageId) {
+      setFooterSelection(null)
+      return
+    }
+
+    if (!selectedItem || !detail) {
+      return
+    }
+
+    if (detail.imageId !== selectedItem.imageId) {
+      return
+    }
+
+    setFooterSelection((current) => {
+      if (current?.item.imageId === selectedItem.imageId && current.detail.imageId === detail.imageId) {
+        return current
+      }
+
+      return {
+        item: selectedItem,
+        detail,
+      }
+    })
+  }, [selectedImageId, selectedItem, detail])
+
+  const isLoadingNextDetail =
+    selectedImageId !== null &&
+    galleryData.detailQuery.isFetching &&
+    footerSelection !== null &&
+    footerSelection.item.imageId !== selectedImageId
 
   const selectAdjacent = (delta: number) => {
     if (!selectedImageId) return
@@ -149,8 +184,8 @@ export function GalleryPage() {
       />
 
       <ImageDetailsFooter
-        selectedItem={selectedItem}
-        detail={galleryData.detailQuery.data}
+        selection={footerSelection}
+        isLoadingNext={isLoadingNextDetail}
         deleting={galleryData.deleteMutation.isPending}
         onDelete={(imageId) => galleryData.deleteMutation.mutate(imageId)}
         onOpenFullscreen={() => setIsFullscreenOpen(true)}
