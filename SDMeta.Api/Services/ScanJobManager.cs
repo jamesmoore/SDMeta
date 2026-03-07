@@ -61,7 +61,14 @@ public sealed class ScanJobManager(IServiceScopeFactory scopeFactory, PendingFil
                 return snapshot;
             }
 
-            await Task.Delay(250, cancellationToken);
+            try
+            {
+                await Task.Delay(250, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                return null;
+            }
         }
 
         return null;
@@ -214,3 +221,4 @@ public sealed class ScanJobManager(IServiceScopeFactory scopeFactory, PendingFil
         }
     }
 }
+
