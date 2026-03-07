@@ -143,7 +143,7 @@ export function GalleryPage() {
   }
 
   return (
-    <div className="flex h-full flex-col bg-zinc-700 text-zinc-100">
+    <div className="flex h-full flex-col bg-neutral-700 text-neutral-100">
       <GalleryToolbar
         queryState={queryState}
         filterInput={filterInput}

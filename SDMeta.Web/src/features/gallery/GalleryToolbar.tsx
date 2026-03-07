@@ -52,21 +52,21 @@ export function GalleryToolbar({
   const selectedModelValue = combineModel(queryState.model, queryState.modelHash)
 
   return (
-    <header className="sticky top-0 z-20 border-b border-zinc-700 bg-zinc-900/95 px-3 py-2 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-neutral-700 bg-neutral-900/95 px-3 py-2 backdrop-blur">
       <div className="grid grid-cols-1 gap-2 md:grid-cols-[minmax(220px,320px)_minmax(200px,300px)_minmax(160px,190px)_auto_auto_auto_1fr_auto] md:items-center">
         <div className="relative">
           <Input
             value={filterInput}
             onChange={(event) => setFilterInput(event.target.value)}
             placeholder="filter"
-            className="bg-zinc-100 pr-9 text-zinc-950"
+            className="bg-neutral-100 pr-9 text-neutral-950"
           />
           {filterInput.length > 0 && (
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="absolute right-0 top-0 h-10 w-10 text-zinc-600 hover:text-zinc-900"
+              className="absolute right-0 top-0 h-10 w-10 text-neutral-600 hover:text-neutral-900"
               onClick={() => setFilterInput('')}
               title="Clear filter"
             >
@@ -82,7 +82,7 @@ export function GalleryToolbar({
             setQueryState({ model: modelSplit.model, modelHash: modelSplit.modelHash })
           }}
         >
-          <SelectTrigger className="bg-zinc-100 text-zinc-900">
+          <SelectTrigger className="bg-neutral-100 text-neutral-900">
             <SelectValue placeholder="-- all models --" />
           </SelectTrigger>
           <SelectContent>
@@ -99,7 +99,7 @@ export function GalleryToolbar({
         </Select>
 
         <Select value={queryState.sortBy} onValueChange={(value) => setQueryState({ sortBy: value as QuerySortBy })}>
-          <SelectTrigger className="bg-zinc-100 text-zinc-900">
+          <SelectTrigger className="bg-neutral-100 text-neutral-900">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -119,7 +119,7 @@ export function GalleryToolbar({
               setQueryState({ groupBy: checked ? 'prompt' : 'none' })
             }}
           />
-          <span className="text-sm text-zinc-100">Group by prompt</span>
+          <span className="text-sm text-neutral-100">Group by prompt</span>
         </div>
 
         <Button variant="secondary" disabled={scanBusy} onClick={onRescan}>
@@ -129,10 +129,10 @@ export function GalleryToolbar({
 
         <div className="flex items-center gap-2 px-1">
           <Switch checked={autoRescan} onCheckedChange={setAutoRescan} />
-          <span className="text-sm text-zinc-100">Auto rescan</span>
+          <span className="text-sm text-neutral-100">Auto rescan</span>
         </div>
 
-        <div className="justify-self-end text-right text-sm text-zinc-100">
+        <div className="justify-self-end text-right text-sm text-neutral-100">
           {itemCount.toLocaleString()} items
           {pendingCounts && (pendingCounts.addedCount > 0 || pendingCounts.removedCount > 0) && (
             <div className="mt-1 flex justify-end gap-2">
@@ -148,7 +148,7 @@ export function GalleryToolbar({
       </div>
 
       {scanProgress > 0 && (
-        <div className="mt-2 h-1 overflow-hidden rounded bg-zinc-800">
+        <div className="mt-2 h-1 overflow-hidden rounded bg-neutral-800">
           <div className="h-full bg-sky-500 transition-all" style={{ width: `${scanProgress}%` }} />
         </div>
       )}

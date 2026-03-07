@@ -120,5 +120,5 @@ export function promptLineColor(line: string): string {
   if (line.startsWith('Negative prompt:')) return 'text-sky-300'
   if (line.includes('<lora:') || line.includes('<hypernet:')) return 'text-emerald-300'
   if (line.includes('Model hash:') || line.includes('Seed:')) return 'text-sky-300'
-  return 'text-zinc-200'
+  return 'text-neutral-200'
 }

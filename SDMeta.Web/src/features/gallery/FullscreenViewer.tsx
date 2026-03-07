@@ -14,7 +14,7 @@ interface FullscreenViewerProps {
 export function FullscreenViewer({ open, setOpen, selectedItem, onPrev, onNext }: FullscreenViewerProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-[95vw] bg-zinc-950 p-2 text-zinc-100">
+      <DialogContent className="max-w-[95vw] bg-neutral-950 p-2 text-neutral-100">
         {selectedItem && (
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={onPrev}>

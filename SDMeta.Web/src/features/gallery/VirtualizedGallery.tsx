@@ -73,11 +73,11 @@ export function VirtualizedGallery({
   const totalSize = useMemo(() => rowVirtualizer.getTotalSize(), [rowVirtualizer])
 
   return (
-    <main ref={galleryRef} className="flex-1 overflow-auto bg-zinc-600 px-2 pb-28">
+    <main ref={galleryRef} className="flex-1 overflow-auto bg-neutral-600 px-2 pb-28">
       {loading ? (
         <div className="grid grid-cols-2 gap-3 pt-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           {Array.from({ length: 24 }).map((_, index) => (
-            <div key={index} className="h-44 animate-pulse rounded-md bg-zinc-500" />
+            <div key={index} className="h-44 animate-pulse rounded-md bg-neutral-500" />
           ))}
         </div>
       ) : (
@@ -108,8 +108,8 @@ export function VirtualizedGallery({
                             isSelected
                               ? 'border-sky-400 ring-2 ring-sky-400/80'
                               : card.isRepresentative
-                                ? 'border-zinc-300/40 hover:border-zinc-200'
-                                : 'border-zinc-300/20 hover:border-zinc-300/50'
+                                ? 'border-neutral-300/40 hover:border-neutral-200'
+                                : 'border-neutral-300/20 hover:border-neutral-300/50'
                           }`}
                           onClick={() => {
                             if (card.isRepresentative) {
@@ -129,7 +129,7 @@ export function VirtualizedGallery({
                     })}
                   </div>
                 ) : (
-                  <div className="my-1 rounded-md border border-sky-300/35 bg-zinc-700/80 p-2">
+                  <div className="my-1 rounded-md border border-sky-300/35 bg-neutral-700/80 p-2">
                     <div className="grid" style={{ gap: `${GAP}px`, gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))` }}>
                       {row.cards.map((card) => {
                         const isSelected = selectedImageId === card.imageId
@@ -155,7 +155,7 @@ export function VirtualizedGallery({
         </div>
       )}
 
-      {fetchingNextPage && <div className="py-4 text-center text-sm text-zinc-200">Loading more images...</div>}
+      {fetchingNextPage && <div className="py-4 text-center text-sm text-neutral-200">Loading more images...</div>}
     </main>
   )
 }

@@ -36,26 +36,26 @@ export function ImageDetailsFooter({
   const disableActions = deleting || isLoadingNext
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-30 border-t border-zinc-800 bg-zinc-900/95 px-3 py-2 backdrop-blur">
+    <footer className="fixed bottom-0 left-0 right-0 z-30 border-t border-neutral-800 bg-neutral-900/95 px-3 py-2 backdrop-blur">
       <div className="flex gap-3">
         <button
           type="button"
-          className="h-28 w-28 shrink-0 overflow-hidden rounded border border-zinc-600"
+          className="h-28 w-28 shrink-0 overflow-hidden rounded border border-neutral-600"
           onClick={onOpenFullscreen}
         >
           <img src={item.thumbnailUrl} alt={detail.fileName} className="h-full w-full object-cover" />
         </button>
 
         <div className="min-w-0 flex-1">
-          <div className="truncate text-sm text-zinc-100">{detail.fileName}</div>
-          <div className="mt-1 text-xs text-zinc-300">
+          <div className="truncate text-sm text-neutral-100">{detail.fileName}</div>
+          <div className="mt-1 text-xs text-neutral-300">
             Size: {formatBytes(detail.lengthBytes)} | Date: {formatDate(detail.lastUpdatedUtc)} | Format: {detail.promptFormat}
             {isLoadingNext ? ' | Loading next image...' : ''}
           </div>
 
-          <Separator className="my-2 bg-zinc-700" />
+          <Separator className="my-2 bg-neutral-700" />
 
-          <ScrollArea className="h-16 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1 font-mono text-xs">
+          <ScrollArea className="h-16 w-full rounded border border-neutral-700 bg-neutral-950 px-2 py-1 font-mono text-xs">
             {(detail.promptRaw ?? '')
               .split('\n')
               .filter((line) => line.trim().length > 0)
