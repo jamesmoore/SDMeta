@@ -148,7 +148,7 @@ export function GalleryToolbar({
       </div>
 
       {scanProgress > 0 && (
-        <div className="mt-2 h-1 overflow-hidden rounded bg-neutral-800">
+        <div className="mt-2 h-2 overflow-hidden rounded bg-neutral-800">
           <div className="h-full bg-sky-500 transition-all" style={{ width: `${scanProgress}%` }} />
         </div>
       )}
