@@ -110,7 +110,7 @@ export function VirtualizedGallery({
                           key={card.imageId}
                           type="button"
                           className={`relative overflow-hidden rounded-md border text-left transition ${
-                            isSelected
+                            isSelected || (card.isRepresentative && expandedGroupId === card.groupKey)
                               ? 'border-sky-400 ring-2 ring-sky-400/80'
                               : card.isRepresentative
                                 ? 'border-neutral-300/40 hover:border-neutral-200'
@@ -126,9 +126,6 @@ export function VirtualizedGallery({
                         >
                           <img src={card.thumbnailUrl} alt={card.fileName} loading="lazy" className="h-44 w-full object-cover" />
                           {countBadgeVisible && <Badge className="absolute bottom-1 left-1">{card.groupCount}</Badge>}
-                          {card.isRepresentative && expandedGroupId === card.groupKey && (
-                            <div className="absolute inset-0 border-2 border-sky-400" />
-                          )}
                         </button>
                       )
                     })}
