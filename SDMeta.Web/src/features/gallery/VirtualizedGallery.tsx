@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Badge } from '../../components/ui/badge'
 import { GAP, TILE_HEIGHT, TOP_ROW_PADDING, type GalleryCard, type VirtualRow } from './gallery-model'
@@ -48,6 +48,7 @@ export function VirtualizedGallery({
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => galleryRef.current,
+    getItemKey: (index) => rows[index]?.id ?? index,
     estimateSize: (index) => {
       const row = rows[index]
       if (!row) return TILE_HEIGHT + GAP
@@ -63,6 +64,10 @@ export function VirtualizedGallery({
   const virtualRows = rowVirtualizer.getVirtualItems()
 
   useEffect(() => {
+    rowVirtualizer.measure()
+  }, [rowVirtualizer, rows, columnCount, expandedGroupId])
+
+  useEffect(() => {
     if (virtualRows.length === 0) return
     const lastVisible = virtualRows[virtualRows.length - 1]
     if (lastVisible && lastVisible.index >= rows.length - 4) {
@@ -70,7 +75,7 @@ export function VirtualizedGallery({
     }
   }, [onLoadMore, rows.length, virtualRows])
 
-  const totalSize = useMemo(() => rowVirtualizer.getTotalSize(), [rowVirtualizer])
+  const totalSize = rowVirtualizer.getTotalSize()
 
   return (
     <main ref={galleryRef} className="flex-1 overflow-auto bg-neutral-600 px-2 pb-28">
@@ -159,3 +164,4 @@ export function VirtualizedGallery({
     </main>
   )
 }
+
