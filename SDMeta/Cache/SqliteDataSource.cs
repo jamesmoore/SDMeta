@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,6 +12,7 @@ namespace SDMeta.Cache
         const string TableName = "PngFilesv2";
         private string FTSTableName = $"FTS5{TableName}";
         private SqliteTransaction? transaction;
+        private readonly object transactionLock = new();
 
         private readonly string[] columns =
         [
@@ -75,13 +76,18 @@ namespace SDMeta.Cache
         {
             if (this.transaction?.Connection != null)
             {
-                return func(transaction.Connection);
+                lock (transactionLock)
+                {
+                    var currentTransaction = this.transaction;
+                    if (currentTransaction?.Connection != null)
+                    {
+                        return func(currentTransaction.Connection);
+                    }
+                }
             }
-            else
-            {
-                using var connection = GetConnection();
-                return func(connection);
-            }
+
+            using var connection = GetConnection();
+            return func(connection);
         }
 
         private string GetInsertSql()
@@ -257,18 +263,35 @@ namespace SDMeta.Cache
 
         public void BeginTransaction()
         {
-            this.transaction ??= GetConnection().BeginTransaction();
+            lock (transactionLock)
+            {
+                this.transaction ??= GetConnection().BeginTransaction();
+            }
         }
 
         public void CommitTransaction()
         {
-            if (this.transaction != null)
+            SqliteTransaction? transactionToCommit;
+
+            lock (transactionLock)
             {
-                var connection = this.transaction.Connection;
-                this.transaction.Commit();
-                this.transaction.Dispose();
+                transactionToCommit = this.transaction;
                 this.transaction = null;
-                connection?.Close();
+            }
+
+            if (transactionToCommit == null)
+            {
+                return;
+            }
+
+            try
+            {
+                transactionToCommit.Commit();
+            }
+            finally
+            {
+                var connection = transactionToCommit.Connection;
+                transactionToCommit.Dispose();
                 connection?.Dispose();
             }
         }
@@ -333,3 +356,4 @@ namespace SDMeta.Cache
 
     internal record struct ColumnDefinition(string Column, string Parameter, string DataType, bool IsPrimaryKey);
 }
+
