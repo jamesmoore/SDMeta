@@ -72,7 +72,7 @@ namespace SDMeta.Cache
             return connection;
         }
 
-        private T ExecuteOnConnection<T>(Func<SqliteConnection, T> func)
+        private T ExecuteOnConnection<T>(Func<SqliteConnection, SqliteTransaction?, T> func)
         {
             if (this.transaction?.Connection != null)
             {
@@ -81,13 +81,13 @@ namespace SDMeta.Cache
                     var currentTransaction = this.transaction;
                     if (currentTransaction?.Connection != null)
                     {
-                        return func(currentTransaction.Connection);
+                        return func(currentTransaction.Connection, currentTransaction);
                     }
                 }
             }
 
             using var connection = GetConnection();
-            return func(connection);
+            return func(connection, null);
         }
 
         private string GetInsertSql()
@@ -108,11 +108,11 @@ namespace SDMeta.Cache
             var tabledef = GetTableDefinition();
 
             // Setup table if absent https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/types
-            ExecuteOnConnection(connection => connection.Execute(@$"CREATE TABLE IF NOT EXISTS {TableName} (
+            ExecuteOnConnection((connection, _) => connection.Execute(@$"CREATE TABLE IF NOT EXISTS {TableName} (
 				{tabledef.Select(p => $"{p.Column} {p.DataType}{(p.IsPrimaryKey ? " PRIMARY KEY" : "")}").ToCommaSeparated()}
 				);"));
 
-            ExecuteOnConnection(connection => connection.Execute(@$"CREATE VIRTUAL TABLE IF NOT EXISTS {FTSTableName} USING fts5({ftscolumns.ToCommaSeparated()});"));
+            ExecuteOnConnection((connection, _) => connection.Execute(@$"CREATE VIRTUAL TABLE IF NOT EXISTS {FTSTableName} USING fts5({ftscolumns.ToCommaSeparated()});"));
             logger.LogInformation("Initalization completed");
         }
 
@@ -141,7 +141,7 @@ namespace SDMeta.Cache
                 modelHash = queryParams.ModelFilter?.ModelHash,
             };
 
-            var reader = ExecuteOnConnection(connection =>
+            var reader = ExecuteOnConnection((connection, _) =>
                 connection.Query<ImageFileSummary>(sql, param)
             );
             return reader;
@@ -218,7 +218,7 @@ namespace SDMeta.Cache
 
         public ImageFile? ReadImageFile(string realFileName)
         {
-            var reader = ExecuteOnConnection(connection => connection.QueryFirstOrDefault<DataRow>(
+            var reader = ExecuteOnConnection((connection, _) => connection.QueryFirstOrDefault<DataRow>(
             $@"SELECT *
 				FROM {TableName}
 				WHERE FileName = @FileName
@@ -236,10 +236,10 @@ namespace SDMeta.Cache
 
         public void WriteImageFile(ImageFile info)
         {
-            ExecuteOnConnection(connection => connection.Execute(
+            ExecuteOnConnection((connection, tx) => connection.Execute(
                 insertSql.Value,
                 FromModel(info),
-                this.transaction
+                tx
             ));
         }
 
@@ -298,7 +298,7 @@ namespace SDMeta.Cache
 
         public IEnumerable<ModelSummary> GetModelSummaryList()
         {
-            var reader = ExecuteOnConnection(connection => connection.Query<ModelSummary>(
+            var reader = ExecuteOnConnection((connection, _) => connection.Query<ModelSummary>(
                 $@"SELECT Model, ModelHash, Count(*) as Count
 				FROM {TableName}
 				GROUP BY Model, ModelHash
@@ -310,7 +310,7 @@ namespace SDMeta.Cache
 
         public IEnumerable<string> GetAllFilenames()
         {
-            var reader = ExecuteOnConnection(connection => connection.Query<string>(
+            var reader = ExecuteOnConnection((connection, _) => connection.Query<string>(
                 $@"SELECT Filename
 				FROM {TableName}
 				WHERE [Exists] = 1"
@@ -321,20 +321,20 @@ namespace SDMeta.Cache
 
         public void Truncate()
         {
-            ExecuteOnConnection(connection => connection.Execute($"DELETE FROM {TableName}"));
-            ExecuteOnConnection(connection => connection.Execute($"DELETE FROM {FTSTableName}"));
+            ExecuteOnConnection((connection, _) => connection.Execute($"DELETE FROM {TableName}"));
+            ExecuteOnConnection((connection, _) => connection.Execute($"DELETE FROM {FTSTableName}"));
         }
 
         public void PostUpdateProcessing()
         {
-            ExecuteOnConnection(connection =>
+            ExecuteOnConnection((connection, tx) =>
                 connection.Execute(
                     $@"INSERT INTO {FTSTableName} (FileName, Prompt, PromptFormat, Version) 
 					SELECT FileName, Prompt, PromptFormat, Version FROM {TableName}  
 					WHERE FileName NOT IN (SELECT FileName from {FTSTableName})",
-                this.transaction));
+                tx));
 
-            ExecuteOnConnection(connection =>
+            ExecuteOnConnection((connection, tx) =>
                 connection.Execute(
                     $@"UPDATE {FTSTableName} SET
 						Prompt = p.Prompt,
@@ -342,7 +342,7 @@ namespace SDMeta.Cache
 						Version = p.Version
 					FROM {TableName} p
 					WHERE {FTSTableName}.FileName = p.FileName and {FTSTableName}.Version != p.Version",
-                this.transaction));
+                tx));
         }
     }
 
