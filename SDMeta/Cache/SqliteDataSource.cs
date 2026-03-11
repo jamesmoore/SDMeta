@@ -75,15 +75,12 @@ namespace SDMeta.Cache
 
         private T ExecuteOnConnection<T>(Func<SqliteConnection, SqliteTransaction?, T> func)
         {
-            if (this.transaction?.Connection != null)
+            lock (transactionLock)
             {
-                lock (transactionLock)
+                var currentTransaction = this.transaction;
+                if (currentTransaction?.Connection != null)
                 {
-                    var currentTransaction = this.transaction;
-                    if (currentTransaction?.Connection != null)
-                    {
-                        return func(currentTransaction.Connection, currentTransaction);
-                    }
+                    return func(currentTransaction.Connection, currentTransaction);
                 }
             }
 
