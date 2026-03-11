@@ -2,7 +2,7 @@ import { Loader2, RefreshCw, Settings, X } from 'lucide-react'
 import type { Dispatch, SetStateAction } from 'react'
 import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'
-import { Input } from '../../components/ui/input'
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '../../components/ui/input-group'
 import {
   Select,
   SelectContent,
@@ -54,26 +54,30 @@ export function GalleryToolbar({
   return (
     <header className="sticky top-0 z-20 border-b border-neutral-700 bg-neutral-900/95 px-3 py-2 backdrop-blur">
       <div className="grid grid-cols-1 gap-2 md:grid-cols-[minmax(220px,320px)_minmax(200px,300px)_minmax(160px,190px)_auto_auto_auto_1fr_auto] md:items-center">
-        <div className="relative">
-          <Input
-            value={filterInput}
-            onChange={(event) => setFilterInput(event.target.value)}
-            placeholder="filter"
-            className="bg-neutral-100 pr-9 text-neutral-950"
-          />
-          {filterInput.length > 0 && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-0 top-0 h-10 w-10 text-neutral-600 hover:text-neutral-900"
-              onClick={() => setFilterInput('')}
-              title="Clear filter"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
+        <div>
+          <InputGroup className="bg-neutral-100 text-neutral-950">
+            <InputGroupInput
+              value={filterInput}
+              onChange={(event) => setFilterInput(event.target.value)}
+              placeholder="filter"
+              className="h-10"
+            />
+            {filterInput.length > 0 && (
+              <InputGroupAddon align="inline-end">
+                <InputGroupButton
+                  size="icon-xs"
+                  variant="ghost"
+                  aria-label="Clear search"
+                  onClick={() => setFilterInput('')}
+                  title="Clear filter"
+                >
+                  <X />
+                </InputGroupButton>
+              </InputGroupAddon>
+            )}
+          </InputGroup>
         </div>
+
 
         <Select
           value={selectedModelValue}
