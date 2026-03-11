@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace SDMeta.Cache
 {
@@ -12,7 +13,7 @@ namespace SDMeta.Cache
         const string TableName = "PngFilesv2";
         private string FTSTableName = $"FTS5{TableName}";
         private SqliteTransaction? transaction;
-        private readonly object transactionLock = new();
+        private readonly Lock transactionLock = new();
 
         private readonly string[] columns =
         [
