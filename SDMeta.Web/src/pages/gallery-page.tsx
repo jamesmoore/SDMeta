@@ -6,12 +6,12 @@ import { useGalleryQueryState } from '../hooks/useGalleryQueryState'
 import { useScanLifecycle } from '../hooks/useScanLifecycle'
 import type { ImageDetailResponse } from '../types/api'
 import { GAP, TILE_WIDTH, buildRows, type GalleryCard, type PagedImages } from '../features/gallery/gallery-model'
-import { FullscreenViewer } from '../features/gallery/FullscreenViewer'
-import { GalleryToolbar } from '../features/gallery/GalleryToolbar'
-import { ImageDetailsFooter, type FooterSelection } from '../features/gallery/ImageDetailsFooter'
-import { ScanToast } from '../features/gallery/ScanToast'
-import { SettingsDialog } from '../features/gallery/SettingsDialog'
-import { VirtualizedGallery } from '../features/gallery/VirtualizedGallery'
+import { FullscreenViewer } from '../features/gallery/fullscreen-viewer'
+import { GalleryToolbar } from '../features/gallery/gallery-toolbar'
+import { ImageDetailsFooter, type FooterSelection } from '../features/gallery/image-details-footer'
+import { ScanToast } from '../features/gallery/scan-toast'
+import { SettingsDialog } from '../features/gallery/settings-dialog'
+import { VirtualizedGallery } from '../features/gallery/virtualized-gallery'
 
 export function GalleryPage() {
   const [viewportWidth, setViewportWidth] = useState(1200)
