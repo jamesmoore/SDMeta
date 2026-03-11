@@ -76,6 +76,7 @@ export function VirtualizedGallery({
   }, [onLoadMore, rows.length, virtualRows])
 
   const totalSize = rowVirtualizer.getTotalSize()
+  const topPadding = TOP_ROW_PADDING
 
   return (
     <main ref={galleryRef} className="flex-1 overflow-auto bg-neutral-600 px-2 pb-28">
@@ -86,7 +87,8 @@ export function VirtualizedGallery({
           ))}
         </div>
       ) : (
-        <div style={{ height: `${totalSize}px`, position: 'relative' }}>
+        <div style={{ height: `${totalSize + topPadding}px`, position: 'relative' }}>
+          <div aria-hidden="true" style={{ height: `${topPadding}px` }} />
           {virtualRows.map((virtualRow) => {
             const row = rows[virtualRow.index]
             if (!row) return null
@@ -97,7 +99,7 @@ export function VirtualizedGallery({
                 data-index={virtualRow.index}
                 ref={rowVirtualizer.measureElement}
                 className="absolute left-0 w-full pb-3"
-                style={{ transform: `translateY(${virtualRow.start}px)` }}
+                style={{ transform: `translateY(${virtualRow.start + topPadding}px)` }}
               >
                 {row.kind === 'grid' ? (
                   <div className="grid" style={{ gap: `${GAP}px`, gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))` }}>
@@ -161,4 +163,3 @@ export function VirtualizedGallery({
     </main>
   )
 }
-

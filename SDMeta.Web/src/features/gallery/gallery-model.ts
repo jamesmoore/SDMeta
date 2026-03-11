@@ -3,7 +3,7 @@ import type { GroupByMode, ImageListItem, ImageListResponse } from '../../types/
 export const TILE_WIDTH = 176
 export const TILE_HEIGHT = 176
 export const GAP = 12
-export const TOP_ROW_PADDING = 8
+export const TOP_ROW_PADDING = 6
 
 export type GalleryCard = ImageListItem & {
   isRepresentative: boolean
