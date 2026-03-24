@@ -30,6 +30,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 AddCustomServices(builder);
 builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -45,6 +46,7 @@ if (!app.Environment.IsDevelopment())
 
 app.MapGet("/images/thumb/{path:required}", ImagesController.GetThumb);
 app.MapGet("/images/full/{path:required}/{realfilename}", ImagesController.GetFull);
+app.MapHealthChecks("/healthz");
 
 // https://github.com/gmanvel/AspNetCoreSingleFileApp
 app.UseStaticFiles(new StaticFileOptions
