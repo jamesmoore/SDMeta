@@ -14,5 +14,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:latest
 
 WORKDIR /app
 COPY --from=build-env /app/out .
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 CMD curl -f http://localhost:8080/healthz || exit 1
 ENTRYPOINT ["dotnet", "SDMetaUI.dll"]
