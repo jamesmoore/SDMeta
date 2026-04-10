@@ -14,8 +14,8 @@
 		<PackageReference Include="PhotoSauce.NativeCodecs.Libjpeg" Version="3.0.4-preview1" />
 		<PackageReference Include="PhotoSauce.NativeCodecs.Libpng" Version="1.6.44-preview1" />
 		<PackageReference Include="Polly" Version="8.6.6" />
-		<PackageReference Include="TestableIO.System.IO.Abstractions" Version="22.1.0" />
-		<PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.1.0" />
+		<PackageReference Include="TestableIO.System.IO.Abstractions" Version="22.1.1" />
+		<PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.1.1" />
 	</ItemGroup>
 
 	<ItemGroup>
