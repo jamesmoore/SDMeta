@@ -152,7 +152,7 @@ namespace SDMeta.Cache
             {
                 sql = $@"SELECT 
 					{TableName}.FileName,
-					IFNULL(PromptHash,"") + IFNULL(NegativePromptHash,"") as FullPromptHash
+                 COALESCE(PromptHash,'') || COALESCE(NegativePromptHash,'') as FullPromptHash
 				FROM {TableName}
 				join {FTSTableName} on {TableName}.FileName = {FTSTableName}.FileName
 				WHERE [Exists] = 1 and {FTSTableName} MATCH @filter";
@@ -161,7 +161,7 @@ namespace SDMeta.Cache
             {
                 sql = $@"SELECT 
 					FileName,
-					IFNULL(PromptHash,"") + IFNULL(NegativePromptHash,"") as FullPromptHash
+                 COALESCE(PromptHash,'') || COALESCE(NegativePromptHash,'') as FullPromptHash
 				FROM {TableName}
 				WHERE [Exists] = 1";
             }
