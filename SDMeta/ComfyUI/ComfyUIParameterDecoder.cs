@@ -245,13 +245,28 @@ namespace SDMeta.Comfy
     {
         public JsonArray? clip { get; set; }
         public abstract string? GetText();
+
+        protected static string? GetTextValue(object? value)
+        {
+            switch (value)
+            {
+                case null:
+                    return null;
+
+                case string text:
+                    return text;
+
+                default:
+                    return null;
+            }
+        }
     }
 
     public class CLIPTextEncodeInputs : BaseCLIPTestEncodeInputs
     {
         public object? text { get; set; }
 
-        public override string? GetText() => text as string;
+        public override string? GetText() => GetTextValue(text);
     }
 
     public class KSamplerBase : BaseInputs
@@ -315,7 +330,7 @@ namespace SDMeta.Comfy
         public int width { get; set; }
         public int height { get; set; }
         public object? text { get; set; }
-        public override string? GetText() => text as string;
+        public override string? GetText() => GetTextValue(text);
     }
 
 
