@@ -360,6 +360,32 @@ namespace SDMetaTest.ComfyUI
 		}
 		""";
 
+        [TestMethod]
+        public void GetParams_FallsBackToExtractLongStringPrompt_WhenNoClipNodes()
+        {
+            var comfyParams = new ComfyUIParameterDecoder(GetLogger()).GetParameters(new ImageFile("testfile.png", default, default, default, testJsonWithLongStringFallback, default));
+            Assert.AreEqual("a long positive prompt that exceeds one hundred characters and should be extracted via the fallback path in ExtractLongStringPrompt", comfyParams.Prompt);
+        }
+
+        const string testJsonWithLongStringFallback = """
+		{
+		    "1": {
+		        "inputs": {
+		            "ckpt_name": "somemodel.safetensors"
+		        },
+		        "class_type": "CheckpointLoaderSimple"
+		    },
+		    "2": {
+		        "inputs": {
+		            "positive": "a long positive prompt that exceeds one hundred characters and should be extracted via the fallback path in ExtractLongStringPrompt",
+		            "negative": "bad",
+		            "model": ["1", 0]
+		        },
+		        "class_type": "SomeCustomNode"
+		    }
+		}
+		""";
+
         private static ILogger<ComfyUIParameterDecoder> GetLogger()
         {
             return A.Fake<ILogger<ComfyUIParameterDecoder>>();
