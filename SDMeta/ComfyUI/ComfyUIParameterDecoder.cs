@@ -48,37 +48,14 @@ namespace SDMeta.Comfy
                     return GenerationParams.Empty;
                 }
 
-                var typedNodes = nodes.Select(p => p.Value.GetInputs(p.Key)).ToList();
+                var generationParams = GetPromptsFromNodes(nodes);
 
-                var modelNode = typedNodes
-                    .OfType<ICheckpointLoaderSimpleInputs>()
-                    .OrderBy(p => p.IsRefiner())
-                    .FirstOrDefault();
-
-                var samplerNode = typedNodes.OfType<KSamplerBase>().ToList();
-
-                var clipText = typedNodes.OfType<BaseCLIPTestEncodeInputs>().ToList();
-
-                var posNeg = samplerNode.Select(p => p.GetClips(clipText)).Distinct().ToList();
-
-                var positive = posNeg
-                    .Select(p => p.positive?.Trim())
-                    .DefaultIfEmpty("")
-                    .OrderBy(p => p)
-                    .Aggregate((p, q) => p + " " + q);
-
-                var negative = posNeg
-                    .Select(p => p.negative?.Trim())
-                    .DefaultIfEmpty("")
-                    .OrderBy(p => p)
-                    .Aggregate((p, q) => p + " " + q);
-
-                return new GenerationParams
+                if (string.IsNullOrWhiteSpace(generationParams.Prompt))
                 {
-                    Model = modelNode?.GetCheckpointName(),
-                    Prompt = positive,
-                    NegativePrompt = negative,
-                };
+                    generationParams.Prompt = ExtractLongStringPrompt(sanitizedPrompt);
+                }
+
+                return generationParams;
             }
             catch (Exception ex)
             {
@@ -91,6 +68,92 @@ namespace SDMeta.Comfy
                     NegativePrompt = errorMessage,
                 };
             }
+        }
+
+        private static string ExtractLongStringPrompt(string json)
+        {
+            var root = JsonNode.Parse(json);
+            if (root == null)
+            {
+                return string.Empty;
+            }
+
+            var values = new List<string>();
+            CollectLongStrings(root, values);
+
+            return string.Join(
+                " ",
+                values
+                    .Select(p => p.Trim())
+                    .Where(p => !string.IsNullOrWhiteSpace(p))
+                    .Distinct(StringComparer.Ordinal));
+        }
+
+        private static void CollectLongStrings(JsonNode? node, List<string> values)
+        {
+            switch (node)
+            {
+                case null:
+                    return;
+
+                case JsonObject jsonObject:
+                    foreach (var property in jsonObject)
+                    {
+                        CollectLongStrings(property.Value, values);
+                    }
+                    break;
+
+                case JsonArray jsonArray:
+                    foreach (var item in jsonArray)
+                    {
+                        CollectLongStrings(item, values);
+                    }
+                    break;
+
+                case JsonValue jsonValue:
+                    if (jsonValue.TryGetValue<string>(out var text) &&
+                        !string.IsNullOrWhiteSpace(text) &&
+                        text.Length > 100)
+                    {
+                        values.Add(text);
+                    }
+                    break;
+            }
+        }
+
+        private static GenerationParams GetPromptsFromNodes(Dictionary<string, UntypedBaseNode> nodes)
+        {
+            var typedNodes = nodes.Select(p => p.Value.GetInputs(p.Key)).ToList();
+
+            var modelNode = typedNodes
+                .OfType<ICheckpointLoaderSimpleInputs>()
+                .OrderBy(p => p.IsRefiner())
+                .FirstOrDefault();
+
+            var samplerNode = typedNodes.OfType<KSamplerBase>().ToList();
+
+            var clipText = typedNodes.OfType<BaseCLIPTestEncodeInputs>().ToList();
+
+            var posNeg = samplerNode.Select(p => p.GetClips(clipText)).Distinct().ToList();
+
+            var positive = posNeg
+                .Select(p => p.positive?.Trim())
+                .DefaultIfEmpty("")
+                .OrderBy(p => p)
+                .Aggregate((p, q) => p + " " + q);
+            var negative = posNeg
+                .Select(p => p.negative?.Trim())
+                .DefaultIfEmpty("")
+                .OrderBy(p => p)
+                .Aggregate((p, q) => p + " " + q);
+            var checkpoint = modelNode?.GetCheckpointName();
+
+            return new GenerationParams
+            {
+                Model = checkpoint,
+                Prompt = positive,
+                NegativePrompt = negative,
+            };
         }
     }
 
@@ -182,13 +245,31 @@ namespace SDMeta.Comfy
     {
         public JsonArray? clip { get; set; }
         public abstract string? GetText();
+
+        protected static string? GetTextValue(object? value)
+        {
+            switch (value)
+            {
+                case null:
+                    return null;
+
+                case string text:
+                    return text;
+
+                case JsonElement jsonElement when jsonElement.ValueKind == JsonValueKind.String:
+                    return jsonElement.GetString();
+
+                default:
+                    return null;
+            }
+        }
     }
 
     public class CLIPTextEncodeInputs : BaseCLIPTestEncodeInputs
     {
-        public string? text { get; set; }
+        public object? text { get; set; }
 
-        public override string? GetText() => text;
+        public override string? GetText() => GetTextValue(text);
     }
 
     public class KSamplerBase : BaseInputs
@@ -251,8 +332,8 @@ namespace SDMeta.Comfy
         public float ascore { get; set; }
         public int width { get; set; }
         public int height { get; set; }
-        public string? text { get; set; }
-        public override string? GetText() => text;
+        public object? text { get; set; }
+        public override string? GetText() => GetTextValue(text);
     }
 
 
