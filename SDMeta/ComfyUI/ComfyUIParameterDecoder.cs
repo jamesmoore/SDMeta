@@ -256,6 +256,9 @@ namespace SDMeta.Comfy
                 case string text:
                     return text;
 
+                case JsonElement jsonElement when jsonElement.ValueKind == JsonValueKind.String:
+                    return jsonElement.GetString();
+
                 default:
                     return null;
             }
