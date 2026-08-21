@@ -1,10 +1,13 @@
-﻿using SDMetaUI.Services;
+﻿using Microsoft.AspNetCore.StaticFiles;
+using SDMetaUI.Services;
 using System.IO.Abstractions;
 
 namespace SDMetaUI.Controllers
 {
     public class ImagesController()
     {
+        private static readonly FileExtensionContentTypeProvider ContentTypeProvider = new();
+
         public static IResult GetThumb(
             IFileSystem fileSystem,
             IThumbnailService thumbnailService,
@@ -22,7 +25,7 @@ namespace SDMetaUI.Controllers
                     var thumbPath = thumbnailService.GetOrGenerateThumbnail(fileInfo.FullName);
                     httpResponse.Headers.LastModified = fileInfo.LastWriteTimeUtc.ToString("R");
 
-                    return Results.File(thumbPath, "image/jpg");
+                    return Results.File(thumbPath, GetContentType(thumbPath));
                 }
                 else
                 {
@@ -49,7 +52,7 @@ namespace SDMetaUI.Controllers
                 {
                     EnableCaching(httpResponse);
                     httpResponse.Headers.LastModified = fileSystem.FileInfo.New(physicalPath).LastWriteTimeUtc.ToString("R");
-                    return Results.File(physicalPath, "image/png");
+                    return Results.File(physicalPath, GetContentType(physicalPath));
                 }
                 else
                 {
@@ -67,6 +70,13 @@ namespace SDMetaUI.Controllers
         {
             var base32EncodedBytes = Base32Encoding.ToBytes(base32EncodedData);
             return System.Text.Encoding.UTF8.GetString(base32EncodedBytes);
+        }
+
+        private static string GetContentType(string path)
+        {
+            return ContentTypeProvider.TryGetContentType(path, out var contentType)
+                ? contentType
+                : "application/octet-stream";
         }
 
         private static void EnableCaching(HttpResponse httpResponse)
