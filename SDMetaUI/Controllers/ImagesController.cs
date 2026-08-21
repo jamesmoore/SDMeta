@@ -14,6 +14,8 @@ namespace SDMetaUI.Controllers
         {
             try
             {
+                EnableCaching(httpResponse);
+
                 string physicalPath = Base32Decode(path);
                 if (fileSystem.File.Exists(physicalPath))
                 {
@@ -43,6 +45,8 @@ namespace SDMetaUI.Controllers
         {
             try
             {
+                EnableCaching(httpResponse);
+
                 string physicalPath = Base32Decode(path);
                 if (fileSystem.File.Exists(physicalPath))
                 {
@@ -65,6 +69,11 @@ namespace SDMetaUI.Controllers
         {
             var base32EncodedBytes = Base32Encoding.ToBytes(base32EncodedData);
             return System.Text.Encoding.UTF8.GetString(base32EncodedBytes);
+        }
+
+        private static void EnableCaching(HttpResponse httpResponse)
+        {
+            httpResponse.Headers.CacheControl = "public, max-age=31536000, immutable";
         }
     }
 }
