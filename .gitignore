@@ -156,3 +156,7 @@ $RECYCLE.BIN/
 /packages
 
 TODO.txt
+
+# Front-react build output in wwwroot
+SDMeta.Api/wwwroot/*
+!SDMeta.Api/wwwroot/.gitkeep
