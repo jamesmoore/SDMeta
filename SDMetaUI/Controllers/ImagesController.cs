@@ -14,11 +14,10 @@ namespace SDMetaUI.Controllers
         {
             try
             {
-                EnableCaching(httpResponse);
-
                 string physicalPath = Base32Decode(path);
                 if (fileSystem.File.Exists(physicalPath))
                 {
+                    EnableCaching(httpResponse);
                     var fileInfo = fileSystem.FileInfo.New(physicalPath);
                     var thumbPath = thumbnailService.GetOrGenerateThumbnail(fileInfo.FullName);
                     httpResponse.Headers.LastModified = fileInfo.LastWriteTimeUtc.ToString("R");
@@ -45,11 +44,10 @@ namespace SDMetaUI.Controllers
         {
             try
             {
-                EnableCaching(httpResponse);
-
                 string physicalPath = Base32Decode(path);
                 if (fileSystem.File.Exists(physicalPath))
                 {
+                    EnableCaching(httpResponse);
                     httpResponse.Headers.LastModified = fileSystem.FileInfo.New(physicalPath).LastWriteTimeUtc.ToString("R");
                     return Results.File(physicalPath, "image/png");
                 }
